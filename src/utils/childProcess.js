@@ -153,13 +153,12 @@ const openCmdNoAdmin = async () => {
 // runExeAsAdmin function not closing the cmd window after the exe is executed ...
 const runExeAsAdmin = async (exeName, params, exeDir = 'misc') => {
 
-    const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
-    const baseDir = isDev
-        ? path.join(__dirname, '..', 'assets', 'binaries', exeDir)
-        : path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir);
+    // const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
+    // const baseDir = isDev
+    //     ? path.join(__dirname, '..', 'assets', 'binaries', exeDir)
+    //     : path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir);
 
-
-    const exePath = path.join(baseDir, exeName);
+    const exePath = path.join(process.env.BINARIES_DIR, exeDir, exeName);
     try {
         // const command = `powershell -Command "Start-Process cmd -ArgumentList '/K ${exePath} ${params}' -Verb RunAs"`;
         const command = `powershell -Command "Start-Process '${exePath}' ${params ? `-ArgumentList '${params}'` : ''
@@ -177,12 +176,12 @@ const runExeAsAdmin = async (exeName, params, exeDir = 'misc') => {
 
 const runExeAndCloseCmd = async (exeName, params, exeDir = 'misc') => {
 
-    const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
-    const baseDir = isDev
-        ? path.join(__dirname, '..', 'assets', 'binaries', exeDir)
-        : path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir);
+    // const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
+    // const baseDir = isDev
+    //     ? path.join(__dirname, '..', 'assets', 'binaries', exeDir)
+    //     : path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir);
 
-    const exePath = path.join(baseDir, exeName);
+    const exePath = path.join(process.env.BINARIES_DIR, exeDir, exeName);
 
     try {
         const command = `powershell -Command "Start-Process '${exePath}' -ArgumentList '${params}' -NoNewWindow -Wait"`;
@@ -265,7 +264,35 @@ const runPowerShellFile = (ps1FilePath) => {
             }
         });
     });
+
+
 };
+
+const runPsCommand = async (commands = []) => {
+
+    const shell = require('node-powershell');
+
+    const ps = new shell({ executionPolicy: 'Bypass', noProfile: true });
+
+
+    commands.forEach(command => { ps.addCommand(command) });
+
+    try {
+
+        const output = await ps.invoke();
+        console.log('runPsCommand Output :', output);
+        return output;
+
+    } catch (err) {
+        console.error('runPsCommand Error :', err);
+        throw err;
+    }
+    finally {
+        ps.dispose();
+    }
+
+
+}
 
 
 
@@ -279,7 +306,8 @@ module.exports = {
     getCommandBaseType, openCmdInNewTabOrWindow,
     runExeAndCloseCmdFromPrograms, runPowerShellFile,
     runExeAsAdmin, runExeAndCloseCmd, openWindowsComponentAsAdmin,
-    openCmdInNewTabOrWindowAsAdmin, openCmdInNewTabOrWindowFolder
+    openCmdInNewTabOrWindowAsAdmin, openCmdInNewTabOrWindowFolder,
+    runPsCommand
 };
 
 

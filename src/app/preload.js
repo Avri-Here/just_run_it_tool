@@ -40,13 +40,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (files.length > 1) {
 
-            const notificationObj = {
+            // const notificationObj = {
+            //     title: `Let's start from the beginning ..`,
+            //     body: 'Drag only one file or folder .',
+            //     silent: false,
+            //     timeout: 5000
+            // }
+            // ipcRenderer.invoke('showNotification', notificationObj);
+
+            const notificationInfo = {
                 title: `Let's start from the beginning ..`,
-                body: 'Drag only one file or folder .',
-                silent: false,
-                timeout: 5000
+                message: 'Drag only one file or folder .',
+                icon: 'error',
+                sound: false,
+                // wait: true, // Wait for user action
+                timeout: 5,
+                // actions: ['Ok', 'Start'],
             }
-            ipcRenderer.invoke('showNotification', notificationObj);
+
+            ipcRenderer.invoke('notificationWIthNode', notificationInfo);
             btnGroup.style.display = 'block';
             dragFiles.style.display = 'none';
             return;
@@ -59,15 +71,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!files.length && !optionalFilePath) {
 
-            const notificationObj = {
+            // const notificationObj = {
+            //     title: 'No file found on drop or clipboard !',
+            //     body: 'Use a valid file or folder .',
+            //     silent: false,
+            //     timeout: 5000
+            // }
+            // ipcRenderer.invoke('showNotification', notificationObj);
+            // btnGroup.style.display = 'block';
+            // dragFiles.style.display = 'none';
+
+            const notificationInfo = {
                 title: 'No file found on drop or clipboard !',
-                body: 'Use a valid file or folder .',
-                silent: false,
-                timeout: 5000
+                message: 'Use a valid file or folder .',
+                icon: 'error',
+                sound: false,
+                timeout: 5,
             }
-            ipcRenderer.invoke('showNotification', notificationObj);
+
+            ipcRenderer.invoke('notificationWIthNode', notificationInfo);
             btnGroup.style.display = 'block';
-            dragFiles.style.display = 'none';
+            dragFiles.style.display = 'none';   
             return;
         }
 

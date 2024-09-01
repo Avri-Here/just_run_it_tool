@@ -1,2 +1,0 @@
-src/assets/binaries/* filter=lfs diff=lfs merge=lfs -text
-src/assets/binaries/misc/ffmpeg.exe filter=lfs diff=lfs merge=lfs -text

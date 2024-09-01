@@ -55,19 +55,15 @@ const killVLCInstances = () => {
 
 const startVLC = async () => {
 
-    const { spawn } = require('child_process');
-    const path = require('path');
-    const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
+    const { spawn } = require('child_process'), path = require('path');
+
     console.log('Starting VLC ...');
+    
+    const vlcExePath = path.join(process.env.BINARIES_DIR, 'vlc', 'vlc.exe');
 
-    const baseDir = isDev
-        ? path.join(__dirname, '..', 'assets', 'binaries', 'vlc')
-        : path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', 'vlc');
-
-    const exePath = path.join(baseDir, 'vlc.exe');
     const vlcParams = ['--extraintf=http', '--http-port=5029', '--http-password=pass', '--qt-start-minimized', '--qt-notification=0'];
 
-    const vlcProcess = spawn(exePath, vlcParams, {
+    const vlcProcess = spawn(vlcExePath, vlcParams, {
         detached: true,
         stdio: 'ignore'
     });
@@ -181,7 +177,7 @@ const loveThisSong = async () => {
 
 
     return checkVLCAndProceed(async () => {
-        
+
         try {
 
             if (!require('fs').existsSync()) await fs.mkdir(loveThisSongsFolder, { recursive: true });

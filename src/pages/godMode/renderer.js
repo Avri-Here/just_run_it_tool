@@ -1,15 +1,18 @@
 
 
-const path = require('path');
-const { ipcRenderer } = require('electron');
+const path = require('path'), os = require('os');
+const { ipcRenderer, clipboard } = require('electron');
 const { openCmdInNewTabOrWindowAsAdmin } = require('../../utils/childProcess');
-const { runPowerShellFile, runExeAndCloseCmd } = require('../../utils/childProcess');
+const { runPowerShellFile, runExeAndCloseCmd, runPsCommand } = require('../../utils/childProcess');
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
 
     const handle64Element = document.getElementById('handle64');
     const memReductElement = document.getElementById('memReduct');
     const restartExplorerElement = document.getElementById('restartExplorer');
+    const extractingTextFromImag = document.getElementById('extractingTextFromImag');
 
     handle64Element.addEventListener('dblclick', () => {
 
@@ -26,12 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
     restartExplorerElement.addEventListener('dblclick', async () => {
 
         // const updatePlaylistPs1Path = path.join(require('os').homedir(), 'Documents', 'appsAndMore', 'mySongs', 'playlist', '!create_playlist.ps1');
-        const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
-        const baseDir = isDev ? path.join(__dirname, '..', '..', 'assets', 'scripts', 'ps1')
-            : path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'scripts', 'ps1');
+        // const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
+        // const baseDir = isDev ? path.join(__dirname, '..', '..', 'assets', 'scripts', 'ps1')
+        //     : path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'scripts', 'ps1');
 
-        const ps1Path = path.join(baseDir, 'simulateRestart.ps1');
-        await runPowerShellFile(ps1Path);
+        // const ps1Path = path.join(baseDir, 'simulateRestart.ps1');
+        // await runPowerShellFile(ps1Path);
 
     });
 
@@ -43,27 +46,85 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // alert(`Processing file from identifier : ${identifier} : ${path}`);
 
         if (identifier === 'handle64') {
 
-            const { join } = require('path');
-            const exeDir = 'misc';
-            const exeName = 'handle64.exe';
-            const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
-            const baseDir = isDev
-                ? join(__dirname, '..', '..', 'assets', 'binaries', exeDir, exeName)
-                : join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir, exeName);
+            // const { join } = require('path');
+            // const exeDir = 'misc';
+            // const exeName = 'handle64.exe';
+            // const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
+            // const baseDir = isDev
+            //     ? join(__dirname, '..', '..', 'assets', 'binaries', exeDir, exeName)
+            //     : join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir, exeName);
 
 
 
-            const fixBaseDir = `\\"\\"` + baseDir + '\\"';
-            const fixParams = `\\"${path}\\"\\"`;
-            const command = `${fixBaseDir} ${fixParams}`;
+            // const fixBaseDir = `\\"\\"` + baseDir + '\\"';
+            // const fixParams = `\\"${path}\\"\\"`;
+            // const command = `${fixBaseDir} ${fixParams}`;
 
 
-            const handleResult = await openCmdInNewTabOrWindowAsAdmin('handle64.exe', command);
-            console.log(`handleResult: ${handleResult}`);
+            // const handleResult = await openCmdInNewTabOrWindowAsAdmin('handle64.exe', command);
+            // console.log(`handleResult: ${handleResult}`);
+        }
+    });
+
+    extractingTextFromImag.addEventListener('dblclick', async () => {
+
+        try {
+
+            const clipboardImage = clipboard.readImage();
+
+            if (clipboardImage.isEmpty()) {
+
+                const notificationInfo = {
+                    title: 'extractingTextFromImag ..',
+                    message: 'no image found in clipboard !',
+                    icon: 'error',
+                    sound: true,
+                    timeout: 3,
+                }
+                ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+                return;
+
+            }
+
+
+
+            // const shell = require('node-powershell');
+            const tesseractFolder = path.join(process.env.BINARIES_DIR, 'tesseract');
+            const tesseractExe = path.join(tesseractFolder, 'tesseract.exe');
+            const lastClipboardImg = path.join(tesseractFolder, 'lastClipboardImg.png');
+
+            const psCommands = [
+                'Add-Type -AssemblyName System.Windows.Forms',
+                `[System.Windows.Forms.Clipboard]::GetImage().Save('${lastClipboardImg}')`, // Fixed the syntax error here
+                `${tesseractExe} ${lastClipboardImg} stdout -l eng`
+            ];
+
+
+            const result = await runPsCommand(psCommands);
+            clipboard.writeText(result);
+
+            const notificationInfo = {
+                title: 'extractingTextFromImag',
+                message: 'Txt is on your clipboard !',
+                icon: 'success',
+                sound: true,
+                timeout: 3,
+            }
+            ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+
+        } catch (error) {
+            console.error('extractingTextFromImag', error);
+            const notificationInfo = {
+                title: 'extractingTextFromImag',
+                message: 'Error in extracting text from image !',
+                icon: 'error',
+                sound: true,
+                timeout: 3,
+            }
+            ipcRenderer.invoke('notificationWIthNode', notificationInfo);
         }
     });
 });
