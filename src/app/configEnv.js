@@ -1,11 +1,12 @@
 
 
+const { app } = require('electron');
 const path = require('path'), os = require('os');
 
 
-const isDevMode = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath) || process.argv[0].includes('node');
+const isDevMode = app.isPackaged || process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath) || process.argv[0].includes('node');
 
-if (isDevMode) {
+if (!isDevMode) {
     process.env.IS_DEV_MODE = true;
 }
 

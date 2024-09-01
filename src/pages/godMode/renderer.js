@@ -27,14 +27,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     restartExplorerElement.addEventListener('dblclick', async () => {
+        const assetsPath = !process.env.IS_DEV_MODE ? process.resourcesPath : path.join(__dirname, '../', '../');
 
-        // const updatePlaylistPs1Path = path.join(require('os').homedir(), 'Documents', 'appsAndMore', 'mySongs', 'playlist', '!create_playlist.ps1');
-        // const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
-        // const baseDir = isDev ? path.join(__dirname, '..', '..', 'assets', 'scripts', 'ps1')
-        //     : path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'scripts', 'ps1');
-
-        // const ps1Path = path.join(baseDir, 'simulateRestart.ps1');
-        // await runPowerShellFile(ps1Path);
+        const ps1Path = path.join(assetsPath, 'assets/scripts/ps1', 'simulateRestart.ps1');
+        await runPowerShellFile(ps1Path);
 
     });
 

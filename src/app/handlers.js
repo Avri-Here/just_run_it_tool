@@ -2,12 +2,12 @@
 
 
 
-const path = require('path');
+const path = require('path'), fs = require('fs');
 const log = require('electron-log');
 const notifier = require('node-notifier');
 const iconsPath = path.join(__dirname, '../assets/img/icons');
 const { dialog, ipcMain, Notification, nativeImage } = require('electron');
-
+const { app } = require('electron');
 ipcMain.handle('openDialog', async (_, options) => {
     const result = await dialog.showMessageBox(options);
     return result;
@@ -39,9 +39,13 @@ ipcMain.handle('openFileDialog', async (event, identifier) => {
 
 ipcMain.handle('notificationWIthNode', (_, notificationInfo) => {
 
-    notificationInfo.icon = path.join(__dirname, '../assets/img/icons/notification', `${notificationInfo.icon}.ico`);
-    // notificationInfo.appID = 'com.avri.just_run_it_tool'
-    notificationInfo.appID = 'Microsoft.WindowsCalculator_8wekyb3d8bbwe!App'; // Use a known appID
+
+    const assetsPath = !process.env.IS_DEV_MODE ? process.resourcesPath : path.join(__dirname, '../');
+
+    const iconPath = path.join(assetsPath, 'assets/img/icons/notification', `${notificationInfo.icon}.ico`);
+
+    notificationInfo.icon = iconPath;
+    notificationInfo.appID = 'com.avri.just_run_it_tool'
 
 
     notifier.notify(notificationInfo, (err, response, metadata) => {
@@ -54,9 +58,15 @@ ipcMain.handle('notificationWIthNode', (_, notificationInfo) => {
 
     });
 
-    notifier.on('timeout', (notifierObject, options) => {  });
+    notifier.on('timeout', (notifierObject, options) => { });
 });
 
 // asarUnpack: [
 //     ' ./node_modules/node-notifier/**/* ' ,
 //   ]
+
+// "asarUnpack": [
+//     "src/assets/scripts/**/*"
+//   ],
+
+// notificationInfo.appID = 'Microsoft.WindowsCalculator_8wekyb3d8bbwe!App'; // Use a known appID

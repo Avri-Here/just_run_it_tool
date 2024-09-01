@@ -62,6 +62,7 @@ const startVLC = async () => {
     const vlcExePath = path.join(process.env.BINARIES_DIR, 'vlc', 'vlc.exe');
 
     const vlcParams = ['--extraintf=http', '--http-port=5029', '--http-password=pass', '--qt-start-minimized', '--qt-notification=0'];
+    
 
     const vlcProcess = spawn(vlcExePath, vlcParams, {
         detached: true,

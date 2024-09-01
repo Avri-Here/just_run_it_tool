@@ -35,8 +35,11 @@
       "src/**/*",
       "package.json"
     ],
-    "asarUnpack": [
-      "src/assets/scripts/**/*"
+    "extraResources": [
+      {
+        "from": "./src/assets",
+        "to": "assets"
+      }
     ],
     "win": {
       "target": "nsis",
