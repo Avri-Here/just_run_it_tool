@@ -1,0 +1,47 @@
+{
+  "name": "just_run_it_tool",
+  "version": "1.1.0",
+  "main": "src/app/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "buildUnpacked": "electron-builder --win --dir"
+  },
+  "author": "Avri",
+  "license": "ISC",
+  "description": "Just Run It Tool",
+  "dependencies": {
+    "electron-log": "^5.1.7",
+    "electron-progressbar": "^2.2.1",
+    "electron-reload": "^2.0.0-alpha.1",
+    "node-global-key-listener": "^0.3.0",
+    "powershell": "^2.3.2",
+    "trash": "^9.0.0",
+    "vlc-client": "^1.1.1"
+  },
+  "devDependencies": {
+    "electron": "^31.3.1",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.avri.just_run_it_tool",
+    "productName": "justRunItTool",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "src/assets/binaries/**/*",
+      "src/assets/scripts/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "publisherName": "justRunItTool.com",
+      "appId": "com.avri.just_run_it_tool",
+      "icon": "./src/assets/img/icons/automate.ico"
+    }
+  }
+}

@@ -1,0 +1,132 @@
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    user-select: none;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.btn-group {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    padding: 3px;
+    transition: opacity 0.3s ease;
+}
+
+body:hover .btn-group {
+    opacity: 1;
+}
+
+.music-container,
+.rest-container {
+    position: absolute;
+    top: 28px;
+    display: none;
+    padding: 5px;
+    width: 110%;
+}
+
+.musicPlayer:hover+.music-container,
+.music-container:hover {
+    display: block;
+}
+
+.rest:hover+.rest-container,
+.rest-container:hover {
+    display: block;
+}
+
+@keyframes flashBorder {
+    0% {
+        border-color: rgb(15, 10, 41);
+    }
+
+    25% {
+        border-color: green;
+    }
+
+    50% {
+        border-color: blue;
+    }
+
+    75% {
+        border-color: yellow;
+    }
+
+    100% {
+        border-color: rgb(92, 201, 108);
+    }
+}
+
+
+
+.form-control {
+    border: 2px solid;
+    animation: flashBorder 3s infinite;
+    border-radius: 15px;
+    width: 50%;
+    height: 50%;
+}
+
+.list-group {
+    display: none;
+}
+
+#dropZone.dragging {
+    background-color: transparent;
+    border: 2px dashed grey;
+    transition: background-color 0.1s ease;
+}
+
+.loader {
+    width: 60px;
+    aspect-ratio: 4;
+    --_g: no-repeat radial-gradient(circle closest-side, #184584 90%, #1319b500);
+    background:
+        var(--_g) 0% 50%,
+        var(--_g) 25% 50%,
+        var(--_g) 50% 50%,
+        var(--_g) 75% 50%,
+        var(--_g) 100% 50%;
+    background-size: calc(100%/5) 100%;
+    animation: l7 2s infinite linear;
+}
+
+@keyframes l7 {
+    20% {
+        background-size: calc(100%/5) 0%, calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 100%;
+    }
+
+    40% {
+        background-size: calc(100%/5) 100%, calc(100%/5) 0%, calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 100%;
+    }
+
+    60% {
+        background-size: calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 0%, calc(100%/5) 100%, calc(100%/5) 100%;
+    }
+
+    80% {
+        background-size: calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 0%, calc(100%/5) 100%;
+    }
+
+    100% {
+        background-size: calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 0%;
+    }
+}
+
+.progressContainer {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 8px;
+    height: 25px;
+    display: none;
+}
