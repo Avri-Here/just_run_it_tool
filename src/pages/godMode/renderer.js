@@ -45,23 +45,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (identifier === 'handle64') {
 
-            // const { join } = require('path');
-            // const exeDir = 'misc';
-            // const exeName = 'handle64.exe';
-            // const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
-            // const baseDir = isDev
-            //     ? join(__dirname, '..', '..', 'assets', 'binaries', exeDir, exeName)
-            //     : join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir, exeName);
+            const { join } = require('path');
+            const exeDir = 'misc';
+            const exeName = 'handle64.exe';
+            const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
+            const baseDir = isDev
+                ? join(__dirname, '..', '..', 'assets', 'binaries', exeDir, exeName)
+                : join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir, exeName);
 
 
 
-            // const fixBaseDir = `\\"\\"` + baseDir + '\\"';
-            // const fixParams = `\\"${path}\\"\\"`;
-            // const command = `${fixBaseDir} ${fixParams}`;
+            const fixBaseDir = `\\"\\"` + baseDir + '\\"';
+            const fixParams = `\\"${path}\\"\\"`;
+            const command = `${fixBaseDir} ${fixParams}`;
 
 
-            // const handleResult = await openCmdInNewTabOrWindowAsAdmin('handle64.exe', command);
-            // console.log(`handleResult: ${handleResult}`);
+            const handleResult = await openCmdInNewTabOrWindowAsAdmin('handle64.exe', command);
+            console.log(`handleResult: ${handleResult}`);
         }
     });
 

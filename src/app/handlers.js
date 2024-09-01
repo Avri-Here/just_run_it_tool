@@ -61,12 +61,3 @@ ipcMain.handle('notificationWIthNode', (_, notificationInfo) => {
     notifier.on('timeout', (notifierObject, options) => { });
 });
 
-// asarUnpack: [
-//     ' ./node_modules/node-notifier/**/* ' ,
-//   ]
-
-// "asarUnpack": [
-//     "src/assets/scripts/**/*"
-//   ],
-
-// notificationInfo.appID = 'Microsoft.WindowsCalculator_8wekyb3d8bbwe!App'; // Use a known appID
