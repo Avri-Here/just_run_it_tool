@@ -209,67 +209,6 @@ const loveThisSong = async () => {
 };
 
 
-const loveThisSong2 = async () => {
-    const fs = require('fs');
-    const path = require('path');
-
-    const filePath = path.join(require('os').homedir(), 'Documents', 'appsAndMore', 'mySongs', 'rest', 'playlist');
-    const wplFilePath = path.join(filePath, 'loveThisSongs.wpl');
-    return checkVLCAndProceed(async () => {
-        try {
-            const currentMedia = await vlc.getFileName();
-            const playlist = await vlc.getPlaylist();
-            const currentEntry = playlist.find(entry => entry.isCurrent);
-            console.log(`currentMedia Song : ${currentMedia}`);
-            console.log(`currentEntry Song : ${JSON.stringify(currentEntry)}`);
-
-            const fullPath = currentEntry.uri.replace('file:///', '');
-            console.log(`fullPath Song : ${fullPath}`);
-
-            let playlistContent = '';
-
-            if (fs.existsSync(wplFilePath)) {
-                // Read the existing playlist content
-                playlistContent = fs.readFileSync(wplFilePath, 'utf8');
-
-                // Find the closing </seq> tag to insert the new song before it
-                const closingSeqTagIndex = playlistContent.lastIndexOf('</seq>');
-                if (closingSeqTagIndex === -1) {
-                    throw new Error("Invalid WPL file format.");
-                }
-
-                // Insert the new song before the closing </seq> tag
-                const newSongEntry = `    <media src="${fullPath}"/>\n`;
-                playlistContent = playlistContent.slice(0, closingSeqTagIndex) + newSongEntry + playlistContent.slice(closingSeqTagIndex);
-            } else {
-                // Create a new WPL content if the file does not exist
-                playlistContent = `
-                    <smil>
-                        <head>
-                            <meta name="Generator" content="Windows Media Player -- 12.0.7601.17514"/>
-                            <meta name="ItemCount" content="1"/>
-                            <title>Love This Song Playlist</title>
-                        </head>
-                        <body>
-                            <seq>
-                                <media src="${fullPath}"/>
-                            </seq>
-                        </body>
-                    </smil>
-                `;
-            }
-
-            // Write updated content to the .wpl file
-            fs.writeFileSync(wplFilePath, playlistContent.trim());
-            console.log(`Playlist updated successfully at: ${wplFilePath}`);
-        } catch (error) {
-            console.error(`Error updating playlist: ${error}`);
-            return;
-        }
-    });
-};
-
-
 const playSongsRandomly = async () => {
 
     const playlistFileName = process.env.PLAY_LIST_NAME || 'foreign.wpl';
@@ -341,3 +280,4 @@ module.exports = {
 
 
 
+// C:\Users\avrahamy>curl -u :pass "http://localhost:5029/requests/status.xml?command=pl_stop"

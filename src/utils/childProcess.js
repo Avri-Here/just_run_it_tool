@@ -1,9 +1,8 @@
 
 
 
-const path = require('path');
-const { exec } = require('child_process');
-
+const { exec, spawn } = require('child_process');
+const path = require('path'), { ipcRenderer  } = require('electron');
 
 
 
@@ -151,12 +150,9 @@ const openCmdNoAdmin = async () => {
 };
 
 // runExeAsAdmin function not closing the cmd window after the exe is executed ...
+
 const runExeAsAdmin = async (exeName, params, exeDir = 'misc') => {
 
-    // const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
-    // const baseDir = isDev
-    //     ? path.join(__dirname, '..', 'assets', 'binaries', exeDir)
-    //     : path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir);
 
     const exePath = path.join(process.env.BINARIES_DIR, exeDir, exeName);
     try {
@@ -176,16 +172,11 @@ const runExeAsAdmin = async (exeName, params, exeDir = 'misc') => {
 
 const runExeAndCloseCmd = async (exeName, params, exeDir = 'misc') => {
 
-    // const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
-    // const baseDir = isDev
-    //     ? path.join(__dirname, '..', 'assets', 'binaries', exeDir)
-    //     : path.join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir);
-
     const exePath = path.join(process.env.BINARIES_DIR, exeDir, exeName);
 
     try {
-        const command = `powershell -Command "Start-Process '${exePath}' -ArgumentList '${params}' -NoNewWindow -Wait"`;
 
+        const command = `powershell -Command "Start-Process '${exePath}' -ArgumentList '${params}' -NoNewWindow -Wait"`;
         const output = await executeCommand(command);
         console.log(`runExeAndCloseCmd Output: ${output}`);
         return output;
@@ -195,19 +186,7 @@ const runExeAndCloseCmd = async (exeName, params, exeDir = 'misc') => {
     }
 };
 
-const runExeAndCloseCmdFromPrograms = async (exePath) => {
 
-    try {
-        // Construct the command to run the exe with parameters
-        const command = `powershell -Command "Start-Process '${exePath}' -NoNewWindow -Wait"`;
-
-        // Execute the command
-        const output = await executeCommand(command);
-        console.log(`runExeAndCloseCmd Output: ${output}`);
-    } catch (err) {
-        console.error(`Error: ${err.message}`);
-    }
-};
 
 const openWindowsComponentAsAdmin = async (componentName) => {
     const componentMap = {
@@ -295,19 +274,115 @@ const runPsCommand = async (commands = []) => {
 }
 
 
+// Spawn and keep a process running after the parent process dies .
+
+const executeCommandWithSpawn = (exePath, params = []) => {
+
+    const child = spawn(exePath, params, { detached: true, stdio: 'ignore' });
+    child.unref();
+    return child.pid;
+}
+
+// const { spawn } = require('child_process');
+// const { ipcRenderer } = require('electron');
+
+const executeSpawnWithListener = (batFilePath, params = [], callback) => {
+    try {
+        // Combine the batch file path and any parameters into a single command
+        const cmdArgs = ['/k', batFilePath, ...params];
+
+        // Spawn a new command prompt process to run the .bat file in an interactive mode
+        const child = spawn('cmd.exe', cmdArgs, {
+            shell: true,
+            stdio: 'inherit', // This will allow you to see and interact with the command prompt
+            detached: true // Detach the child process to keep it running independently
+        });
+
+        child.on('exit', (code) => {
+            const isDoneSuccessfully = code === 0;
+
+            const notificationMsg = {
+                title: `Command done with exit code ${code}`,
+                message: isDoneSuccessfully ? 'Command executed successfully!' : 'An error occurred while executing the command!',
+                icon: isDoneSuccessfully ? 'success' : 'error',
+                sound: true,
+                timeout: 5,
+            };
+
+            ipcRenderer.invoke('notificationWIthNode', notificationMsg);
+
+            if (!isDoneSuccessfully) {
+                throw new Error(`Error: Command done with exit code ${code}`);
+            }
+
+            callback && callback();
+
+            // Unreference the child process
+            child.unref();
+        });
+
+    } catch (error) {
+        console.error('Error in executeSpawnWithListener:', error);
+        throw error;
+    }
+};
+
+// Example usage:
+// executeSpawnWithListener('C:\\Users\\avrahamy\\Documents\\appsAndMore\\binaries\\ytDlpPlaylist\\playlist_url_to_mp3.bat');
 
 
+// const executeSpawnWithListener = (exePath, params = [], callBeck) => {
+
+//     try {
+
+//         // const child = spawn(exePath, params, { detached: true, stdio: 'ignore' });
+//         // const child = spawn(exePath, params, { shell: true, stdio: 'pipe' });
+//         exec(`start "" "${exePath}"`, (err) => { 
+//             if (err) {
+//                 console.error('Error opening file:', err);
+//             }
+
+//         child.on('exit', (code) => {
+
+//             const isDoneSuccessfully = code === 0;
+
+//             const notificationMsg = {
+//                 title: `Command done with exit code ${code}`,
+//                 message: isDoneSuccessfully ? 'Command executed successfully !' : 'An error occurred while executing command !',
+//                 icon: isDoneSuccessfully ? 'success' : 'error',
+//                 sound: true,
+//                 timeout: 5,
+//             }
+
+//             ipcRenderer.invoke('notificationWIthNode', notificationMsg);
+
+//             if (!isDoneSuccessfully) {
+//                 child.unref();
+//                 throw new Error(`Error: Command done with exit code ${code}`);
+//             }
+
+//             child.unref();
+//             callBeck && callBeck();
+
+//         });
+
+//     } catch (error) {
+//         console.error('Error in executeSpawnWithListener:', error);
+//         throw error;
+
+//     }
+
+// };
 
 
 module.exports = {
     openCmdAsAdmin, openPowerShellAsAdmin,
     openPowerShellNoAdmin, openCmdNoAdmin,
-    openFileDirectly, shouldOpenInTerminal,
-    getCommandBaseType, openCmdInNewTabOrWindow,
-    runExeAndCloseCmdFromPrograms, runPowerShellFile,
+    runPsCommand, executeCommandWithSpawn,
+    openFileDirectly, shouldOpenInTerminal, executeSpawnWithListener,
+    getCommandBaseType, openCmdInNewTabOrWindow, runPowerShellFile,
     runExeAsAdmin, runExeAndCloseCmd, openWindowsComponentAsAdmin,
     openCmdInNewTabOrWindowAsAdmin, openCmdInNewTabOrWindowFolder,
-    runPsCommand
 };
 
 

@@ -4,10 +4,13 @@ const { app } = require('electron');
 const path = require('path'), os = require('os');
 
 
-const isDevMode = app.isPackaged || process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath) || process.argv[0].includes('node');
+const isDevMode = !app.isPackaged;
 
-if (!isDevMode) {
+console.log('isPackaged :', app.isPackaged);
+
+if (isDevMode) {
     process.env.IS_DEV_MODE = true;
 }
 
 process.env.BINARIES_DIR = path.join(os.homedir(), 'Documents', 'appsAndMore', 'binaries');
+process.env.ASSETS_DIR = isDevMode ? path.join(__dirname, '../assets') : process.resourcesPath;

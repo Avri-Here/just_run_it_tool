@@ -58,15 +58,14 @@ document.addEventListener('drop', (e) => {
 
 window.onload = async () => {
 
-
-    
     if (sessionStorage.getItem('xpStartupSound')) {
         return;
     }
 
     sessionStorage.setItem('xpStartupSound', true);
 
-    const audio = new Audio('./../../assets/sound/2000StartupSound.mp3');
+    const audio = new Audio('./../../assets/sound/win8StartupSound.mp3');
+    // const audio = new Audio('./../../assets/sound/2000StartupSound.mp3');
     audio.play().catch(error => {
         console.error('Error playing sound :', error);
     });

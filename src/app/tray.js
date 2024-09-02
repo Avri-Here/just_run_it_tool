@@ -1,50 +1,54 @@
 
+
+
 const path = require('path');
-const { Tray, Menu, app, BrowserWindow } = require('electron');
+const { Tray, Menu, app, BrowserWindow, screen } = require('electron');
+
+
 const createTray = (mainWindow = new BrowserWindow()) => {
 
-    const tray = new Tray(path.join(__dirname, '../assets/img/icons/appLogo.png'));
+    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+    const tray = new Tray(path.join(__dirname, '../assets/img/icons/app/appLogo.ico'));
     const contextMenu = Menu.buildFromTemplate(
         [
-            // {
-            //     label: 'ToggleScreen',
-            //     click: () => {
-            //         ipcRenderer.invoke('toggleDisplayScreen');
-            //     },
-            // },
 
             {
                 label: 'GodMode',
                 click: () => {
 
-                    // Create a new BrowserWindow instance with specific webPreferences
-                    mainWindow = new BrowserWindow({
-                        width: 750,
-                        height: 650,
-                        resizable: true,
-                        skipTaskbar: false,
-                        alwaysOnTop: false,
-                        fullscreen: false,
-                        movable: true,
-                        closable: true,
-                        center: true,
-                        show: true,
+                    const allWin = BrowserWindow.getAllWindows();
+                    const isGodModePageOpen = allWin.find(win => win.getTitle() === 'godModePage');
+                    
+                    if (isGodModePageOpen) {
+                        isGodModePageOpen.openDevTools({ mode: 'undocked' });
+                        return;
+                    }
+
+                    const windowWidth = Math.round(width * 0.75);
+                    const windowHeight = Math.round(height * 0.8);
+
+                    const godModeWindow = new BrowserWindow({
+                        movable: true, closable: true,
+                        width: windowWidth, height: windowHeight,
+                        resizable: true, skipTaskbar: false,
+                        alwaysOnTop: false, fullscreen: false,
+                        center: true, show: true, frame: false,
+                        icon: path.join(process.env.ASSETS_DIR, 'img/icons/app/godMode.ico'),
                         webPreferences: {
                             preload: path.join(__dirname, '../pages/godMode/renderer.js'),
-                            // preload: null, // Explicitly set preload to null or exclude it
                             nodeIntegration: true,
                             contextIsolation: false,
                             devTools: true,
                         },
                     });
 
-                    mainWindow.loadFile(path.join(__dirname, '../pages/godMode/index.html'));
+                    godModeWindow.loadFile(path.join(__dirname, '../pages/godMode/index.html'));
+                    godModeWindow.setResizable(true);
+                    godModeWindow.setMenu(null);
+                    godModeWindow.center();
+                    godModeWindow.show();
 
-                    // Set additional properties for the window
-                    mainWindow.setResizable(true);
-                    mainWindow.setMenu(null);
-                    mainWindow.center();
-                    mainWindow.show();
+                    
 
                 },
             },
@@ -71,12 +75,14 @@ const createTray = (mainWindow = new BrowserWindow()) => {
             },
 
             {
+
                 label: 'CloseApp',
                 click: () => { app.quit() },
+
             },
         ]);
 
-    tray.setToolTip('justRunIt');
+    tray.setToolTip('justRunItToll');
     tray.setContextMenu(contextMenu);
 };
 

@@ -2,191 +2,152 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../style/photon/css/photon.css">
-  <link rel="stylesheet" href="style.css">
-  <title>⊞ godModePage ⊞</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- ios support -->
+  <!-- <link rel="apple-touch-icon" href="./img/icons/manifest/192x192.png" /> -->
+  <meta name="apple-mobile-web-app-status-bar" content="#DCE9E9" />
+  <meta name="theme-color" content="#d1d1d1" />
+
+  <title>godModePage</title>
+
+  <!-- <link
+      rel="shortcut icon"
+      type="image/png"
+      href="./img/icons/manifest/512x512.png"
+    /> -->
+  <!-- Google fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+Tammudu+2&family=Roboto:wght@100&display=swap"
+    rel="stylesheet" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300&display=swap" rel="stylesheet" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@600&display=swap" rel="stylesheet" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap" rel="stylesheet" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Roboto:300,400,500|Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" />
+  <link rel="stylesheet" href="./styles/index.css" />
+  <link rel="stylesheet" href="./styles/more.css" />
+
 </head>
 
 <body>
-
-  <header class="toolbar toolbar-header">
-    <h1 class="title header">God Mode Area</h1>
-    <div class="toolbar-actions">
-      <div class="btn-group">
-        <button class="btn btn-default">
-          <span class="icon icon-home"></span>
-        </button>
-        <button class="btn btn-default">
-          <span class="icon icon-folder"></span>
-        </button>
-      </div>
-      <button class="btn btn-default btn-dropdown pull-right">
-        <span class="icon icon-megaphone"></span>
-      </button>
+  <div class="window__handler">
+    <div class="window__title">God Mode Area</div>
+    <div class="window__controls">
+      <a class="window__close"></a>
+      <a class="window__minimize"></a>
+      <a class="window__maximize"></a>
     </div>
-  </header>
-
-  <div class="container">
-    <table class="table-striped">
-      <tbody>
-        <thead>
-          <tr>
-            <th>Service</th>
-            <th>Type</th>
-            <th>Desorption</th>
-          </tr>
-        </thead>
-        <tr id="handle64">
-          <td>Handle64</td>
-          <td>.exe</td>
-          <td>Handle app Or files usage !</td>
-        </tr>
-        <tr id="memReduct">
-          <td>NemReduct</td>
-          <td>.exe</td>
-          <td>Best to clean system memory !</td>
-        </tr>
-        <tr id="restartExplorer">
-          <td>RestartExplorer</td>
-          <td>.ps1</td>
-          <td>Restart - kill & run fileExplorer !</td>
-        </tr>
-        <tr id="extractingTextFromImag">
-          <td>extractingTextFromImag</td>
-          <td>extractingTextFromImag</td>
-          <td>extractingTextFromImag</td>
-        </tr>
-
-      </tbody>
-    </table>
   </div>
 
+  <div class="drag">
+  </div>
+
+
+  <!--Dock start-->
+
+  <!-- <div class="dock">
+      <button class="icon">
+        <img src="./img/icons/dock/finder.png" alt="Finder Logo" class="hidden" />
+      </button>
+      <button class="icon">
+        <img src="./img/icons/dock/appstore.png" alt="App Store Logo" />
+      </button>
+      <button class="icon">
+        <img src="./img/icons/dock/message.png" alt="Messages Logo" />
+      </button>
+      <button class="icon">
+        <img src="./img/icons/dock/music.png" alt="Music Logo" />
+      </button>
+      <button class="icon open-vscode">
+        <img src="./img/icons/dock/vscode.svg" alt="Vscode apps" class="hidden" />
+        <hr class="point hidden" id="point-vscode" />
+      </button>
+      <button class="icon">
+        <img src="./img/icons/dock/mail.png" alt="Mail Logo" class="hidden" />
+      </button>
+      <button class="icon">
+        <img src="./img/icons/dock/photos.png" alt="Photos Logo" class="hidden" />
+      </button>
+      <button class="icon open-map">
+        <img src="./img/icons/dock/maps.png" alt="maps Logo" class="hidden" />
+        <hr class="point hidden" id="point-maps" />
+      </button>
+      <button class="icon open-cal">
+        <img src="./img/icons/dock/calculator.png" alt="Calculator Logo" />
+        <hr class="point" id="point-cal" />
+      </button>
+      <button class="icon open-note">
+        <img src="./img/icons/dock/notes.png" alt="Notes Logo" />
+        <hr class="point hidden" id="point-note" />
+      </button>
+      <button accesskey="t" class="icon open-terminal">
+        <img
+          src="./img/icons/dock/terminal.png"
+          alt="Terminal Logo"
+          class="hidden"
+        />
+        <hr class="point" id="point-terminal" />
+      </button>
+      <button class="icon">
+        <img
+          src="./img/icons/dock/preferences.png"
+          alt="Preferences Logo"
+          class="hidden"
+        />
+      </button>
+      <hr class="column hidden" />
+      <button class="icon">
+        <img
+          src="./img/icons/dock/bin.png"
+          alt="Trash Bin Logo"
+          class="hidden Trash"
+        />
+      </button>
+    </div> -->
+
+  <div class="dock">
+    <button class="icon" id="cleanSweep2Cli">
+      <img src="./img/icons/dock/exe/cleanSweep2Cli.ico" />
+    </button>
+    <button class="icon" id="ffBatch">
+      <img src="./img/icons/dock/exe/ffBatch.ico" />
+    </button>
+    <button class="icon" id="fullEventLogView">
+      <img src="./img/icons/dock/exe/fullEventLogView.ico" />
+    </button>
+    <button class="icon" id="hostsFileEditor">
+      <img src="./img/icons/dock/exe/hostsFileEditor.ico" />
+    </button>
+    <button class="icon" id="memreduct">
+      <img src="./img/icons/dock/exe/memreduct.ico" />
+    </button>
+    <button class="icon" id="pathManager">
+      <img src="./img/icons/dock/exe/pathManager.ico" />
+    </button>
+    <button class="icon" id="bcUninstaller">
+      <img src="./img/icons/dock/exe/bcUninstaller.ico" />
+    </button>
+    <button class="icon" id="processExplorer">
+      <img src="./img/icons/dock/exe/processExplorer.ico" />
+    </button>
+    <button class="icon" id="textFromImag">
+      <img src="./img/icons/dock/exe/tesseract.ico" />
+    </button>
+    <button class="icon" id="ytDlpPlaylist">
+      <img src="./img/icons/dock/exe/ytDlpPlaylist.ico" />
+    </button>
+    <button class="icon" id="moveMouse">
+      <img src="./img/icons/dock/exe/moveMouse.ico" />
+    </button>
+  </div>
 </body>
+
 </html>
-
-
-
-
-<!-- http://photonkit.com/components/ -->
-
-
-
-
-
-
-          <!-- <tr>
-            <td>CPU Usage Monitor</td>
-            <td>Monitoring</td>
-            <td>Displays current CPU usage with real-time updates.</td>
-            <td>System Performance</td>
-          </tr>
-          <tr>
-            <td>Disk Space Analyzer</td>
-            <td>Utility</td>
-            <td>Analyzes disk space usage by folder size.</td>
-            <td>Storage Management</td>
-          </tr>
-          <tr>
-            <td>Terminate Processes</td>
-            <td>Control</td>
-            <td>Allows terminating or restarting selected processes.</td>
-            <td>Task Manager</td>
-          </tr>
-          <tr>
-            <td>Process Priority Manager</td>
-            <td>Control</td>
-            <td>Change the priority level of selected processes.</td>
-            <td>Task Manager</td>
-          </tr>
-          <tr>
-            <td>Network Activity Monitor</td>
-            <td>Monitoring</td>
-            <td>Shows active network connections and ports.</td>
-            <td>Network Tools</td>
-          </tr>
-          <tr>
-            <td>Bandwidth Usage</td>
-            <td>Monitoring</td>
-            <td>Displays current bandwidth usage (incoming/outgoing).</td>
-            <td>Network Tools</td>
-          </tr>
-          <tr>
-            <td>Quick Access System Directories</td>
-            <td>Navigation</td>
-            <td>Opens important system directories like "Program Files".</td>
-            <td>File Explorer</td>
-          </tr>
-          <tr>
-            <td>Advanced File Search</td>
-            <td>Search</td>
-            <td>Search for files by size, date, or type.</td>
-            <td>File Explorer</td>
-          </tr>
-          <tr>
-            <td>Registry Viewer</td>
-            <td>Utility</td>
-            <td>View and edit specific registry keys.</td>
-            <td>System Registry</td>
-          </tr>
-          <tr>
-            <td>Registry Backup and Restore</td>
-            <td>Utility</td>
-            <td>Create and restore backups of the registry.</td>
-            <td>System Registry</td>
-          </tr>
-          <tr>
-            <td>User Account Control</td>
-            <td>Control</td>
-            <td>Manage user accounts and permissions.</td>
-            <td>Security</td>
-          </tr>
-          <tr>
-            <td>Firewall Management</td>
-            <td>Control</td>
-            <td>Modify firewall rules and settings.</td>
-            <td>Security</td>
-          </tr>
-          <tr>
-            <td>Temporary File Cleaner</td>
-            <td>Utility</td>
-            <td>Removes temporary files and cache to free up space.</td>
-            <td>System Cleanup</td>
-          </tr>
-          <tr>
-            <td>Startup Program Manager</td>
-            <td>Utility</td>
-            <td>Enables or disables startup programs.</td>
-            <td>System Cleanup</td>
-          </tr>
-          <tr>
-            <td>Scheduled Task Manager</td>
-            <td>Control</td>
-            <td>View and manage scheduled tasks.</td>
-            <td>Task Automation</td>
-          </tr>
-          <tr>
-            <td>Temperature Monitoring</td>
-            <td>Monitoring</td>
-            <td>Displays CPU and GPU temperatures.</td>
-            <td>Hardware Diagnostics</td>
-          </tr>
-          <tr>
-            <td>System Logs Viewer</td>
-            <td>Utility</td>
-            <td>Displays Windows Event Logs (Application, Security, System).</td>
-            <td>Event Viewer</td>
-          </tr>
-          <tr>
-            <td>Log Exporter</td>
-            <td>Utility</td>
-            <td>Exports selected logs for further analysis.</td>
-            <td>Event Viewer</td>
-          </tr>
-          <tr>
-            <td>Hibernate/Sleep/Shutdown</td>
-            <td>Control</td>
-            <td>Options to put the system into different power states.</td>
-            <td>Power Management</td>
-          </tr> -->

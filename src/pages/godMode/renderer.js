@@ -1,71 +1,106 @@
 
 
+
 const path = require('path'), os = require('os');
-const { ipcRenderer, clipboard } = require('electron');
-const { openCmdInNewTabOrWindowAsAdmin } = require('../../utils/childProcess');
-const { runPowerShellFile, runExeAndCloseCmd, runPsCommand } = require('../../utils/childProcess');
+const { ipcRenderer, clipboard, shell } = require('electron');
+const { executeSpawnWithListener } = require('../../utils/childProcess');
+const { executeCommandWithSpawn, } = require('../../utils/childProcess');
+const { runPowerShellFile, runPsCommand } = require('../../utils/childProcess');
 
 
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    const handle64Element = document.getElementById('handle64');
-    const memReductElement = document.getElementById('memReduct');
-    const restartExplorerElement = document.getElementById('restartExplorer');
-    const extractingTextFromImag = document.getElementById('extractingTextFromImag');
+    const ffBatch = document.getElementById('ffBatch');
+    const memreduct = document.getElementById('memreduct');
+    const moveMouse = document.getElementById('moveMouse');
+    const pathManager = document.getElementById('pathManager');
+    const textFromImag = document.getElementById('textFromImag');
+    const bcUninstaller = document.getElementById('bcUninstaller');
+    const ytDlpPlaylist = document.getElementById('ytDlpPlaylist');
+    const cleanSweep2Cli = document.getElementById('cleanSweep2Cli');
+    const processExplorer = document.getElementById('processExplorer');
+    const hostsFileEditor = document.getElementById('hostsFileEditor');
+    const fullEventLogView = document.getElementById('fullEventLogView');
 
-    handle64Element.addEventListener('dblclick', () => {
+    ytDlpPlaylist.addEventListener('dblclick', () => {
 
-        ipcRenderer.invoke('openFileDialog', 'handle64');
+        const batPath = path.join(process.env.BINARIES_DIR, 'ytDlpPlaylist', 'playlist_url_to_mp3.bat');
+        console.log('Executing script at path:', batPath);
+        ipcRenderer.invoke('godModeWindows', 'progressBar', 2000);
+        const runFunkWhenDone = () => { shell.openPath(path.join(process.env.BINARIES_DIR, 'ytDlpPlaylist', 'output')) };
+        executeSpawnWithListener(batPath, [], runFunkWhenDone);
+        // executeSpawnWithListener(batPath, [], runFunkWhenDone);
+    });
+
+    moveMouse.addEventListener('dblclick', () => {
+
+        const exePath = path.join(process.env.BINARIES_DIR, 'misc', 'moveMouse.exe');
+        ipcRenderer.invoke('godModeWindows', 'progressBar', 2500);
+        runPowerShellFile(exePath);
+
+    });
+    bcUninstaller.addEventListener('dblclick', () => {
+
+        const exePath = path.join(process.env.BINARIES_DIR, 'bcUninstaller', 'allFiles', 'BCUninstaller.exe');
+        ipcRenderer.invoke('godModeWindows', 'progressBar', 4500);
+        executeCommandWithSpawn(exePath);
+    });
+
+    fullEventLogView.addEventListener('dblclick', () => {
+
+        const exePath = path.join(process.env.BINARIES_DIR, 'fullEventLogView', `fullEventLogView.exe`);
+        ipcRenderer.invoke('godModeWindows', 'progressBar');
+        executeCommandWithSpawn(exePath);
     });
 
 
-    memReductElement.addEventListener('dblclick', async () => {
+    processExplorer.addEventListener('dblclick', () => {
 
-        await runExeAndCloseCmd('memreduct.exe', undefined, 'memReduct');
+        const exePath = path.join(process.env.BINARIES_DIR, 'misc', `processExplorer.exe`);
+        ipcRenderer.invoke('godModeWindows', 'progressBar', 3000);
+        executeCommandWithSpawn(exePath);
+    });
+
+    hostsFileEditor.addEventListener('dblclick', () => {
+
+        const exePath = path.join(process.env.BINARIES_DIR, 'misc', `hostsFileEditor.exe`);
+        ipcRenderer.invoke('godModeWindows', 'progressBar', 3000);
+        executeCommandWithSpawn(exePath);
+    });
+
+    cleanSweep2Cli.addEventListener('dblclick', () => {
+
+        const params = "-1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13 -15 -16 -showoperationwindows";
+        const exePath = path.join(process.env.BINARIES_DIR, 'misc', `cleanSweep2Cli.exe`);
+        ipcRenderer.invoke('godModeWindows', 'progressBar', 3000);
+        executeCommandWithSpawn(exePath);
+    });
+
+    pathManager.addEventListener('dblclick', () => {
+
+        const exePath = path.join(process.env.BINARIES_DIR, 'misc', `pathManager.exe`);
+        ipcRenderer.invoke('godModeWindows', 'progressBar');
+        executeCommandWithSpawn(exePath);
+    });
+
+    memreduct.addEventListener('dblclick', () => {
+
+        const exePath = path.join(process.env.BINARIES_DIR, 'memReduct', `memReduct.exe`);
+        ipcRenderer.invoke('godModeWindows', 'progressBar');
+        executeCommandWithSpawn(exePath);
+    });
+
+    ffBatch.addEventListener('dblclick', () => {
+
+        const exePath = path.join(process.env.BINARIES_DIR, 'ffBatch', `ffBatch.exe`);
+        ipcRenderer.invoke('godModeWindows', 'progressBar');
+        executeCommandWithSpawn(exePath);
     });
 
 
-    restartExplorerElement.addEventListener('dblclick', async () => {
-        const assetsPath = !process.env.IS_DEV_MODE ? process.resourcesPath : path.join(__dirname, '../', '../');
 
-        const ps1Path = path.join(assetsPath, 'assets/scripts/ps1', 'simulateRestart.ps1');
-        await runPowerShellFile(ps1Path);
-
-    });
-
-
-    ipcRenderer.on('selectedFile', async (_, { path, identifier }) => {
-
-        if (!path) {
-            alert('Hay ' + identifier + 'No file path was selected .');
-            return;
-        }
-
-
-        if (identifier === 'handle64') {
-
-            const { join } = require('path');
-            const exeDir = 'misc';
-            const exeName = 'handle64.exe';
-            const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
-            const baseDir = isDev
-                ? join(__dirname, '..', '..', 'assets', 'binaries', exeDir, exeName)
-                : join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir, exeName);
-
-
-
-            const fixBaseDir = `\\"\\"` + baseDir + '\\"';
-            const fixParams = `\\"${path}\\"\\"`;
-            const command = `${fixBaseDir} ${fixParams}`;
-
-
-            const handleResult = await openCmdInNewTabOrWindowAsAdmin('handle64.exe', command);
-            console.log(`handleResult: ${handleResult}`);
-        }
-    });
-
-    extractingTextFromImag.addEventListener('dblclick', async () => {
+    textFromImag.addEventListener('dblclick', async () => {
 
         try {
 
@@ -74,27 +109,25 @@ document.addEventListener('DOMContentLoaded', () => {
             if (clipboardImage.isEmpty()) {
 
                 const notificationInfo = {
-                    title: 'extractingTextFromImag ..',
-                    message: 'no image found in clipboard !',
+                    title: 'Text from img require an image to start ..',
+                    message: 'No image found in clipboard !',
                     icon: 'error',
                     sound: true,
                     timeout: 3,
                 }
                 ipcRenderer.invoke('notificationWIthNode', notificationInfo);
                 return;
-
             }
 
 
 
-            // const shell = require('node-powershell');
             const tesseractFolder = path.join(process.env.BINARIES_DIR, 'tesseract');
             const tesseractExe = path.join(tesseractFolder, 'tesseract.exe');
             const lastClipboardImg = path.join(tesseractFolder, 'lastClipboardImg.png');
 
             const psCommands = [
                 'Add-Type -AssemblyName System.Windows.Forms',
-                `[System.Windows.Forms.Clipboard]::GetImage().Save('${lastClipboardImg}')`, // Fixed the syntax error here
+                `[System.Windows.Forms.Clipboard]::GetImage().Save('${lastClipboardImg}')`,
                 `${tesseractExe} ${lastClipboardImg} stdout -l eng`
             ];
 
@@ -103,8 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
             clipboard.writeText(result);
 
             const notificationInfo = {
-                title: 'extractingTextFromImag',
-                message: 'Txt is on your clipboard !',
+                title: 'Success ! ',
+                message: 'Extracted text from image is copied to clipboard !',
                 icon: 'success',
                 sound: true,
                 timeout: 3,
@@ -112,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ipcRenderer.invoke('notificationWIthNode', notificationInfo);
 
         } catch (error) {
+
             console.error('extractingTextFromImag', error);
             const notificationInfo = {
                 title: 'extractingTextFromImag',
@@ -123,7 +157,69 @@ document.addEventListener('DOMContentLoaded', () => {
             ipcRenderer.invoke('notificationWIthNode', notificationInfo);
         }
     });
+
+
+
+    // Action buttons on title bar ..
+
+    document.querySelector('.window__close').addEventListener('click', () => {
+
+        ipcRenderer.invoke('godModeWindows', 'close');
+
+    })
+
+    document.querySelector('.window__minimize').addEventListener('click', () => {
+
+        ipcRenderer.invoke('godModeWindows', 'minimize');
+
+    })
+
+    document.querySelector('.window__maximize').addEventListener('click', () => {
+
+        ipcRenderer.invoke('godModeWindows', 'maximize');
+
+    })
+
+    // const handle64 = document.getElementById('handle64');
+
+    // handle64Element.addEventListener('dblclick', () => {
+
+    //     ipcRenderer.invoke('openFileDialog', 'handle64'); // Pass an identifier
+    // });
+
+    // memReductElement.addEventListener('dblclick', async () => {
+
+    //     await runExeAndCloseCmd('memreduct.exe', undefined, 'memReduct');
+    // });
+
+
+    // ipcRenderer.on('selectedFile', async (_, { path, identifier }) => {
+
+    //     if (!path) {
+    //         alert('Hay ' + identifier + 'No file path was selected .');
+    //         return;
+    //     }
+
+    //     alert(`Processing file from identifier : ${identifier} : ${path}`);
+
+    //     if (identifier === 'handle64') {
+    //         const { join } = require('path');
+    //         const exeDir = 'misc';
+    //         const exeName = 'handle64.exe';
+    //         const params = ` "${path}" `;
+    //         const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
+    //         const baseDir = isDev
+    //             ? join(__dirname, '..', '..', 'assets', 'binaries', exeDir, exeName)
+    //             : join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir, exeName);
+
+
+    //         const command = ` "${baseDir}" ` + params;
+
+    //         await openCmdInNewTabOrWindowAsAdmin(command);
+    //     }
+    // });
+
+
+    // ExtractingTextFromImag ..
+
 });
-
-
-// powershell -Command "Start-Process 'cmd.exe' -ArgumentList '/K \"\"C:\Users\avrahamy\Documents\appsAndMore\path\handle64.exe\" \"C:\Program Files\WinRAR\we.exe\"\"' -Verb RunAs"

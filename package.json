@@ -43,9 +43,8 @@
     ],
     "win": {
       "target": "nsis",
-      "publisherName": "justRunItTool.com",
-      "appId": "com.avri.just_run_it_tool",
-      "icon": "./src/assets/img/icons/automate.ico"
+      "publisherName": "justRunItTool",
+      "icon": "./src/assets/img/icons/app/appLogo.ico"
     }
   }
 }
