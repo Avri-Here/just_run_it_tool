@@ -3,8 +3,7 @@
 
 const path = require('path'), os = require('os');
 const { ipcRenderer, clipboard, shell } = require('electron');
-const { executeSpawnWithListener } = require('../../utils/childProcess');
-const { executeCommandWithSpawn, } = require('../../utils/childProcess');
+const { executeCommandWithSpawn, openCmdAndRunFromThere } = require('../../utils/childProcess');
 const { runPowerShellFile, runPsCommand } = require('../../utils/childProcess');
 
 
@@ -12,90 +11,93 @@ const { runPowerShellFile, runPsCommand } = require('../../utils/childProcess');
 document.addEventListener('DOMContentLoaded', () => {
 
     const ffBatch = document.getElementById('ffBatch');
-    const memreduct = document.getElementById('memreduct');
+    const freeRam = document.getElementById('freeRam');
     const moveMouse = document.getElementById('moveMouse');
-    const pathManager = document.getElementById('pathManager');
+    const taskManager = document.getElementById('taskManager');
+    const envVariables = document.getElementById('envVariables');
     const textFromImag = document.getElementById('textFromImag');
     const bcUninstaller = document.getElementById('bcUninstaller');
     const ytDlpPlaylist = document.getElementById('ytDlpPlaylist');
     const cleanSweep2Cli = document.getElementById('cleanSweep2Cli');
-    const processExplorer = document.getElementById('processExplorer');
     const hostsFileEditor = document.getElementById('hostsFileEditor');
     const fullEventLogView = document.getElementById('fullEventLogView');
 
-    ytDlpPlaylist.addEventListener('dblclick', () => {
+
+    ffBatch.addEventListener('dblclick', async () => {
+
+        const exePath = path.join(process.env.BINARIES_DIR, 'ffBatch', `ffBatch.exe`);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar'); // Wait until progress bar is ready
+        executeCommandWithSpawn(exePath);
+    });
+
+
+    freeRam.addEventListener('dblclick', async () => {
+
+        const exePath = path.join(process.env.BINARIES_DIR, 'memReduct', `memReduct.exe`);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar'); // Wait until progress bar is ready
+        executeCommandWithSpawn(exePath);
+    });
+
+
+    taskManager.addEventListener('dblclick', async () => {
+        const exePath = path.join(process.env.BINARIES_DIR, 'misc', `processExplorer.exe`);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
+        executeCommandWithSpawn(exePath);
+    });
+
+
+    ytDlpPlaylist.addEventListener('dblclick', async () => {
 
         const batPath = path.join(process.env.BINARIES_DIR, 'ytDlpPlaylist', 'playlist_url_to_mp3.bat');
-        console.log('Executing script at path:', batPath);
-        ipcRenderer.invoke('godModeWindows', 'progressBar', 2000);
-        const runFunkWhenDone = () => { shell.openPath(path.join(process.env.BINARIES_DIR, 'ytDlpPlaylist', 'output')) };
-        executeSpawnWithListener(batPath, [], runFunkWhenDone);
-        // executeSpawnWithListener(batPath, [], runFunkWhenDone);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
+        openCmdAndRunFromThere(batPath);
     });
+
 
     moveMouse.addEventListener('dblclick', () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'misc', 'moveMouse.exe');
-        ipcRenderer.invoke('godModeWindows', 'progressBar', 2500);
+        ipcRenderer.invoke('godModeWindows', 'progressBar');
         runPowerShellFile(exePath);
-
     });
-    bcUninstaller.addEventListener('dblclick', () => {
+
+
+    bcUninstaller.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'bcUninstaller', 'allFiles', 'BCUninstaller.exe');
-        ipcRenderer.invoke('godModeWindows', 'progressBar', 4500);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         executeCommandWithSpawn(exePath);
     });
 
-    fullEventLogView.addEventListener('dblclick', () => {
+    fullEventLogView.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'fullEventLogView', `fullEventLogView.exe`);
-        ipcRenderer.invoke('godModeWindows', 'progressBar');
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         executeCommandWithSpawn(exePath);
     });
 
 
-    processExplorer.addEventListener('dblclick', () => {
-
-        const exePath = path.join(process.env.BINARIES_DIR, 'misc', `processExplorer.exe`);
-        ipcRenderer.invoke('godModeWindows', 'progressBar', 3000);
-        executeCommandWithSpawn(exePath);
-    });
-
-    hostsFileEditor.addEventListener('dblclick', () => {
-
-        const exePath = path.join(process.env.BINARIES_DIR, 'misc', `hostsFileEditor.exe`);
-        ipcRenderer.invoke('godModeWindows', 'progressBar', 3000);
-        executeCommandWithSpawn(exePath);
-    });
-
-    cleanSweep2Cli.addEventListener('dblclick', () => {
-
-        const params = "-1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13 -15 -16 -showoperationwindows";
-        const exePath = path.join(process.env.BINARIES_DIR, 'misc', `cleanSweep2Cli.exe`);
-        ipcRenderer.invoke('godModeWindows', 'progressBar', 3000);
-        executeCommandWithSpawn(exePath);
-    });
-
-    pathManager.addEventListener('dblclick', () => {
+    envVariables.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'misc', `pathManager.exe`);
-        ipcRenderer.invoke('godModeWindows', 'progressBar');
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         executeCommandWithSpawn(exePath);
     });
 
-    memreduct.addEventListener('dblclick', () => {
 
-        const exePath = path.join(process.env.BINARIES_DIR, 'memReduct', `memReduct.exe`);
-        ipcRenderer.invoke('godModeWindows', 'progressBar');
+    hostsFileEditor.addEventListener('dblclick', async () => {
+
+        const exePath = path.join(process.env.BINARIES_DIR, 'misc', `hostsFileEditor.exe`);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         executeCommandWithSpawn(exePath);
     });
 
-    ffBatch.addEventListener('dblclick', () => {
 
-        const exePath = path.join(process.env.BINARIES_DIR, 'ffBatch', `ffBatch.exe`);
-        ipcRenderer.invoke('godModeWindows', 'progressBar');
-        executeCommandWithSpawn(exePath);
+    cleanSweep2Cli.addEventListener('dblclick', async () => {
+        const params = "-1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13 -15 -16";
+        const exePath = path.join(process.env.BINARIES_DIR, 'misc', `cleanSweep2Cli.exe`);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
+        openCmdAndRunFromThere(exePath, params);
     });
 
 
@@ -162,21 +164,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Action buttons on title bar ..
 
-    document.querySelector('.window__close').addEventListener('click', () => {
+    document.querySelector('.window__close').addEventListener('click', async () => {
 
-        ipcRenderer.invoke('godModeWindows', 'close');
-
-    })
-
-    document.querySelector('.window__minimize').addEventListener('click', () => {
-
-        ipcRenderer.invoke('godModeWindows', 'minimize');
+        await ipcRenderer.invoke('godModeWindows', 'close');
 
     })
 
-    document.querySelector('.window__maximize').addEventListener('click', () => {
+    document.querySelector('.window__minimize').addEventListener('click', async () => {
 
-        ipcRenderer.invoke('godModeWindows', 'maximize');
+        await ipcRenderer.invoke('godModeWindows', 'minimize');
+
+    })
+
+    document.querySelector('.window__maximize').addEventListener('click', async () => {
+
+        await ipcRenderer.invoke('godModeWindows', 'maximize');
 
     })
 

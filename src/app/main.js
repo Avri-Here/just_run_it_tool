@@ -27,7 +27,7 @@ const createDesktopTollBar = () => {
         resizable: false, skipTaskbar: true,
         width: windowWidth, height: windowHeight,
         alwaysOnTop: true, transparent: true, frame: false,
-        icon: path.join(process.env.ASSETS_DIR, 'img/icons/app/automate.ico'),
+        icon: path.join(process.env.ASSETS_DIR, 'img/icons/app/appLogo.ico'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             sandbox: false, nodeIntegration: true,
@@ -42,12 +42,12 @@ const createDesktopTollBar = () => {
 
     mainWindow.on('ready-to-show', () => {
         if (process.env.IS_DEV_MODE) {
-            mainWindow.webContents.openDevTools({ mode: 'undocked' });
+            // mainWindow.webContents.openDevTools({ mode: 'undocked' });
         }
     });
-    
-    createTray(mainWindow);
 
+
+    createTray(mainWindow);
 
 }
 
@@ -56,5 +56,5 @@ const createDesktopTollBar = () => {
 app.whenReady().then(() => {
 
     createDesktopTollBar();
-    if (process.platform === 'win32') { app.setAppUserModelId('com.avri.just_run_it_tool') }
+    // if (process.platform === 'win32') { app.setAppUserModelId('com.avri.just_run_it_tool') }
 });

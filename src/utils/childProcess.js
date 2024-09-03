@@ -2,7 +2,7 @@
 
 
 const { exec, spawn } = require('child_process');
-const path = require('path'), { ipcRenderer  } = require('electron');
+const path = require('path'), { ipcRenderer } = require('electron');
 
 
 
@@ -178,7 +178,7 @@ const runExeAndCloseCmd = async (exeName, params, exeDir = 'misc') => {
 
         const command = `powershell -Command "Start-Process '${exePath}' -ArgumentList '${params}' -NoNewWindow -Wait"`;
         const output = await executeCommand(command);
-        console.log(`runExeAndCloseCmd Output: ${output}`);
+        console.log(`runExeAndCloseCmd Output : ${output}`);
         return output;
     } catch (err) {
         console.error(`Error: ${err.message}`);
@@ -274,17 +274,73 @@ const runPsCommand = async (commands = []) => {
 }
 
 
-// Spawn and keep a process running after the parent process dies .
+// Spawn make it keep on the process running even after the parent process dies .
 
 const executeCommandWithSpawn = (exePath, params = []) => {
 
-    const child = spawn(exePath, params, { detached: true, stdio: 'ignore' });
+    console.log('Executing command with spawn :', exePath, params);
+    // const child = spawn(exePath, params, { shell: true, stdio: 'inherit', detached: true });
+    const child = spawn(exePath, params, { detached: false, stdio: 'ignore' });
     child.unref();
     return child.pid;
 }
 
-// const { spawn } = require('child_process');
-// const { ipcRenderer } = require('electron');
+
+// This run it from the electron app will close if the app is closed - this funk first open the cmd and then run the exe file .. like in real life ..
+
+const openCmdAndRunFromThere = (exePath, params = []) => {
+
+    const exeDir = path.dirname(exePath);
+
+
+    // if you want make it open on new window not matter what ..
+    // exec(`start cmd.exe /K "cd /d ${exeDir} && ${path.basename(exePath)} ${params}"`, (error, stdout, stderr) => {
+
+
+    //if you want make it open on new tab if the terminal is already open ..
+    exec(`wt -w 0 nt cmd.exe /K "cd /d ${exeDir} && ${path.basename(exePath)} ${params}"`, (error, stdout, stderr) => {
+
+        if (error) {
+            console.error(`Error executing file : ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.error(`Error output : ${stderr}`);
+            return;
+        }
+        console.log(`Output : ${stdout}`);
+    });
+}
+
+
+const openCmdAndRunOnEnter = async (waitForInput, runWithInput, exePath) => {
+    const openCmdAndWaitForInput = `start cmd.exe /K "cd /d ${path.dirname(exePath)} && ${waitForInput} ${runWithInput}" `;
+    // const exeDir = path.dirname(exePath);
+
+    return new Promise((resolve, reject) => {
+        exec(
+            openCmdAndWaitForInput,
+            (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Error executing file: ${error.message}`);
+                    reject(new Error(`Error executing file: ${error.message}`));
+                    return;
+                }
+                if (stderr) {
+                    console.error(`Error output: ${stderr}`);
+                    reject(new Error(`Error output: ${stderr}`));
+                    return;
+                }
+                console.log(`Output: ${stdout}`);
+                resolve(stdout);
+            }
+        );
+    });
+};
+
+
+
+
 
 const executeSpawnWithListener = (batFilePath, params = [], callback) => {
     try {
@@ -327,58 +383,12 @@ const executeSpawnWithListener = (batFilePath, params = [], callback) => {
     }
 };
 
-// Example usage:
-// executeSpawnWithListener('C:\\Users\\avrahamy\\Documents\\appsAndMore\\binaries\\ytDlpPlaylist\\playlist_url_to_mp3.bat');
-
-
-// const executeSpawnWithListener = (exePath, params = [], callBeck) => {
-
-//     try {
-
-//         // const child = spawn(exePath, params, { detached: true, stdio: 'ignore' });
-//         // const child = spawn(exePath, params, { shell: true, stdio: 'pipe' });
-//         exec(`start "" "${exePath}"`, (err) => { 
-//             if (err) {
-//                 console.error('Error opening file:', err);
-//             }
-
-//         child.on('exit', (code) => {
-
-//             const isDoneSuccessfully = code === 0;
-
-//             const notificationMsg = {
-//                 title: `Command done with exit code ${code}`,
-//                 message: isDoneSuccessfully ? 'Command executed successfully !' : 'An error occurred while executing command !',
-//                 icon: isDoneSuccessfully ? 'success' : 'error',
-//                 sound: true,
-//                 timeout: 5,
-//             }
-
-//             ipcRenderer.invoke('notificationWIthNode', notificationMsg);
-
-//             if (!isDoneSuccessfully) {
-//                 child.unref();
-//                 throw new Error(`Error: Command done with exit code ${code}`);
-//             }
-
-//             child.unref();
-//             callBeck && callBeck();
-
-//         });
-
-//     } catch (error) {
-//         console.error('Error in executeSpawnWithListener:', error);
-//         throw error;
-
-//     }
-
-// };
 
 
 module.exports = {
     openCmdAsAdmin, openPowerShellAsAdmin,
-    openPowerShellNoAdmin, openCmdNoAdmin,
-    runPsCommand, executeCommandWithSpawn,
+    openPowerShellNoAdmin, openCmdNoAdmin, openCmdAndRunOnEnter,
+    runPsCommand, executeCommandWithSpawn, openCmdAndRunFromThere,
     openFileDirectly, shouldOpenInTerminal, executeSpawnWithListener,
     getCommandBaseType, openCmdInNewTabOrWindow, runPowerShellFile,
     runExeAsAdmin, runExeAndCloseCmd, openWindowsComponentAsAdmin,

@@ -73,7 +73,7 @@ body {
   animation: top-to-bottom 0.3s;
 }
 
-.navbar > ul {
+.navbar>ul {
   display: flex;
   align-items: center;
 }
@@ -152,6 +152,7 @@ li.app_name {
   background: transparent;
   transition: all ease-out 0.2s;
 }
+
 .navbar__right .battery.selected {
   background: var(--color-white-200);
 }
@@ -278,7 +279,7 @@ li.app_name {
   background-color: #0063f7;
 }
 
-li > ul {
+li>ul {
   display: none;
   position: absolute;
   align-items: center;
@@ -295,24 +296,24 @@ li > ul {
   box-shadow: 0 2px 7px rgba(0, 0, 0, 0.363);
 }
 
-li:hover > ul {
+li:hover>ul {
   display: flex;
 }
 
-li > ul > li {
+li>ul>li {
   width: 100%;
   border-bottom: 1px solid rgba(0, 0, 0, 0.15);
   padding-bottom: 5px;
   margin-bottom: 5px !important;
 }
 
-li > ul > li:last-child {
+li>ul>li:last-child {
   border-bottom: 0;
   padding-bottom: 0 !important;
   margin-bottom: 0 !important;
 }
 
-li > ul > li > button {
+li>ul>li>button {
   color: var(--color-white);
   width: 100%;
   height: 100%;
@@ -328,16 +329,16 @@ li > ul > li > button {
   cursor: url(../cursor/Link.cur), pointer;
 }
 
-li > ul > li > button:hover {
+li>ul>li>button:hover {
   color: var(--color-white);
   background: var(--color-blue-800);
 }
 
-li > ul > li > button:active {
+li>ul>li>button:active {
   background-color: #0063f7;
 }
 
-li > .menu__container {
+li>.menu__container {
   display: none;
   position: absolute;
   width: 380px;
@@ -358,7 +359,7 @@ li:hover .menu__container {
   display: flex;
 }
 
-li > .menu__container > .grid__controling {
+li>.menu__container>.grid__controling {
   width: 100%;
   height: 100%;
   display: grid;
@@ -372,34 +373,40 @@ li > .menu__container > .grid__controling {
     "Music Music Music Music";
   grid-gap: 1em 1em;
 }
-li > .menu__container > .grid__controling .control_center--grid {
+
+li>.menu__container>.grid__controling .control_center--grid {
   display: grid;
   box-shadow: 0 5px 15px rgba(44, 44, 44, 0.37);
   border: 1px solid rgba(255, 255, 255, 0.178);
   overflow: hidden;
   border-radius: 12px;
 }
-.menu__container > .grid__controling .col-5 {
+
+.menu__container>.grid__controling .col-5 {
   grid-area: Toggles;
 }
-.menu__container > .grid__controling .col-7 {
+
+.menu__container>.grid__controling .col-7 {
   grid-area: DoNotDisturb;
 }
 
-.menu__container > .grid__controling .col-3--brightness {
+.menu__container>.grid__controling .col-3--brightness {
   grid-area: KeyboardBrightness;
 }
-.menu__container > .grid__controling .col-3--battery {
+
+.menu__container>.grid__controling .col-3--battery {
   grid-area: Battery;
 }
 
-.menu__container > .grid__controling .col-12--light {
+.menu__container>.grid__controling .col-12--light {
   grid-area: Display;
 }
-.menu__container > .grid__controling .col-12--volume {
+
+.menu__container>.grid__controling .col-12--volume {
   grid-area: Audio;
 }
-.menu__container > .grid__controling .col-12--music {
+
+.menu__container>.grid__controling .col-12--music {
   grid-area: Music;
 }
 
@@ -413,22 +420,25 @@ li > .menu__container > .grid__controling .control_center--grid {
   font-family: "Lexend", sans-serif;
   cursor: url(../cursor/Link.cur), pointer;
 }
+
 .sound,
 .brightness {
   position: relative;
 }
 
-.menu__container > .grid__controling input[type="range"] {
+.menu__container>.grid__controling input[type="range"] {
   -webkit-appearance: none;
   outline: 0;
   border: 0;
 }
+
 .sound img {
   position: absolute;
   top: 50%;
   left: 20px;
   transform: translatey(-50%);
 }
+
 .brightness img {
   /* z-index: -1; */
   position: absolute;
@@ -436,7 +446,8 @@ li > .menu__container > .grid__controling .control_center--grid {
   left: 20px;
   transform: translatey(-50%);
 }
-.menu__container > .grid__controling input[type="range"]::-webkit-slider-thumb {
+
+.menu__container>.grid__controling input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   height: 2rem;
   width: 2rem;
@@ -459,11 +470,13 @@ li > .menu__container > .grid__controling .control_center--grid {
   font-size: 14px;
   font-family: "Lexend", sans-serif;
 }
+
 .nobtn {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
 }
+
 .nobtn svg {
   background-color: transparent !important;
 }
@@ -474,9 +487,11 @@ li > .menu__container > .grid__controling .control_center--grid {
   border-radius: 50%;
   margin: 0 5px;
 }
+
 .col-7 button svg {
   background-color: #b63333 !important;
 }
+
 .col-7 button:focus {
   background: #b63333 !important;
   color: var(--color-white);
@@ -494,22 +509,26 @@ li > .menu__container > .grid__controling .control_center--grid {
   align-items: center;
   justify-content: space-between;
 }
+
 .musicPlayer--image {
   width: 70%;
   height: 100%;
   display: flex;
   align-items: center;
 }
+
 .musicPlayer--image img {
   width: 50px;
   margin: 0 0 0 10px;
 }
+
 .musicPlayer--content {
   width: 30%;
   height: 100%;
   display: flex;
   align-items: center;
 }
+
 .musicPlayer--content span {
   font-size: 40px;
 }
@@ -589,26 +608,24 @@ li > .menu__container > .grid__controling .control_center--grid {
   border-radius: 8px;
   font-family: "lexend", sans-serif;
   font-weight: 700;
-  clip-path: polygon(
-    100% 0%,
-    100% 0%,
-    0% 0%,
-    0% 0%,
-    0% 0%,
-    0% 0%,
-    0% 0%,
-    0% 0%,
-    0% 80%,
-    43% 80%,
-    50% 101%,
-    57% 80%,
-    100% 80%,
-    100% 0%
-  );
+  clip-path: polygon(100% 0%,
+      100% 0%,
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0% 0%,
+      0% 80%,
+      43% 80%,
+      50% 101%,
+      57% 80%,
+      100% 80%,
+      100% 0%);
 }
 
 
-.dock .icon:nth-child(1):hover::after {
+.dock #cleanSweep2Cli:hover::after {
   content: "CleanSweep";
 }
 
@@ -620,28 +637,29 @@ li > .menu__container > .grid__controling .control_center--grid {
   content: "EventLog";
 }
 
-.dock .icon:nth-child(4):hover::after {
+.dock #hostsFileEditor:hover::after {
   content: "HostsEditor";
-}
-
-.dock .icon:nth-child(5):hover::after {
-  content: "FreeRam";
 }
 
 .dock .icon:nth-child(6):hover::after {
   content: "EnvVariables";
+  
 }
 
-.dock .icon:nth-child(7):hover::after {
-  content: "TaskManager";
+.dock #freeRam:hover::after {
+  content: "FreeRam";
 }
 
-.dock .icon:nth-child(8):hover::after {
-  content: "TxtFromImg";
+.dock #bcUninstaller:hover::after {
+  content: "BcUninstaller";
+}
+
+.dock #taskManager:hover::after {
+  content: "processPanel";
 }
 
 .dock .icon:nth-child(9):hover::after {
-  content: "BcUninstaller";
+  content: "TxtFromImg";
 }
 
 .dock .icon:nth-child(10):hover::after {
@@ -665,7 +683,8 @@ li > .menu__container > .grid__controling .control_center--grid {
   margin: 0 0 40px 0;
   width: 7.1rem;
 }
-.dock .icon:hover + .icon img {
+
+.dock .icon:hover+.icon img {
   width: 5.6rem;
   margin: 0 0 25px 0;
 }
@@ -704,6 +723,7 @@ li > .menu__container > .grid__controling .control_center--grid {
   padding: 0 16px;
   background-color: var(--app-color-white);
 }
+
 .window__taskbar--actions {
   display: flex;
   align-items: center;
@@ -828,6 +848,7 @@ li > .menu__container > .grid__controling .control_center--grid {
     width: 70%;
   }
 }
+
 .Customize__icon span {
   border: 1px solid rgba(204, 200, 200, 0.412);
   border-radius: 9px;
@@ -847,9 +868,11 @@ li > .menu__container > .grid__controling .control_center--grid {
   border: 1px solid rgba(123, 123, 123, 0.412);
   padding-left: 8px;
 }
+
 .window__taskbar--right .containerSearch svg {
   fill: rgba(123, 123, 123, 0.412);
 }
+
 .window__taskbar--right input[type="search"] {
   width: 85%;
   height: 100%;
@@ -917,6 +940,7 @@ li > .menu__container > .grid__controling .control_center--grid {
   display: block;
   transition: 0.3s;
 }
+
 .content__sidebar--notes input:hover {
   background-color: rgba(0, 0, 0, 0.336);
 }
@@ -942,9 +966,11 @@ li > .menu__container > .grid__controling .control_center--grid {
   z-index: 10;
   box-shadow: 0 10px 10px rgba(37, 37, 37, 0.137);
 }
+
 .spotlight_serach svg {
   margin-left: 10px;
 }
+
 .spotlight_serach input {
   width: 90%;
   font-size: 20px;
@@ -953,6 +979,7 @@ li > .menu__container > .grid__controling .control_center--grid {
   margin-left: 10px;
   padding-right: 10px;
 }
+
 .spotlight_serach input::placeholder {
   color: white;
 }
@@ -1035,9 +1062,11 @@ li > .menu__container > .grid__controling .control_center--grid {
   .launchpad .Apps-container {
     grid-row-gap: 20px;
   }
+
   .launchpad .child-launchpad img {
     width: 80px;
   }
+
   .launchpad .child-launchpad strong {
     font-size: 18px;
   }
@@ -1080,9 +1109,11 @@ li > .menu__container > .grid__controling .control_center--grid {
   0% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.2);
   }
+
   100% {
     transform: scale(1);
   }
@@ -1092,15 +1123,19 @@ li > .menu__container > .grid__controling .control_center--grid {
   0% {
     transform: translate(0);
   }
+
   25% {
     transform: translateY(-12px);
   }
+
   50% {
     transform: translateY(-3px);
   }
+
   75% {
     transform: translateY(-21px);
   }
+
   100% {
     transform: translateY(0px);
   }
@@ -1110,6 +1145,7 @@ li > .menu__container > .grid__controling .control_center--grid {
   0% {
     transform: rotate(9deg);
   }
+
   100% {
     transform: rotate(-9deg);
   }
@@ -1120,16 +1156,19 @@ li > .menu__container > .grid__controling .control_center--grid {
     transform: translateY(-60px);
     opacity: 0;
   }
+
   100% {
     transform: none;
     opacity: 1;
   }
 }
+
 @keyframes opacity {
   0% {
     opacity: 0;
     transform: scale(1.2);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -1320,6 +1359,7 @@ li > .menu__container > .grid__controling .control_center--grid {
   flex-direction: row;
   cursor: url(../cursor/Link.cur), pointer;
 }
+
 .context-menu ul button:hover {
   background: var(--color-blue-800);
 }
@@ -1336,19 +1376,23 @@ li > .menu__container > .grid__controling .control_center--grid {
   border-radius: 16px;
   overflow: hidden;
 }
+
 .widgets-panel.open {
   transform: translateX(0);
 }
+
 .widgets-panel__calendar {
   background: transparent;
   padding: 16px;
   min-width: 160px;
 }
+
 .widgets-panel #taghvim {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .widgets-panel__calendar h4 {
   color: #ffffff;
   font-size: 14px;
@@ -1357,11 +1401,13 @@ li > .menu__container > .grid__controling .control_center--grid {
   margin-left: 8px;
   margin-bottom: -10px;
 }
+
 .widgets-panel__calendar h2 {
   color: #ffffff;
   font-size: 45px;
   font-weight: 300;
 }
+
 .widgets-panel__calendar li {
   position: relative;
   padding: 4px 10px;
@@ -1370,6 +1416,7 @@ li > .menu__container > .grid__controling .control_center--grid {
   margin-left: 8px;
   margin: 8px 0;
 }
+
 .widgets-panel__calendar li::before {
   content: "";
   width: 8px;
@@ -1379,30 +1426,38 @@ li > .menu__container > .grid__controling .control_center--grid {
   top: 2px;
   left: -12px;
 }
+
 .widgets-panel__calendar li.blue {
   color: #34aadc;
   background: #283646;
 }
+
 .widgets-panel__calendar li.blue::before {
   background: #34aadc;
 }
+
 .widgets-panel__calendar li.green {
   color: #32d74b;
   background: #2d402e;
 }
+
 .widgets-panel__calendar li.green::before {
   background: #32d74b;
 }
+
 .widgets-panel__calendar li.purple {
   color: #9c5ffd;
   background: #422948;
 }
+
 .widgets-panel__calendar li.purple::before {
   background: #7a3edb;
 }
+
 .widgets-panel__calendar li span {
   display: block;
 }
+
 .widgets-panel__calendar li span:first-child {
   font-weight: bold;
 }

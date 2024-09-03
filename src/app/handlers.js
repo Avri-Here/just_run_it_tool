@@ -74,6 +74,27 @@ ipcMain.on('selectedFile', async (_, { path, identifier }) => {
 });
 
 
+// open notifcation with input to paste url to donwload from youtube ..
+ipcMain.handle('notificationWithInput', async (_, ) => {
+
+    const notificationInfo = {
+        title: `Let's start from the beginning ..`,
+        message: 'Drag only one file or folder .',
+        icon: 'error',
+        sound: false,
+        wait: true, // Wait for user action
+        timeout: 5,
+        // actions: ['Ok', 'Start'],
+        input: true,
+    }
+
+    const res = await notifier.notify(notificationInfo);
+
+
+
+});
+
+
 ipcMain.handle('notificationWIthNode', (_, notificationInfo) => {
 
     notificationInfo.icon = path.join(process.env.ASSETS_DIR, 'img/icons/notification', `${notificationInfo.icon}.ico`);
@@ -100,42 +121,51 @@ ipcMain.handle('notificationWIthNode', (_, notificationInfo) => {
 });
 
 
-ipcMain.handle('godModeWindows', (_, action, options) => {
 
-    const godModeWindow = BrowserWindow.getAllWindows().find(win => win.getTitle() === 'godModePage');
+let isProgressRunning = false;
+ipcMain.handle('godModeWindows', async (_, action, options) => {
 
-    switch (action) {
+    return new Promise(async (resolve) => {
+        const godModeWindow = BrowserWindow.getAllWindows().find(win => win.getTitle() === 'godModePage');
 
-        case 'close':
-            godModeWindow.close();
-            break;
+        switch (action) {
 
-        case 'minimize':
-            godModeWindow.minimize();
-            break;
+            case 'close':
 
-        case 'maximize':
-            if (godModeWindow.isMaximized()) {
-                godModeWindow.unmaximize();
-                return;
-            };
-            godModeWindow.maximize();
-            break;
+                godModeWindow.close();
+                resolve();
 
-        case 'progressBar':
-            {
-                const stopProgressAfter = options || 4000;
+            case 'minimize':
 
-                progressInterval = setInterval(() => {
+                godModeWindow.minimize();
+                resolve();
 
-                    godModeWindow.setProgressBar(2);
-                }, 50);
+            case 'maximize':
 
-                setTimeout(() => {
-                    clearInterval(progressInterval)
-                    godModeWindow.setProgressBar(-1);
-                }, stopProgressAfter)
-            }
-    }
+                if (godModeWindow.isMaximized()) {
+                    godModeWindow.unmaximize();
+                    resolve();
+                    return;
+                }
+                godModeWindow.maximize();
+                resolve();
 
+            case 'progressBar':
+
+                const stopProgressAfter = options || 3000;
+                console.log('isProgressRunning :', isProgressRunning);
+
+                while (isProgressRunning) await new Promise(resolve => setTimeout(resolve, 200));
+
+
+                isProgressRunning = true;
+                godModeWindow.setProgressBar(2);
+                await new Promise(resolve => setTimeout(resolve, stopProgressAfter));
+                isProgressRunning = false;
+                godModeWindow.setProgressBar(-1);
+
+                resolve();
+        }
+    });
 });
+

@@ -8,7 +8,7 @@ const { Tray, Menu, app, BrowserWindow, screen } = require('electron');
 const createTray = (mainWindow = new BrowserWindow()) => {
 
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-    const tray = new Tray(path.join(__dirname, '../assets/img/icons/app/appLogo.ico'));
+    const tray = new Tray(path.join(process.env.ASSETS_DIR, 'img/icons/app/appLogo.ico'));
     const contextMenu = Menu.buildFromTemplate(
         [
 
@@ -16,13 +16,12 @@ const createTray = (mainWindow = new BrowserWindow()) => {
                 label: 'GodMode',
                 click: () => {
 
-                    const allWin = BrowserWindow.getAllWindows();
-                    const isGodModePageOpen = allWin.find(win => win.getTitle() === 'godModePage');
-                    
-                    if (isGodModePageOpen) {
+                    const isGodModePageOpen = BrowserWindow.getAllWindows().find(win => win.getTitle() === 'godModePage');
+
+                    if (isGodModePageOpen && !isGodModePageOpen.isDestroyed()) {
                         isGodModePageOpen.openDevTools({ mode: 'undocked' });
                         return;
-                    }
+                    };
 
                     const windowWidth = Math.round(width * 0.75);
                     const windowHeight = Math.round(height * 0.8);
@@ -38,9 +37,9 @@ const createTray = (mainWindow = new BrowserWindow()) => {
                             preload: path.join(__dirname, '../pages/godMode/renderer.js'),
                             nodeIntegration: true,
                             contextIsolation: false,
-                            devTools: true,
                         },
                     });
+
 
                     godModeWindow.loadFile(path.join(__dirname, '../pages/godMode/index.html'));
                     godModeWindow.setResizable(true);
@@ -48,7 +47,12 @@ const createTray = (mainWindow = new BrowserWindow()) => {
                     godModeWindow.center();
                     godModeWindow.show();
 
-                    
+                    godModeWindow.on('ready-to-show', () => {
+
+                        if (process.env.IS_DEV_MODE) {
+                            godModeWindow.webContents.openDevTools({ mode: 'undocked' });
+                        }
+                    });
 
                 },
             },
@@ -62,6 +66,7 @@ const createTray = (mainWindow = new BrowserWindow()) => {
                         return;
                     }
                     mainWindow.webContents.openDevTools({ mode: 'undocked' });
+                    mainWindow.webContents.setDevToolsTitle('desktopTollBar');
 
                 },
             },
@@ -82,7 +87,7 @@ const createTray = (mainWindow = new BrowserWindow()) => {
             },
         ]);
 
-    tray.setToolTip('justRunItToll');
+    // tray.setToolTip('justRunItToll');
     tray.setContextMenu(contextMenu);
 };
 
