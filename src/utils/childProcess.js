@@ -286,6 +286,19 @@ const executeCommandWithSpawn = (exePath, params = []) => {
 }
 
 
+// As admin via Spawn and PS, will close the cmd window after the exe is executed and will stay open even after the parent process dies ..
+const runExeFileAsAdmin = (exePath) => {
+
+    const child = spawn('powershell.exe',
+         ['-Command', `Start-Process -FilePath "${exePath}" -Verb RunAs`], {
+        shell: true,
+        detached: true,
+        stdio: 'ignore'
+    });
+    child.unref();
+};
+
+
 // This run it from the electron app will close if the app is closed - this funk first open the cmd and then run the exe file .. like in real life ..
 
 const openCmdAndRunFromThere = (exePath, params = []) => {
@@ -390,7 +403,7 @@ module.exports = {
     openPowerShellNoAdmin, openCmdNoAdmin, openCmdAndRunOnEnter,
     runPsCommand, executeCommandWithSpawn, openCmdAndRunFromThere,
     openFileDirectly, shouldOpenInTerminal, executeSpawnWithListener,
-    getCommandBaseType, openCmdInNewTabOrWindow, runPowerShellFile,
+    getCommandBaseType, openCmdInNewTabOrWindow, runPowerShellFile,runExeFileAsAdmin,
     runExeAsAdmin, runExeAndCloseCmd, openWindowsComponentAsAdmin,
     openCmdInNewTabOrWindowAsAdmin, openCmdInNewTabOrWindowFolder,
 };

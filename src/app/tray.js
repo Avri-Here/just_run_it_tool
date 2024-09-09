@@ -11,52 +11,6 @@ const createTray = (mainWindow = new BrowserWindow()) => {
     const tray = new Tray(path.join(process.env.ASSETS_DIR, 'img/icons/app/appLogo.ico'));
     const contextMenu = Menu.buildFromTemplate(
         [
-
-            {
-                label: 'GodMode',
-                click: () => {
-
-                    const isGodModePageOpen = BrowserWindow.getAllWindows().find(win => win.getTitle() === 'godModePage');
-
-                    if (isGodModePageOpen && !isGodModePageOpen.isDestroyed()) {
-                        isGodModePageOpen.openDevTools({ mode: 'undocked' });
-                        return;
-                    };
-
-                    const windowWidth = Math.round(width * 0.75);
-                    const windowHeight = Math.round(height * 0.8);
-
-                    const godModeWindow = new BrowserWindow({
-                        movable: true, closable: true,
-                        width: windowWidth, height: windowHeight,
-                        resizable: true, skipTaskbar: false,
-                        alwaysOnTop: false, fullscreen: false,
-                        center: true, show: true, frame: false,
-                        icon: path.join(process.env.ASSETS_DIR, 'img/icons/app/godMode.ico'),
-                        webPreferences: {
-                            preload: path.join(__dirname, '../pages/godMode/renderer.js'),
-                            nodeIntegration: true,
-                            contextIsolation: false,
-                        },
-                    });
-
-
-                    godModeWindow.loadFile(path.join(__dirname, '../pages/godMode/index.html'));
-                    godModeWindow.setResizable(true);
-                    godModeWindow.setMenu(null);
-                    godModeWindow.center();
-                    godModeWindow.show();
-
-                    godModeWindow.on('ready-to-show', () => {
-
-                        if (process.env.IS_DEV_MODE) {
-                            godModeWindow.webContents.openDevTools({ mode: 'undocked' });
-                        }
-                    });
-
-                },
-            },
-
             {
                 label: 'DevTools',
                 click: () => {
@@ -75,14 +29,18 @@ const createTray = (mainWindow = new BrowserWindow()) => {
                 label: 'Relaunch',
                 click: () => {
 
-                    app.relaunch(); app.exit();
+                    app.relaunch();
+                    app.exit();
                 },
             },
 
             {
 
                 label: 'CloseApp',
-                click: () => { app.quit() },
+                click: () => {
+
+                    app.quit()
+                },
 
             },
         ]);

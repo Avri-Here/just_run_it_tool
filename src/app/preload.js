@@ -4,8 +4,8 @@
 const os = require('os'), path = require('path');
 const { clipboard, ipcRenderer } = require('electron');
 const { loveThisSong } = require('../utils/vlcManager');
-const fs = require('fs').promises, console = require('electron-log');
 const { convertMediaFile } = require('../utils/ffmpeg');
+const fs = require('fs').promises, console = require('electron-log');
 const { openCmdInNewTabOrWindowFolder } = require('../utils/childProcess');
 const { openCmdAsAdmin, openCmdNoAdmin } = require('../utils/childProcess');
 const { runExeAndCloseCmd, getCommandBaseType } = require('../utils/childProcess');
@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     const button = document.querySelector('.togglePlayPause');
+    const musicContainer = document.querySelector('.musicContainer');
     const playIcon = button.querySelector('.icon-play');
     const pauseIcon = button.querySelector('.icon-pause');
 
@@ -74,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             ipcRenderer.invoke('notificationWIthNode', notificationInfo);
             btnGroup.style.display = 'block';
-            dragFiles.style.display = 'none';   
+            dragFiles.style.display = 'none';
             return;
         }
 
@@ -154,7 +155,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // <!-- Music Player Controls -->
 
+
+    musicContainer.addEventListener('mouseleave', () => {
+
+        musicContainer.style.display = 'none';
+
+    });
+
+
     document.querySelector('.musicPlayer').addEventListener('mouseover', async () => {
+
+        musicContainer.style.display = 'block';
+
+        // setTimeout(() => {
+        //     musicContainer.style.display = 'none';
+        // }, 1000);
 
         const playing = await isVLCRunning();
 
@@ -221,43 +236,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-    // <!-- All the rest Controls -->
+    // <!-- Rest Controls  - GodModeWin , CMD , PS-->
 
 
-    document.querySelector('.pcExplorer').addEventListener('dblclick', async () => {
-
-        const homeDir = os.homedir();
-        const documentsDir = path.join(homeDir, 'Documents');
-        const desktopDir = path.join(homeDir, 'Desktop');
-        const params = `"${documentsDir}" "${desktopDir}" "${homeDir}"`;
-
-        try {
-            await runExeAndCloseCmd('explorer++.exe', params);
-        } catch (error) {
-            console.error('Error opening PC Explorer :', error);
-        }
+    document.querySelector('.godModeBtn').addEventListener('mouseover', () => {
+        musicContainer.style.display = 'none';
     });
 
-    document.querySelector('.cleanPc').addEventListener('dblclick', async () => {
-
-        const params = "-1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13 -15 -16";
-        await runExeAsAdmin('cleanSweep2Cli.exe', params);
-    });
-
-    document.querySelector('.envVar').addEventListener('dblclick', async () => {
-
-        await openWindowsComponentAsAdmin('envVariables');
-    });
-
-    document.querySelector('.openPrograms').addEventListener('dblclick', async () => {
-
-        await openWindowsComponentAsAdmin('programsAndFeatures');
+    document.querySelector('.powerShellBtn').addEventListener('mouseover', () => {
+        musicContainer.style.display = 'none';
     });
 
 
+    document.querySelector('.cmdBtn').addEventListener('mouseover', () => {
+        musicContainer.style.display = 'none';
+    });
+
+    document.querySelector('.godModeBtn').addEventListener('dblclick', async () => {
+
+        await ipcRenderer.invoke('godModeWindows', 'open');
+    });
 
 
-    // <!-- Command Prompt and PowerShell -->
     document.querySelector('.powerShellBtn').addEventListener('dblclick', (e) => {
 
         const runAsAdmin = e.ctrlKey;

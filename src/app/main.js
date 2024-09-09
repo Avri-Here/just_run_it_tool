@@ -15,12 +15,11 @@ require('electron-reload')(path.join(__dirname, '../..'));
 
 const createDesktopTollBar = () => {
 
-    const primaryDisplay = screen.getPrimaryDisplay();
-    const { width, height } = primaryDisplay.workAreaSize;
-    const windowWidth = Math.round(width * 0.15);
-    const windowHeight = Math.round(height * 0.08);
+    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+    const windowWidth = Math.round(width * 0.145);
+    const windowHeight = Math.round(height * 0.075);
     const x = (width - windowWidth - 120), y = 7;
-
+    
 
     const mainWindow = new BrowserWindow({
         x, y,
@@ -40,9 +39,11 @@ const createDesktopTollBar = () => {
 
     registerShortcuts(mainWindow);
 
+    
+
     mainWindow.on('ready-to-show', () => {
         if (process.env.IS_DEV_MODE) {
-            // mainWindow.webContents.openDevTools({ mode: 'undocked' });
+            mainWindow.webContents.openDevTools({ mode: 'undocked' });
         }
     });
 

@@ -13,8 +13,6 @@ body {
 
 .btn-group {
     position: absolute;
-    top: 0;
-    right: 0;
     width: 100%;
     height: 100%;
     opacity: 0;
@@ -22,28 +20,18 @@ body {
     transition: opacity 0.3s ease;
 }
 
-body:hover .btn-group {
+.btn-group:hover {
     opacity: 1;
 }
 
-.music-container,
-.rest-container {
+
+.musicContainer {
     position: absolute;
     top: 28px;
     display: none;
-    padding: 5px;
     width: 110%;
 }
 
-.musicPlayer:hover+.music-container,
-.music-container:hover {
-    display: block;
-}
-
-.rest:hover+.rest-container,
-.rest-container:hover {
-    display: block;
-}
 
 @keyframes flashBorder {
     0% {

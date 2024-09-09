@@ -38,7 +38,10 @@ document.addEventListener('dragover', (e) => {
         btnGroup.style.display = 'block';
     }
 
+
 });
+
+
 document.addEventListener('dragleave', (e) => {
 
     e.preventDefault();
@@ -51,8 +54,14 @@ document.addEventListener('dragleave', (e) => {
 });
 
 
-document.addEventListener('drop', (e) => {
+document.addEventListener('dragover', (e) => {
     e.preventDefault();
+    if (e.target.classList.contains('btn-group')) {
+        dropZone.classList.remove('dragging');
+        dragFiles.style.display = 'none';
+        btnGroup.style.display = 'block';
+    }
+
 });
 
 

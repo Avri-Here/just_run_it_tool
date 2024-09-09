@@ -100,7 +100,7 @@ const initAndRunPlaylistFlow = async () => {
         await killVLCInstances();
         await runPowerShellFile(updatePlaylistPs1Path);
         await startVLC();
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 2000));
         await playSongsRandomly();
         await new Promise(resolve => setTimeout(resolve, 1000));
         console.log('initAndRunPlaylistFlow Done !');

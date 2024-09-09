@@ -3,10 +3,10 @@
 
 
 
-
+let isProgressRunning = false;
 const notifier = require('node-notifier');
 const path = require('path'), log = require('electron-log');
-const { dialog, ipcMain, Notification, nativeImage, BrowserWindow } = require('electron');
+const { dialog, ipcMain, Notification, nativeImage, BrowserWindow, screen } = require('electron');
 
 
 
@@ -74,8 +74,8 @@ ipcMain.on('selectedFile', async (_, { path, identifier }) => {
 });
 
 
-// open notifcation with input to paste url to donwload from youtube ..
-ipcMain.handle('notificationWithInput', async (_, ) => {
+// open notifications with input to paste url to download from youtube ..
+ipcMain.handle('notificationWithInput', async (_,) => {
 
     const notificationInfo = {
         title: `Let's start from the beginning ..`,
@@ -122,23 +122,70 @@ ipcMain.handle('notificationWIthNode', (_, notificationInfo) => {
 
 
 
-let isProgressRunning = false;
 ipcMain.handle('godModeWindows', async (_, action, options) => {
 
     return new Promise(async (resolve) => {
+
         const godModeWindow = BrowserWindow.getAllWindows().find(win => win.getTitle() === 'godModePage');
 
         switch (action) {
+
+            case 'open':
+                {
+                    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+                    const isGodModePageOpen = BrowserWindow.getAllWindows().find(win => win.getTitle() === 'godModePage');
+
+                    if (isGodModePageOpen && !isGodModePageOpen.isDestroyed()) {
+                        isGodModePageOpen.openDevTools({ mode: 'undocked' });
+                        return;
+                    };
+
+                    const windowWidth = Math.round(width * 0.75);
+                    const windowHeight = Math.round(height * 0.8);
+
+                    const godModeWindow = new BrowserWindow({
+                        movable: true, closable: true,
+                        width: windowWidth, height: windowHeight,
+                        resizable: true, skipTaskbar: false,
+                        alwaysOnTop: false, fullscreen: false,
+                        center: true, show: true, frame: false,
+                        icon: path.join(process.env.ASSETS_DIR, 'img/icons/app/godMode.ico'),
+                        webPreferences: {
+                            preload: path.join(__dirname, '../pages/godMode/renderer.js'),
+                            nodeIntegration: true,
+                            contextIsolation: false,
+                        },
+                    });
+
+
+                    godModeWindow.loadFile(path.join(__dirname, '../pages/godMode/index.html'));
+                    godModeWindow.setMenu(null);
+                    godModeWindow.center();
+                    godModeWindow.show();
+
+                    godModeWindow.on('ready-to-show', () => {
+
+                        if (process.env.IS_DEV_MODE) {
+                            godModeWindow.webContents.openDevTools({ mode: 'undocked' });
+                        }
+                    });
+
+                }
+                break;
+
+
 
             case 'close':
 
                 godModeWindow.close();
                 resolve();
+                break;
 
             case 'minimize':
 
                 godModeWindow.minimize();
                 resolve();
+                break;
 
             case 'maximize':
 
@@ -149,6 +196,7 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                 }
                 godModeWindow.maximize();
                 resolve();
+                break;
 
             case 'progressBar':
 
@@ -165,6 +213,7 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                 godModeWindow.setProgressBar(-1);
 
                 resolve();
+                break;
         }
     });
 });

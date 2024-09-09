@@ -1,10 +1,10 @@
 
 
 
-const path = require('path'), os = require('os');
-const { ipcRenderer, clipboard, shell } = require('electron');
+const path = require('path');
+const { ipcRenderer, clipboard } = require('electron');
 const { executeCommandWithSpawn, openCmdAndRunFromThere } = require('../../utils/childProcess');
-const { runPowerShellFile, runPsCommand } = require('../../utils/childProcess');
+const { runPowerShellFile, runPsCommand, runExeFileAsAdmin } = require('../../utils/childProcess');
 
 
 
@@ -14,19 +14,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const freeRam = document.getElementById('freeRam');
     const moveMouse = document.getElementById('moveMouse');
     const taskManager = document.getElementById('taskManager');
-    const envVariables = document.getElementById('envVariables');
     const textFromImag = document.getElementById('textFromImag');
     const bcUninstaller = document.getElementById('bcUninstaller');
     const ytDlpPlaylist = document.getElementById('ytDlpPlaylist');
     const cleanSweep2Cli = document.getElementById('cleanSweep2Cli');
     const hostsFileEditor = document.getElementById('hostsFileEditor');
     const fullEventLogView = document.getElementById('fullEventLogView');
+    const environmentEditor = document.getElementById('environmentEditor');
 
 
     ffBatch.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'ffBatch', `ffBatch.exe`);
-        await ipcRenderer.invoke('godModeWindows', 'progressBar'); // Wait until progress bar is ready
+        await ipcRenderer.invoke('godModeWindows', 'progressBar'); 
         executeCommandWithSpawn(exePath);
     });
 
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     freeRam.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'memReduct', `memReduct.exe`);
-        await ipcRenderer.invoke('godModeWindows', 'progressBar'); // Wait until progress bar is ready
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         executeCommandWithSpawn(exePath);
     });
 
@@ -77,12 +77,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    envVariables.addEventListener('dblclick', async () => {
+    environmentEditor.addEventListener('dblclick', async () => {
 
-        const exePath = path.join(process.env.BINARIES_DIR, 'misc', `pathManager.exe`);
-        await ipcRenderer.invoke('godModeWindows', 'progressBar');
-        executeCommandWithSpawn(exePath);
+        const exePath = path.join(process.env.BINARIES_DIR, 'misc', `rapidEnvEditor.exe`);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar', 5000);
+        runExeFileAsAdmin(exePath);
     });
+
+    
 
 
     hostsFileEditor.addEventListener('dblclick', async () => {

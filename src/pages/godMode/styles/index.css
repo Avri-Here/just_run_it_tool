@@ -649,6 +649,9 @@ li>.menu__container>.grid__controling .control_center--grid {
 .dock #freeRam:hover::after {
   content: "FreeRam";
 }
+.dock #environmentEditor:hover::after {
+  content: "EnvEditor";
+}
 
 .dock #bcUninstaller:hover::after {
   content: "BcUninstaller";
