@@ -1,7 +1,7 @@
 
 
 const { app } = require('electron');
-path = require('path'), os = require('os');
+const path = require('path'), os = require('os');
 
 
 const isDevMode = !app.isPackaged;

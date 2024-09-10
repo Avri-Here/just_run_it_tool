@@ -65,6 +65,17 @@ document.addEventListener('dragover', (e) => {
 });
 
 
+document.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (e.target.classList.contains('btn-group')) {
+        dropZone.classList.remove('dragging');
+        dragFiles.style.display = 'none';
+        btnGroup.style.display = 'block';
+    }
+
+});
+
+
 window.onload = async () => {
 
     if (sessionStorage.getItem('xpStartupSound')) {
@@ -74,9 +85,10 @@ window.onload = async () => {
     sessionStorage.setItem('xpStartupSound', true);
 
     const audio = new Audio('./../../assets/sound/win8StartupSound.mp3');
-    // const audio = new Audio('./../../assets/sound/2000StartupSound.mp3');
     audio.play().catch(error => {
         console.error('Error playing sound :', error);
     });
+
+
 
 };

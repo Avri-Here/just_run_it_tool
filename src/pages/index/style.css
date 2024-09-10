@@ -83,8 +83,7 @@ body {
         var(--_g) 0% 50%,
         var(--_g) 25% 50%,
         var(--_g) 50% 50%,
-        var(--_g) 75% 50%,
-        var(--_g) 100% 50%;
+        var(--_g) 75% 50%;
     background-size: calc(100%/5) 100%;
     animation: l7 2s infinite linear;
 }
@@ -114,7 +113,7 @@ body {
 .progressContainer {
     width: 100%;
     border-radius: 8px;
-    margin-top: 8px;
-    height: 25px;
+    margin-top: 10px;
+    height: 15px;
     display: none;
 }

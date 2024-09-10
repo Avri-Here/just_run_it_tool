@@ -1,9 +1,9 @@
 
 
-
+const { promisify } = require('util');
+const console = require('electron-log');
 const { exec, spawn } = require('child_process');
 const path = require('path'), { ipcRenderer } = require('electron');
-
 
 
 const containsExclamationMark = path.join(require('os').homedir(), 'Desktop').includes('!');
@@ -290,7 +290,7 @@ const executeCommandWithSpawn = (exePath, params = []) => {
 const runExeFileAsAdmin = (exePath) => {
 
     const child = spawn('powershell.exe',
-         ['-Command', `Start-Process -FilePath "${exePath}" -Verb RunAs`], {
+        ['-Command', `Start-Process -FilePath "${exePath}" -Verb RunAs`], {
         shell: true,
         detached: true,
         stdio: 'ignore'
@@ -397,14 +397,27 @@ const executeSpawnWithListener = (batFilePath, params = [], callback) => {
 };
 
 
+// Pass the name of the exe file , like vlcPortable.exe ...
+const isExeRunningOnWindows = async (exeName) => {
+    const execAsync = promisify(exec);
+    try {
+        const command = `tasklist /FI "IMAGENAME eq ${exeName}"`;
+        const { stdout } = await execAsync(command);
+        const isRunning = stdout.includes(exeName);
+        return isRunning;
+    } catch (error) {
+        console.error('Error in isExeRunningOnWindows :', error);
+        return false;
+    }
+};
 
 module.exports = {
     openCmdAsAdmin, openPowerShellAsAdmin,
     openPowerShellNoAdmin, openCmdNoAdmin, openCmdAndRunOnEnter,
     runPsCommand, executeCommandWithSpawn, openCmdAndRunFromThere,
     openFileDirectly, shouldOpenInTerminal, executeSpawnWithListener,
-    getCommandBaseType, openCmdInNewTabOrWindow, runPowerShellFile,runExeFileAsAdmin,
-    runExeAsAdmin, runExeAndCloseCmd, openWindowsComponentAsAdmin,
+    getCommandBaseType, openCmdInNewTabOrWindow, runPowerShellFile, runExeFileAsAdmin,
+    runExeAsAdmin, runExeAndCloseCmd, openWindowsComponentAsAdmin, isExeRunningOnWindows,
     openCmdInNewTabOrWindowAsAdmin, openCmdInNewTabOrWindowFolder,
 };
 
