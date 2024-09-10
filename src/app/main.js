@@ -49,7 +49,7 @@ const createDesktopTollBar = () => {
 
     mainWindow.on('ready-to-show', () => {
         if (process.env.IS_DEV_MODE) {
-            mainWindow.webContents.openDevTools({ mode: 'undocked' });
+            // mainWindow.webContents.openDevTools({ mode: 'undocked' });
         }
     });
 

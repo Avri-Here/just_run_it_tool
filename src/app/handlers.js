@@ -143,12 +143,14 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                     const windowWidth = Math.round(width * 0.75);
                     const windowHeight = Math.round(height * 0.8);
 
+                    
                     const godModeWindow = new BrowserWindow({
                         movable: true, closable: true,
                         width: windowWidth, height: windowHeight,
                         resizable: true, skipTaskbar: false,
                         alwaysOnTop: false, fullscreen: false,
                         center: true, show: true, frame: false,
+                        icon: path.join(process.env.ASSETS_DIR, 'img/icons/app/godMode.ico'),
                         webPreferences: {
                             preload: path.join(__dirname, '../pages/godMode/renderer.js'),
                             nodeIntegration: true,
@@ -156,15 +158,14 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                         },
                     });
 
-                    const appLogo = path.join(process.env.ASSETS_DIR, 'img', 'icons', 'app', 'godMode.ico');
+                 
                     godModeWindow.loadFile(path.join(__dirname, '../pages/godMode/index.html'));
                     godModeWindow.setMenu(null);
                     godModeWindow.center();
-                    godModeWindow.setIcon(nativeImage.createFromPath(appLogo));
+                    godModeWindow.show();
 
                     godModeWindow.on('ready-to-show', () => {
 
-                        godModeWindow.show();
                         if (process.env.IS_DEV_MODE) {
                             // godModeWindow.webContents.openDevTools({ mode: 'undocked' });
                         }

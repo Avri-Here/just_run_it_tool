@@ -229,10 +229,10 @@ const loveThisSong = async () => {
             const notificationSound = document.getElementById('notificationSound');
             const soundSrcOnDone = `./../../assets/sound/successSound.mp3`;
             notificationSound.src = soundSrcOnDone;
-            await vlc.pause();
+            pauseOrResume();
             notificationSound.play();
             await new Promise(resolve => setTimeout(resolve, 1500));
-            await vlc.play();
+            pauseOrResume();
             console.log(`Song copied to loveThisSongs folder : ${newFilePath}`);
             return;
 
@@ -255,7 +255,7 @@ const addWplFileToPlaylist = async (wplFileName = 'foreign.wpl') => {
     // return;
 };
 
-const pauseOrResume = () => {
+const pauseOrResume = async () => {
 
     return checkVLCAndProceed(async () => {
 
@@ -279,6 +279,7 @@ const pauseOrResume = () => {
             return;
         } catch (error) {
             console.error(`Error pausing or resuming playback : ${error}`);
+            return;
         }
     });
 };
