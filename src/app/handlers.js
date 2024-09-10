@@ -143,7 +143,7 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                     const windowWidth = Math.round(width * 0.75);
                     const windowHeight = Math.round(height * 0.8);
 
-                    
+
                     const godModeWindow = new BrowserWindow({
                         movable: true, closable: true,
                         width: windowWidth, height: windowHeight,
@@ -158,7 +158,7 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                         },
                     });
 
-                 
+
                     godModeWindow.loadFile(path.join(__dirname, '../pages/godMode/index.html'));
                     godModeWindow.setMenu(null);
                     godModeWindow.center();
@@ -172,6 +172,7 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                     });
 
                 }
+                resolve();
                 break;
 
 
