@@ -188,7 +188,7 @@ const deleteCurrentSongAndPlayNext = async () => {
             const currentMedia = await vlc.getFileName();
             const playlist = await vlc.getPlaylist();
             const currentEntry = playlist.find(entry => entry.isCurrent);
-            vlc.removeFromPlaylist(currentEntry.id);
+            await vlc.removeFromPlaylist(currentEntry.id);
             console.log(`removeFromPlaylist Song : ${currentMedia}`);
             const filePathToOut = path.join(homedir, 'Documents', 'appsAndMore', 'mySongs', playlistFolder.split('.')[0], currentMedia);
             await deleteFileToTrash(filePathToOut, false);
@@ -197,7 +197,8 @@ const deleteCurrentSongAndPlayNext = async () => {
             notificationSound.src = soundSrcOnDone;
             notificationSound.play();
             await new Promise(resolve => setTimeout(resolve, 1500));
-            await playNext();
+            await pauseOrResume();
+            return;
         } catch (error) {
             console.error(`Error deleting current song and playing next : ${error}`);
             return;
@@ -229,10 +230,10 @@ const loveThisSong = async () => {
             const notificationSound = document.getElementById('notificationSound');
             const soundSrcOnDone = `./../../assets/sound/successSound.mp3`;
             notificationSound.src = soundSrcOnDone;
-            pauseOrResume();
+            await pauseOrResume();
             notificationSound.play();
             await new Promise(resolve => setTimeout(resolve, 1500));
-            pauseOrResume();
+            await pauseOrResume();
             console.log(`Song copied to loveThisSongs folder : ${newFilePath}`);
             return;
 
