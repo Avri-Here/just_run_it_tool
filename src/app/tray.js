@@ -1,14 +1,12 @@
 
 
-
-const path = require('path');
-const { Tray, Menu, app, BrowserWindow, screen } = require('electron');
-
+const { join } = require('path')
+const { Tray, Menu, app, BrowserWindow, nativeImage } = require('electron');
 
 const createTray = (mainWindow = new BrowserWindow()) => {
-
-    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-    const tray = new Tray(path.join(process.env.ASSETS_DIR, 'img/icons/app/appLogo.ico'));
+    
+    const appLogo = join(process.env.ASSETS_DIR, 'img', 'icons', 'app', 'appLogo.ico');
+    const tray = new Tray(nativeImage.createFromPath(appLogo));
     const contextMenu = Menu.buildFromTemplate(
         [
             {
@@ -45,7 +43,7 @@ const createTray = (mainWindow = new BrowserWindow()) => {
             },
         ]);
 
-    // tray.setToolTip('justRunItToll');
+    tray.setToolTip('justRunItToll');
     tray.setContextMenu(contextMenu);
 };
 

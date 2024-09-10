@@ -13,4 +13,6 @@ if (isDevMode) {
 }
 
 process.env.BINARIES_DIR = path.join(os.homedir(), 'Documents', 'appsAndMore', 'binaries');
-process.env.ASSETS_DIR = isDevMode ? path.join(__dirname, '../assets') : process.resourcesPath;
+process.env.ASSETS_DIR = isDevMode ? path.join(__dirname, '../assets') :
+    path.join(process.resourcesPath, 'assets')
+

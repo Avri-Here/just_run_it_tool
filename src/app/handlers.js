@@ -149,7 +149,6 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                         resizable: true, skipTaskbar: false,
                         alwaysOnTop: false, fullscreen: false,
                         center: true, show: true, frame: false,
-                        icon: path.join(process.env.ASSETS_DIR, 'img/icons/app/godMode.ico'),
                         webPreferences: {
                             preload: path.join(__dirname, '../pages/godMode/renderer.js'),
                             nodeIntegration: true,
@@ -157,16 +156,17 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                         },
                     });
 
-
+                    const appLogo = path.join(process.env.ASSETS_DIR, 'img', 'icons', 'app', 'godMode.ico');
                     godModeWindow.loadFile(path.join(__dirname, '../pages/godMode/index.html'));
                     godModeWindow.setMenu(null);
                     godModeWindow.center();
-                    godModeWindow.show();
+                    godModeWindow.setIcon(nativeImage.createFromPath(appLogo));
 
                     godModeWindow.on('ready-to-show', () => {
 
+                        godModeWindow.show();
                         if (process.env.IS_DEV_MODE) {
-                            godModeWindow.webContents.openDevTools({ mode: 'undocked' });
+                            // godModeWindow.webContents.openDevTools({ mode: 'undocked' });
                         }
                     });
 
@@ -201,7 +201,7 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
             case 'progressBar':
 
                 const stopProgressAfter = options || 3000;
-                console.log('isProgressRunning :', isProgressRunning);
+                // console.log('isProgressRunning :', isProgressRunning);
 
                 while (isProgressRunning) await new Promise(resolve => setTimeout(resolve, 200));
 

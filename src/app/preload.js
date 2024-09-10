@@ -1,17 +1,18 @@
 
 
 
+const fs = require('fs').promises;
+const console = require('electron-log');
 const { clipboard, ipcRenderer } = require('electron');
-const { loveThisSong } = require('../utils/vlcManager');
 const { convertMediaFile } = require('../utils/ffmpeg');
-const fs = require('fs').promises, console = require('electron-log');
 const { openCmdInNewTabOrWindowFolder } = require('../utils/childProcess');
 const { openCmdAsAdmin, openCmdNoAdmin } = require('../utils/childProcess');
+const { loveThisSong, isVlcClientRunning } = require('../utils/vlcManager');
 const { runExeAndCloseCmd, getCommandBaseType } = require('../utils/childProcess');
 const { openFileDirectly, shouldOpenInTerminal } = require('../utils/childProcess');
+const { playPrevious, deleteCurrentSongAndPlayNext, } = require('../utils/vlcManager');
 const { openPowerShellAsAdmin, openPowerShellNoAdmin } = require('../utils/childProcess');
 const { initAndRunPlaylistFlow, pauseOrResume, playNext } = require('../utils/vlcManager');
-const { playPrevious, deleteCurrentSongAndPlayNext, isVlcClientRunning } = require('../utils/vlcManager');
 const { openCmdInNewTabOrWindow, openCmdInNewTabOrWindowAsAdmin } = require('../utils/childProcess');
 
 
@@ -29,7 +30,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dragFiles = document.querySelector('.list-group');
     const godModeBtn = document.querySelector('.godModeBtn');
     const deleteSong = document.querySelector('.deleteSong');
-    // const button = document.querySelector('.togglePlayPause');
     const musicPlayer = document.querySelector('.musicPlayer');
     const previousSong = document.querySelector('.previousSong');
     const powerShellBtn = document.querySelector('.powerShellBtn');

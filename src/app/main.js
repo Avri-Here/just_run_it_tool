@@ -2,14 +2,19 @@
 
 
 
-const { BrowserWindow, screen, app } = require('electron');
 
 require('./configEnv');
 require('./handlers');
 const path = require('path');
-const registerShortcuts = require('./shortcuts');
 const createTray = require('./tray');
+const registerShortcuts = require('./shortcuts');
+const { BrowserWindow, screen, app } = require('electron');
 require('electron-reload')(path.join(__dirname, '../..'));
+
+
+const isAppAlreadyRunning = app.requestSingleInstanceLock();
+
+if (!isAppAlreadyRunning) return app.quit();
 
 
 
@@ -19,7 +24,7 @@ const createDesktopTollBar = () => {
     const windowWidth = Math.round(width * 0.145);
     const windowHeight = Math.round(height * 0.075);
     const x = (width - windowWidth - 120), y = 7;
-    
+
 
     const mainWindow = new BrowserWindow({
         x, y,
@@ -37,9 +42,10 @@ const createDesktopTollBar = () => {
     mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
 
+    createTray(mainWindow);
     registerShortcuts(mainWindow);
 
-    
+
 
     mainWindow.on('ready-to-show', () => {
         if (process.env.IS_DEV_MODE) {
@@ -48,14 +54,8 @@ const createDesktopTollBar = () => {
     });
 
 
-    createTray(mainWindow);
 
-}
-
+};
 
 
-app.whenReady().then(() => {
-
-    createDesktopTollBar();
-    // if (process.platform === 'win32') { app.setAppUserModelId('com.avri.just_run_it_tool') }
-});
+app.whenReady().then(() => { createDesktopTollBar() });
