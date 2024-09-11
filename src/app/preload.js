@@ -5,15 +5,17 @@ const fs = require('fs').promises;
 const console = require('electron-log');
 const { clipboard, ipcRenderer } = require('electron');
 const { convertMediaFile } = require('../utils/ffmpeg');
-const { openCmdInNewTabOrWindowFolder } = require('../utils/childProcess');
+const { openCmdInNewTabOrWindow } = require('../utils/childProcess');
+const { runScriptOnNewTabOrWindow } = require('../utils/childProcess');
+const { loveThisSong, getVlcClientMode } = require('../utils/vlcManager');
 const { openCmdAsAdmin, openCmdNoAdmin } = require('../utils/childProcess');
-const { loveThisSong, isVlcClientRunning } = require('../utils/vlcManager');
+const { openCmdInNewTabOrWindowAsAdmin } = require('../utils/childProcess');
 const { runExeAndCloseCmd, getCommandBaseType } = require('../utils/childProcess');
 const { openFileDirectly, shouldOpenInTerminal } = require('../utils/childProcess');
 const { playPrevious, deleteCurrentSongAndPlayNext, } = require('../utils/vlcManager');
 const { openPowerShellAsAdmin, openPowerShellNoAdmin } = require('../utils/childProcess');
+const { openCmdInNewTabOrWindowFolder, timeOutPromise } = require('../utils/childProcess');
 const { initAndRunPlaylistFlow, pauseOrResume, playNext } = require('../utils/vlcManager');
-const { openCmdInNewTabOrWindow, openCmdInNewTabOrWindowAsAdmin } = require('../utils/childProcess');
 
 
 
@@ -27,21 +29,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loveSong = document.querySelector('.loveSong');
     const btnGroup = document.querySelector('.btn-group');
     const pauseIcon = document.querySelector('.icon-pause');
-    const dragFiles = document.querySelector('.list-group');
     const godModeBtn = document.querySelector('.godModeBtn');
     const deleteSong = document.querySelector('.deleteSong');
     const musicPlayer = document.querySelector('.musicPlayer');
     const previousSong = document.querySelector('.previousSong');
     const powerShellBtn = document.querySelector('.powerShellBtn');
     const musicContainer = document.querySelector('.musicContainer');
-    const progressContainer = document.getElementById('progressContainer');
+    const progressContainer = document.querySelector('.progressContainer');
 
 
+    btnGroup.addEventListener('dragover', (e) => { e.preventDefault() });
+    btnGroup.addEventListener('dragleave', (e) => { e.preventDefault() });
 
-    dragFiles.addEventListener('drop', async (e) => {
+    btnGroup.addEventListener('drop', async (e) => {
 
         e.preventDefault();
-        const files = e.dataTransfer.files;
+
+        const { files } = e.dataTransfer;
 
         try {
 
@@ -51,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     title: `Let's start from the beginning ..`,
                     message: 'Drag only one file or folder .',
                     icon: 'error',
-                    sound: false,
+                    sound: true,
                     timeout: 5,
                 }
 
@@ -71,7 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     title: 'No path found on drop event or on clipboard !',
                     message: 'Use a valid file or folder .',
                     icon: 'error',
-                    sound: false,
+                    sound: true,
                     timeout: 5,
                 }
 
@@ -79,14 +83,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            const path = files[0]?.path || txtClipboard;
-
-            dragFiles.style.display = 'none';
             btnGroup.style.display = 'none';
             progressContainer.style.display = 'block';
+
+            const path = files[0]?.path || txtClipboard;
             await new Promise((resolve) => setTimeout(resolve, 1350));
 
-            const dirPath = require('path').dirname(path);
+            // const dirPath = require('path').dirname(path);
             const stats = await fs.stat(path);
 
 
@@ -102,76 +105,96 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (shouldOpenInTerminal(path)) {
 
-                console.log('shouldOpenInTerminal - true');
-
                 const asAdmin = e.ctrlKey;
-                const { command, suffix } = getCommandBaseType(path);
-
-                console.log({ command, suffix });
-
+                const { fullPathCommand, filePathCommand } = getCommandBaseType(path);
 
                 if (asAdmin) {
-                    openCmdInNewTabOrWindowAsAdmin(command);
+                    openCmdInNewTabOrWindowAsAdmin(fullPathCommand);
                     return;
                 }
 
-                clipboard.writeText(suffix);
-                openCmdInNewTabOrWindow(dirPath, suffix);
+
+                clipboard.writeText(filePathCommand);
+                runScriptOnNewTabOrWindow(fullPathCommand);
                 return;
             };
 
-            const ext = require('path').extname(path).toLowerCase();
-
-            const isMadiaFile = [
-                '.mp3', '.wav', '.aac', '.flac',
-                '.ogg', '.wma', '.mp4', '.mkv',
-                '.avi', '.mov', '.flv', '.wmv'].includes(ext);
-
-            if (isMadiaFile) {
-                convertMediaFile(path);
-                return;
-            };
-            // Default case - open file directly ..
+            // Default case - Open file directly ..
             openFileDirectly(path);
+
+
+
+            // const ext = require('path').extname(path).toLowerCase();
+
+            // const isMadiaFile = [
+            //     '.mp3', '.wav', '.aac', '.flac',
+            //     '.ogg', '.wma', '.mp4', '.mkv',
+            //     '.avi', '.mov', '.flv', '.wmv'].includes(ext);
+
+            // if (isMadiaFile) {
+            //     convertMediaFile(path);
+            //     return;
+            // };
+
 
 
         }
         catch (err) {
-
             console.error(`Error :`, err);
             return;
         }
 
         finally {
             await new Promise((resolve) => setTimeout(resolve, 100));
-            dragFiles.style.display = 'none';
-            btnGroup.style.display = 'block';
             progressContainer.style.display = 'none';
+            btnGroup.style.display = 'block';
+            // btnGroup.draggable = true;
         }
     });
+
 
     musicPlayer.addEventListener('mouseover', async () => {
 
-        musicContainer.style.display = 'block';
 
-        const playing = await isVlcClientRunning();
+        const vlcClientState = await Promise.race([timeOutPromise(), getVlcClientMode()]);
 
-        if (!playing || playing === 'paused') {
-            playIcon.style.display = 'inline-block';
-            pauseIcon.style.display = 'none';
+
+
+        const vlcUnderControl = vlcClientState !== 'timeout' && vlcClientState !== 'unknown';
+
+        if (!vlcUnderControl) {
+            musicContainer.style.display = 'none';
             return;
         }
 
-        playIcon.style.display = 'none';
-        pauseIcon.style.display = 'inline-block';
+
+        if (vlcClientState === 'paused') {
+            playIcon.style.display = 'inline-block';
+            pauseIcon.style.display = 'none';
+        }
+
+        if (vlcClientState === 'playing') {
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'inline-block';
+        }
+
+        musicContainer.style.display = 'block';
+
 
     });
 
+
+    // initPlay.addEventListener('dblclick', async () => await initAndRunPlaylistFlow());
 
     initPlay.addEventListener('dblclick', async () => {
 
+        initPlay.disabled = true;
         await initAndRunPlaylistFlow();
+        initPlay.disabled = false;
     });
+
+
+
 
     document.querySelector('.togglePlayPause').addEventListener('click', async () => {
 
@@ -244,6 +267,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     godModeBtn.addEventListener('mouseover', () => { musicContainer.style.display = 'none'; });
     powerShellBtn.addEventListener('mouseover', () => { musicContainer.style.display = 'none'; });
     musicContainer.addEventListener('mouseleave', () => { musicContainer.style.display = 'none'; });
+    btnGroup.addEventListener('mouseleave', () => { musicContainer.style.display = 'none'; });
 });
 
 

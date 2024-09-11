@@ -35,15 +35,30 @@ const getCommandBaseType = (fullPath) => {
 
     switch (type) {
         case '.py':
-            return { command: `python "${fullPath}"`, suffix: `python ${fileName}` };
+            return {
+                fullPathCommand: `python "${fullPath}"`,
+                filePathCommand: `python "${fileName}"`
+            };
         case '.ps1':
-            return { command: `powershell -File "${fullPath}"`, suffix: `powershell -File "${fileName}"` };
+            return {
+                fullPathCommand: `powershell -File "${fullPath}"`,
+                filePathCommand: `powershell -File "${fileName}"`
+            };
         case '.bat':
-            return { command: `"${fullPath}"`, suffix: fileName };
+            return {
+                fullPathCommand: `"${fullPath}"`,
+                filePathCommand: fileName
+            };
         case '.js':
-            return { command: `node "${fullPath}"`, suffix: `node ${fileName}` };
+            return {
+                fullPathCommand: `node --watch "${fullPath}"`,
+                filePathCommand: `node --watch "${fileName}"`
+            };
         default:
-            return { command: `"${fullPath}"`, suffix: fileName };
+            return {
+                fullPathCommand: `"${fullPath}"`,
+                filePathCommand: fileName
+            };
     }
 }
 
@@ -59,10 +74,10 @@ const openCmdInNewTabOrWindowFolder = async (command) => {
 
 const openCmdInNewTabOrWindow = async (filePath, commandToRun) => {
 
-    console.log(`dirPath: ${filePath}`);
+    console.log(`dirPath : ${filePath}`);
 
-    // const command = `wt -w 0 nt cmd /k cd /d "${filePath}" & ${commandToRun}`; 
-    const command = `wt -w 0 nt cmd /k "cd /d "${filePath}" && ${commandToRun} || echo Error occurred while executing command && pause"`;
+    const command = `wt -w 0 nt cmd /k cd /d "${filePath}" & ${commandToRun}`;
+    // const command = `wt -w 0 nt cmd /k "cd /d "${filePath}" && ${commandToRun} || echo Error occurred while executing command && pause"`;
 
     exec(command, (err) => {
         if (err) {
@@ -93,7 +108,7 @@ const openCmdInNewTabOrWindowAsAdmin = async (command) => {
 const openFileDirectly = (filePath) => {
     exec(`start "" "${filePath}"`, (err) => {
         if (err) {
-            console.error('Error opening file:', err);
+            console.error('Error opening file :', err);
         }
     });
 };
@@ -299,34 +314,36 @@ const runExeFileAsAdmin = (exePath) => {
 };
 
 
-// This run it from the electron app will close if the app is closed - this funk first open the cmd and then run the exe file .. like in real life ..
+// run it from the electron app will close if the app is closed - this funk first open the cmd and then run the exe file .. like in real life ..
 
-const openCmdAndRunFromThere = (exePath, params = []) => {
+const openCmdAndRunFromThere = (command, params = []) => {
 
-    const exeDir = path.dirname(exePath);
+    const cdIntoDir = path.dirname(command);
 
 
     // if you want make it open on new window not matter what ..
-    // exec(`start cmd.exe /K "cd /d ${exeDir} && ${path.basename(exePath)} ${params}"`, (error, stdout, stderr) => {
+    // exec(`start cmd.exe /K "cd /d ${exeDir} && ${path.basename(command)} ${params}"`, (error, stdout, stderr) => {
 
 
     //if you want make it open on new tab if the terminal is already open ..
-    exec(`wt -w 0 nt cmd.exe /K "cd /d ${exeDir} && ${path.basename(exePath)} ${params}"`, (error, stdout, stderr) => {
+    exec(`wt -w 0 nt cmd.exe /K "cd /d ${cdIntoDir} && ${command} ${params}"`,
+        (error, stdout, stderr) => {
 
-        if (error) {
-            console.error(`Error executing file : ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.error(`Error output : ${stderr}`);
-            return;
-        }
-        console.log(`Output : ${stdout}`);
-    });
+            if (error) {
+                console.error(`Error executing file : ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                console.error(`Error output : ${stderr}`);
+                return;
+            }
+            console.log(`Output : ${stdout}`);
+        });
 }
 
 
 const openCmdAndRunOnEnter = async (waitForInput, runWithInput, exePath) => {
+
     const openCmdAndWaitForInput = `start cmd.exe /K "cd /d ${path.dirname(exePath)} && ${waitForInput} ${runWithInput}" `;
     // const exeDir = path.dirname(exePath);
 
@@ -403,22 +420,93 @@ const isExeRunningOnWindows = async (exeName) => {
     try {
         const command = `tasklist /FI "IMAGENAME eq ${exeName}"`;
         const { stdout } = await execAsync(command);
-        const isRunning = stdout.includes(exeName);
-        return isRunning;
+        // console.log('isExeRunningOnWindows stdout :', stdout);
+        return stdout.includes(exeName);
+
     } catch (error) {
         console.error('Error in isExeRunningOnWindows :', error);
-        return false;
+        return 'off';
     }
 };
 
+const timeOutPromise = () => {
+    return new Promise(resolve => {
+        setTimeout(() => { resolve('timeOut') }, 2000);
+    })
+}
+
+
+// Run an isolated command - as an administrator - the windows not close on finish !
+// const runIsolatedCommandAsAdmin = (typeIt = 'color 4') => {
+
+//     const command = `powershell -Command "Start-Process cmd -ArgumentList '/k ${typeIt}' -Verb RunAs"`;
+
+//     exec(command, { shell: 'powershell.exe' }, (error, stdout, stderr) => {
+//         if (error) {
+//             console.error(`Error: ${error.message}`);
+//             return;
+//         }
+//         if (stderr) {
+//             console.error(`stderr: ${stderr}`);
+//             return;
+//         }
+//         console.log(`stdout: ${stdout}`);
+//     });
+// };
+
+
+const runIsolatedCommandAsAdmin = (typeIt = 'color 4') => {
+    return new Promise((resolve, reject) => {
+        const command = `powershell -Command "Start-Process cmd -ArgumentList '/k ${typeIt}' -Verb RunAs"`;
+
+        exec(command, { shell: 'powershell.exe' }, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`User denied UAC or other error occurred : ${error.message}`);
+                resolve(false);
+                return;
+            }
+            if (stderr) {
+                console.error(`Something went wrong .. : ${stderr}`);
+                resolve(false);
+                return;
+            }
+            console.log(`Command executed successfully  : ${stdout}`);
+            resolve(true);
+        });
+    });
+};
+
+
+
+//  run JS script in a new CMD tab or window and keep it running with node --watch
+const runScriptOnNewTabOrWindow = (fullPathWithCommand, insertToHistory) => {
+
+    console.log(`fullPathWithCommand : ${fullPathWithCommand}`);
+
+    const openCMD = `wt -w 0 nt cmd /k ${fullPathWithCommand}`;
+
+    exec(openCMD, (error, stdout, stderr) => {
+
+        if (error) {
+            console.error(`Error : ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.error(`Stderr : ${stderr}`);
+            return;
+        }
+        console.log(`Output : ${stdout}`);
+    });
+};
+
 module.exports = {
-    openCmdAsAdmin, openPowerShellAsAdmin,
-    openPowerShellNoAdmin, openCmdNoAdmin, openCmdAndRunOnEnter,
+    openCmdInNewTabOrWindowAsAdmin, openCmdInNewTabOrWindowFolder,
     runPsCommand, executeCommandWithSpawn, openCmdAndRunFromThere,
     openFileDirectly, shouldOpenInTerminal, executeSpawnWithListener,
+    openCmdAsAdmin, openPowerShellAsAdmin, timeOutPromise, runIsolatedCommandAsAdmin,
     getCommandBaseType, openCmdInNewTabOrWindow, runPowerShellFile, runExeFileAsAdmin,
     runExeAsAdmin, runExeAndCloseCmd, openWindowsComponentAsAdmin, isExeRunningOnWindows,
-    openCmdInNewTabOrWindowAsAdmin, openCmdInNewTabOrWindowFolder,
+    openPowerShellNoAdmin, openCmdNoAdmin, openCmdAndRunOnEnter, runScriptOnNewTabOrWindow,
 };
 
 

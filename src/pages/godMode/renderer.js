@@ -1,18 +1,25 @@
 
 
 
-const path = require('path');
-const { ipcRenderer, clipboard } = require('electron');
-const { executeCommandWithSpawn, openCmdAndRunFromThere } = require('../../utils/childProcess');
-const { runPowerShellFile, runPsCommand, runExeFileAsAdmin } = require('../../utils/childProcess');
+const path = require('path')
+const { ipcRenderer, clipboard, app } = require('electron');
+const { runExeFileAsAdmin } = require('../../utils/childProcess');
+const { openCmdAndRunFromThere } = require('../../utils/childProcess');
+const { executeCommandWithSpawn } = require('../../utils/childProcess');
+const { runIsolatedCommandAsAdmin } = require('../../utils/childProcess');
+const { runPowerShellFile, runPsCommand } = require('../../utils/childProcess');
+
 
 
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    const { default: Swal } = require('sweetalert2');
+
     const ffBatch = document.getElementById('ffBatch');
     const freeRam = document.getElementById('freeRam');
     const moveMouse = document.getElementById('moveMouse');
+    const fixPcUtils = document.getElementById('fixPcUtils');
     const taskManager = document.getElementById('taskManager');
     const textFromImag = document.getElementById('textFromImag');
     const bcUninstaller = document.getElementById('bcUninstaller');
@@ -23,10 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const environmentEditor = document.getElementById('environmentEditor');
 
 
+
     ffBatch.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'ffBatch', `ffBatch.exe`);
-        await ipcRenderer.invoke('godModeWindows', 'progressBar'); 
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         executeCommandWithSpawn(exePath);
     });
 
@@ -84,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         runExeFileAsAdmin(exePath);
     });
 
-    
+
 
 
     hostsFileEditor.addEventListener('dblclick', async () => {
@@ -184,46 +192,159 @@ document.addEventListener('DOMContentLoaded', () => {
 
     })
 
-    // const handle64 = document.getElementById('handle64');
 
-    // handle64Element.addEventListener('dblclick', () => {
+    // fixPcUtils.addEventListener('dblclick', async () => {
 
-    //     ipcRenderer.invoke('openFileDialog', 'handle64'); // Pass an identifier
-    // });
-
-    // memReductElement.addEventListener('dblclick', async () => {
-
-    //     await runExeAndCloseCmd('memreduct.exe', undefined, 'memReduct');
-    // });
+    //     // const exePath = path.join(process.env.BINARIES_DIR, 'fixPcUtils', 'fixPcUtils.exe');
 
 
-    // ipcRenderer.on('selectedFile', async (_, { path, identifier }) => {
+    //     const { isConfirmed, isDenied } = await Swal.fire({
+    //         showDenyButton: true,
+    //         title: "Please choose a Tool to start .." + "<br>",
+    //         confirmButtonText: "systemFileChecker",
+    //         denyButtonText: `cleanupImageDism`,
+    //     })
+    //     // runIsolatedCommandAsAdmin();
 
-    //     if (!path) {
-    //         alert('Hay ' + identifier + 'No file path was selected .');
+    //     if (isConfirmed) {
+    //         // Swal.fire("systemFileChecker !", "", "success");
+    //         runIsolatedCommandAsAdmin('sfc /scannow');
+    //         await ipcRenderer.invoke('openProgressBar', {
+    //             title: 'fixPcUtils', detail: 'systemFileChecker will start soon ..'
+    //         });
     //         return;
+
     //     }
 
-    //     alert(`Processing file from identifier : ${identifier} : ${path}`);
-
-    //     if (identifier === 'handle64') {
-    //         const { join } = require('path');
-    //         const exeDir = 'misc';
-    //         const exeName = 'handle64.exe';
-    //         const params = ` "${path}" `;
-    //         const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
-    //         const baseDir = isDev
-    //             ? join(__dirname, '..', '..', 'assets', 'binaries', exeDir, exeName)
-    //             : join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir, exeName);
-
-
-    //         const command = ` "${baseDir}" ` + params;
-
-    //         await openCmdInNewTabOrWindowAsAdmin(command);
+    //     if (isDenied) {
+    //         runIsolatedCommandAsAdmin('DISM /Online /Cleanup-Image /RestoreHealth');
+    //         await ipcRenderer.invoke('openProgressBar', {
+    //             title: 'fixPcUtils', detail: 'cleanupImageDism will start soon ..'
+    //         });
     //     }
+
     // });
 
 
-    // ExtractingTextFromImag ..
+
+
+
+    fixPcUtils.addEventListener('dblclick', async () => {
+
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'bottom-right',
+            iconColor: 'white',
+            customClass: {
+                popup: 'colored-toast',
+            },
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true,
+        })
+
+        const swalObj = {
+            showDenyButton: true,
+            title: '<h4><strong>ToolsToFixYourPc !</strong></h4>' 
+            + "select any fits your needs .." + "<br>",
+            confirmButtonText: "systemFileChecker",
+            denyButtonText: `cleanupImageDism`,
+            footer: '<h4>builtInTools - 🛠️ - windowsOs</h4>',
+            background: '#87adbd',
+
+        }
+
+        const { isConfirmed, isDenied } = await Swal.fire(swalObj);
+
+        // if systemFileChecker
+        if (isConfirmed) {
+
+            await ipcRenderer.invoke('openProgressBar', {
+                timeToClose: 4500,
+                title: 'Admin privileges may be required !',
+                text: 'Click yes on UAC prompt if asked ..',
+                detail: 'the process will start soon ..'
+            });
+
+            const success = await runIsolatedCommandAsAdmin('sfc /scannow');
+            if (!success) {
+                await Toast.fire({
+                    icon: 'error',
+                    title: 'An error occurred while running system file checker !'
+                })
+            };
+
+            return;
+        }
+
+        // if cleanupImageDism
+        if (isDenied) {
+
+            await ipcRenderer.invoke('openProgressBar', {
+                timeToClose: 4500,
+                title: 'Admin privileges may be required !',
+                text: 'Click yes on UAC prompt if asked ..',
+                detail: 'the process will start soon ..'
+            });
+
+            const success = await runIsolatedCommandAsAdmin('DISM /Online /Cleanup-Image /RestoreHealth');
+            if (!success) {
+                await Toast.fire({
+                    icon: 'error',
+                    title: 'An error occurred while invoke cleanup image Dism !'
+                })
+            };
+
+            return;
+        }
+
+        return;
+    });
+
+
+
 
 });
+
+
+// const handle64 = document.getElementById('handle64');
+
+// handle64Element.addEventListener('dblclick', () => {
+
+//     ipcRenderer.invoke('openFileDialog', 'handle64'); // Pass an identifier
+// });
+
+// memReductElement.addEventListener('dblclick', async () => {
+
+//     await runExeAndCloseCmd('memreduct.exe', undefined, 'memReduct');
+// });
+
+
+// ipcRenderer.on('selectedFile', async (_, { path, identifier }) => {
+
+//     if (!path) {
+//         alert('Hay ' + identifier + 'No file path was selected .');
+//         return;
+//     }
+
+//     alert(`Processing file from identifier : ${identifier} : ${path}`);
+
+//     if (identifier === 'handle64') {
+//         const { join } = require('path');
+//         const exeDir = 'misc';
+//         const exeName = 'handle64.exe';
+//         const params = ` "${path}" `;
+//         const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
+//         const baseDir = isDev
+//             ? join(__dirname, '..', '..', 'assets', 'binaries', exeDir, exeName)
+//             : join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir, exeName);
+
+
+//         const command = ` "${baseDir}" ` + params;
+
+//         await openCmdInNewTabOrWindowAsAdmin(command);
+//     }
+// });
+
+
+// ExtractingTextFromImag ..

@@ -43,7 +43,8 @@ body {
   height: 100vh;
   user-select: none;
   font-family: "Lexend", sans-serif;
-  background: url("../img/background/monterey.jpg") center/cover no-repeat;
+  /* background: url("../img/background/monterey.jpg"); */
+  background: url("../img/background/monterey.jpg");
   overflow: hidden;
 }
 
@@ -1470,3 +1471,4 @@ li>.menu__container>.grid__controling .control_center--grid {
 .drag {
   -webkit-app-region: drag;
 }
+

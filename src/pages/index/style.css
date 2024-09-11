@@ -69,11 +69,22 @@ body {
     display: none;
 }
 
-#dropZone.dragging {
+#dropZone{
+    border: 2px solid;
+    animation: flashBorder 3s infinite;
+    border-radius: 15px;
+    width: 100%;
+    height: 50%;
+    display: none;
     background-color: transparent;
     border: 2px dashed grey;
     transition: background-color 0.1s ease;
 }
+
+/* #dropZone.dragging {
+    display: block;
+} */
+
 
 .loader {
     width: 60px;

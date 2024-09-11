@@ -5,8 +5,10 @@
 
 let isProgressRunning = false;
 const notifier = require('node-notifier');
+const ProgressBar = require('electron-progressbar');
 const path = require('path'), log = require('electron-log');
-const { dialog, ipcMain, Notification, nativeImage, BrowserWindow, screen } = require('electron');
+const { dialog, ipcMain, Notification } = require('electron');
+const { nativeImage, BrowserWindow, screen } = require('electron');
 
 
 
@@ -167,7 +169,7 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                     godModeWindow.on('ready-to-show', () => {
 
                         if (process.env.IS_DEV_MODE) {
-                            // godModeWindow.webContents.openDevTools({ mode: 'undocked' });
+                            godModeWindow.webContents.openDevTools({ mode: 'undocked' });
                         }
                     });
 
@@ -218,5 +220,41 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                 break;
         }
     });
+});
+
+ipcMain.handle('openProgressBar', async (_, progressBarInfo = {}) => {
+
+    const { timeToClose } = progressBarInfo;
+    const { text, title, detail } = progressBarInfo
+
+
+
+
+
+    const progressBar = new ProgressBar({
+        text: text || 'Processing ...',
+        title: title || 'please wait ...',
+        detail: detail || `We're on it ! `,
+
+    });
+
+    progressBar.on('completed', () => {
+
+        console.info(`completed ...`);
+        // progressBar.detail = 'Exiting ...';
+
+
+    }).on('aborted', () => {
+
+        console.info(`aborted ...`);
+        progressBar.detail = 'Process aborted. Exiting ...';
+    });
+
+    await new Promise(resolve => setTimeout(resolve, timeToClose || 3000));
+
+    progressBar.setCompleted();
+    progressBar.close();
+
+    return;
 });
 

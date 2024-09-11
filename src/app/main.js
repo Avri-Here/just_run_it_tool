@@ -4,6 +4,7 @@
 
 
 require('./configEnv');
+
 require('./handlers');
 const path = require('path');
 const createTray = require('./tray');
@@ -33,8 +34,8 @@ const createDesktopTollBar = () => {
         alwaysOnTop: true, transparent: true, frame: false,
         icon: path.join(process.env.ASSETS_DIR, 'img/icons/app/appLogo.ico'),
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
             sandbox: false, nodeIntegration: true,
+            preload: path.join(__dirname, 'preload.js'),
         },
     });
 
@@ -49,7 +50,7 @@ const createDesktopTollBar = () => {
 
     mainWindow.on('ready-to-show', () => {
         if (process.env.IS_DEV_MODE) {
-            // mainWindow.webContents.openDevTools({ mode: 'undocked' });
+            mainWindow.webContents.openDevTools({ mode: 'undocked' });
         }
     });
 
