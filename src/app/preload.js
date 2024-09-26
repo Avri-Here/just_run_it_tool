@@ -196,39 +196,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!musicType) return;
 
+        initPlay.disabled = true;
+
         if (musicType === 'discover') {
 
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 
-            // const latestTopSong = await getLatestTopSong(undefined, 3);
-            // const ytUrlSongsRes = await getYTubeUrlByNames(latestTopSong);
-            const ytUrlSongsRes = [
-                {
-                    "songName": "Mr. Brightside",
-                    "url": "https://youtubwe.com/watch?v=gGdGFtwCNBE"
-                },
-                {
-                    "songName": "Float On",
-                    "url": "https://youtube.com/watch?v=CTAud5O7Qqk"
-                }
-            ];
-
+            const latestTopSong = await getLatestTopSong();
+            const ytUrlSongsRes = await getYTubeUrlByNames(latestTopSong);
             const anyToPlayFromDiscoverDir = await downloadSongsFromYt(ytUrlSongsRes);
 
-            console.log(`anyToPlayFromDiscoverDir : ${anyToPlayFromDiscoverDir}`);
+            console.log(`isAnyToPlayFromDiscoverDir : ${anyToPlayFromDiscoverDir}`);
 
 
             if (!anyToPlayFromDiscoverDir) {
 
-                console.error('Error with all processing of discover new songs ..');
+                console.error('Error with all processing of discoverNewSongsFlow ..');
                 const notificationInfo = {
                     title: 'discoverNewSongsError',
-                    message: 'Error with all processing of discover new songs ..',
+                    message: 'Error with all processing of discoverNewSongsFlow ..',
                     icon: 'error', sound: true, timeout: 5,
                 }
 
                 ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+                initPlay.disabled = false;
                 return;
             }
         }
@@ -236,7 +228,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        initPlay.disabled = true;
         await initAndRunPlaylistFlow(musicType);
         initPlay.disabled = false;
     });

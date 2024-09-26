@@ -75,44 +75,40 @@ const downloadSongsFromYt = async (ytUrlSongs) => {
 
     const allFilesInDir = await getAllFilesInDir(downloadDir);
 
-    console.log('ytUrlSongs : ', ytUrlSongs);
-    console.log('allFilesInDir : ', allFilesInDir);
+
+
+    const normalize = (str) => {
+        return str.toLowerCase().replace(/[^a-z0-9]/g, ''); // Convert to lowercase and remove non-alphanumeric characters
+    };
     
-
-
-
     const filterYtUrlSongs = ytUrlSongs.filter(({ songName }) => {
-        return !allFilesInDir.some(file => file.includes(songName));
+        return !allFilesInDir.some(file => normalize(file).includes(normalize(songName)));
     });
     
     if (!filterYtUrlSongs.length) {
         console.log('All songs are already downloaded !');
-        return allFilesInDir.length;
+        return allFilesInDir.length > 0;
     }
     
-
-
-    // Create an array of promises for downloading each song
     const downloadSongs = filterYtUrlSongs.map(async ({ songName, url }) => {
 
         console.log(`Downloading : ${songName}`);
 
-        return await ytDlpWrap.execPromise([
+        await ytDlpWrap.execPromise([
             url, '-f', 'bestaudio',
             '--extract-audio', '--audio-format', 'mp3',
             '-o', join(downloadDir, '%(title)s.%(ext)s')
         ]);
 
-        // return songName;
+        return;
 
     });
 
     const results = await Promise.allSettled(downloadSongs);
-    console.log('Downloads completed ! ', JSON.stringify(results, null, 2));
 
-    const filterResolve =  results.filter(({ status }) => status === 'fulfilled');
+    const filterResolve = results.filter(({ status }) => status === 'fulfilled');
     
-    return filterResolve.length || allFilesInDir.length;
+    return filterResolve.length + allFilesInDir.length > 0
 
 };
 

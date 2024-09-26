@@ -174,44 +174,6 @@ const runExeAndCloseCmd = async (exeName, params, exeDir = 'misc') => {
     }
 };
 
-// const runPowerShellFile = (ps1FilePath) => {
-
-//     const PowerShell = require("powershell");
-
-//     return new Promise((resolve, reject) => {
-
-//         const ps = new PowerShell(`& "${ps1FilePath}"`);
-
-//         let output = '';
-//         ps.on("output", data => {
-//             output += data;
-//         });
-
-//         ps.on("error-output", err => {
-//             console.error(err)
-//             reject(err);
-//         });
-
-//         ps.on("error", err => {
-//             console.error(err)
-//             reject(err);
-//         });
-
-//         ps.on("end", code => {
-//             if (code === 0) {
-//                 console.log(`PowerShell script finished with exit code ${code} - Sec`);
-//                 resolve(output);
-
-//             } else {
-//                 console.error(`PowerShell script finished with exit code ${code} `);
-//                 reject(err || `PowerShell script finished with exit code ${code} `);
-//             }
-//         });
-//     });
-
-
-// };
-
 const runPowerShellFile = (ps1FilePath, params = []) => {
     
     const PowerShell = require("powershell");

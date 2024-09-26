@@ -222,6 +222,8 @@ const loveThisSong = async () => {
     const fileName = path.basename(fullPath);
     const newFilePath = path.join(loveThisSongsDir, fileName);
     await fs.copyFile(fullPath, newFilePath);
+    // await vlc.removeFromPlaylist(currentEntry.id);
+    // await fs.unlink(fullPath);
     const notificationSound = document.getElementById('notificationSound');
     const soundSrcOnDone = `./../../assets/sound/successSound.mp3`;
     notificationSound.src = soundSrcOnDone;

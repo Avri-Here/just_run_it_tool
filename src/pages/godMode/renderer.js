@@ -182,7 +182,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         }
 
+        document.body.style.background = '#87adbd';
+
         const { isConfirmed, isDenied } = await Swal.fire(swalObj);
+        // document.body.style.background = `url("./img/background/monterey.jpg") no-repeat center center`;
+
+        document.body.style.backgroundImage = 'url("./img/background/monterey.jpg")';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        document.body.style.backgroundPosition = 'center center';
+
 
         // if systemFileChecker
         if (isConfirmed) {

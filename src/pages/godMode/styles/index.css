@@ -44,7 +44,6 @@ body {
   user-select: none;
   font-family: "Lexend", sans-serif;
   background: url("../img/background/monterey.jpg") no-repeat center center;
-  /* background: url("../img/background/monterey.jpg"); */
   background-size: cover;
   overflow: hidden;
 }
