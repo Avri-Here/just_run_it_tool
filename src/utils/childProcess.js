@@ -264,7 +264,7 @@ const runExeFileAsAdmin = (exePath) => {
 };
 
 
-// run it from the electron app will close if the app is closed - this funk first open the cmd and then run the exe file .. like in real life ..
+// run it from the electron app and not exit if the electron is closed - this funk first open the cmd and then run the exe file .. like in real life ..
 
 const openCmdAndRunFromThere = (command, params = []) => {
 
@@ -298,7 +298,6 @@ const isExeRunningOnWindows = async (exeName) => {
     try {
         const command = `tasklist /FI "IMAGENAME eq ${exeName}"`;
         const { stdout } = await execAsync(command);
-        // console.log('isExeRunningOnWindows stdout :', stdout);
         return stdout.includes(exeName);
 
     } catch (error) {
@@ -360,10 +359,10 @@ const runScriptOnNewTabOrWindow = (fullPathWithCommand, insertToHistory) => {
 module.exports = {
     openCmdInNewTabOrWindowAsAdmin, openCmdInNewTabOrWindowFolder,
     runPsCommand, executeCommandWithSpawn, openCmdAndRunFromThere,
-    openFileDirectly,
-    openCmdAsAdmin, openPowerShellAsAdmin, timeOutPromise, runIsolatedCommandAsAdmin,
-    getCommandBaseType, openCmdInNewTabOrWindow, runPowerShellFile, runExeFileAsAdmin, runExeAndCloseCmd, isExeRunningOnWindows,
+    openPowerShellAsAdmin, timeOutPromise, runIsolatedCommandAsAdmin,
     openPowerShellNoAdmin, openCmdNoAdmin, runScriptOnNewTabOrWindow,
+    isExeRunningOnWindows, openFileDirectly, openCmdAsAdmin, runPowerShellFile,
+    getCommandBaseType, openCmdInNewTabOrWindow, runExeFileAsAdmin, runExeAndCloseCmd,
 };
 
 

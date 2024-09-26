@@ -205,18 +205,15 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
 
             case 'progressBar':
 
-                const stopProgressAfter = options || 3000;
-                // console.log('isProgressRunning :', isProgressRunning);
+                const stopProgressAfter = options || 2500;
 
                 while (isProgressRunning) await new Promise(resolve => setTimeout(resolve, 200));
-
-
+                
                 isProgressRunning = true;
                 godModeWindow.setProgressBar(2);
                 await new Promise(resolve => setTimeout(resolve, stopProgressAfter));
                 isProgressRunning = false;
                 godModeWindow.setProgressBar(-1);
-
                 resolve();
                 break;
         }

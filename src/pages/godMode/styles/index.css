@@ -43,20 +43,11 @@ body {
   height: 100vh;
   user-select: none;
   font-family: "Lexend", sans-serif;
+  background: url("../img/background/monterey.jpg") no-repeat center center;
   /* background: url("../img/background/monterey.jpg"); */
-  background: url("../img/background/monterey.jpg");
+  background-size: cover;
   overflow: hidden;
 }
-
-/* #loading {
-  width: 100%;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background: url(../background/lock.gif) center/cover no-repeat;
-  z-index: 9999;
-} */
 
 .navbar {
   width: 100%;

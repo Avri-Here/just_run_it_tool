@@ -34,23 +34,23 @@ document.addEventListener('DOMContentLoaded', () => {
     ffBatch.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'ffBatch', `ffBatch.exe`);
-        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         executeCommandWithSpawn(exePath);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
 
 
     freeRam.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'memReduct', `memReduct.exe`);
-        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         executeCommandWithSpawn(exePath);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
 
 
     taskManager.addEventListener('dblclick', async () => {
         const exePath = path.join(process.env.BINARIES_DIR, 'misc', `processExplorer.exe`);
-        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         executeCommandWithSpawn(exePath);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
 
 
@@ -62,20 +62,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    moveMouse.addEventListener('dblclick', () => {
+    moveMouse.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'misc', 'moveMouse.exe');
-        runPowerShellFile(exePath);
-        ipcRenderer.invoke('godModeWindows', 'progressBar');
+        executeCommandWithSpawn(exePath);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
 
 
     bcUninstaller.addEventListener('dblclick', async () => {
 
-        const exePath = path.join(process.env.BINARIES_DIR, 'bcUninstaller', 'allFiles', 'BCUninstaller.exe');
+        const exePath = path.join(process.env.BINARIES_DIR, 'bcUninstaller', 'BCUninstaller.exe');
         executeCommandWithSpawn(exePath);
         await ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
+
 
     fullEventLogView.addEventListener('dblclick', async () => {
 
@@ -88,28 +89,24 @@ document.addEventListener('DOMContentLoaded', () => {
     environmentEditor.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'misc', `rapidEnvEditor.exe`);
-        await ipcRenderer.invoke('godModeWindows', 'progressBar', 5000);
         runExeFileAsAdmin(exePath);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
-
-
 
 
     hostsFileEditor.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'misc', `hostsFileEditor.exe`);
-        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         executeCommandWithSpawn(exePath);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
-
 
     cleanSweep2Cli.addEventListener('dblclick', async () => {
         const params = "-1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13 -15 -16";
         const exePath = path.join(process.env.BINARIES_DIR, 'misc', `cleanSweep2Cli.exe`);
-        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         openCmdAndRunFromThere(exePath, params);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
-
 
 
     textFromImag.addEventListener('dblclick', async () => {
@@ -121,11 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (clipboardImage.isEmpty()) {
 
                 const notificationInfo = {
-                    title: 'Text from img require an image to start ..',
-                    message: 'No image found in clipboard !',
-                    icon: 'error',
-                    sound: true,
-                    timeout: 3,
+                    title: 'No image found in clipboard !',
+                    icon: 'error', sound: true, timeout: 3,
+                    message: 'Text from img require an image to start ..',
                 }
                 ipcRenderer.invoke('notificationWIthNode', notificationInfo);
                 return;
@@ -149,10 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const notificationInfo = {
                 title: 'Success ! ',
-                message: 'Extracted text from image is copied to clipboard !',
-                icon: 'success',
-                sound: true,
-                timeout: 3,
+                message: 'Extracted text from image on your clipboard !',
+                icon: 'success', sound: true, timeout: 3,
             }
             ipcRenderer.invoke('notificationWIthNode', notificationInfo);
 
@@ -162,91 +155,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const notificationInfo = {
                 title: 'extractingTextFromImag',
                 message: 'Error in extracting text from image !',
-                icon: 'error',
-                sound: true,
-                timeout: 3,
+                icon: 'error', sound: true, timeout: 3,
             }
             ipcRenderer.invoke('notificationWIthNode', notificationInfo);
         }
     });
 
 
-
-    // Action buttons on title bar ..
-
-    document.querySelector('.window__close').addEventListener('click', async () => {
-
-        await ipcRenderer.invoke('godModeWindows', 'close');
-
-    })
-
-    document.querySelector('.window__minimize').addEventListener('click', async () => {
-
-        await ipcRenderer.invoke('godModeWindows', 'minimize');
-
-    })
-
-    document.querySelector('.window__maximize').addEventListener('click', async () => {
-
-        await ipcRenderer.invoke('godModeWindows', 'maximize');
-
-    })
-
-
-    // fixPcUtils.addEventListener('dblclick', async () => {
-
-    //     // const exePath = path.join(process.env.BINARIES_DIR, 'fixPcUtils', 'fixPcUtils.exe');
-
-
-    //     const { isConfirmed, isDenied } = await Swal.fire({
-    //         showDenyButton: true,
-    //         title: "Please choose a Tool to start .." + "<br>",
-    //         confirmButtonText: "systemFileChecker",
-    //         denyButtonText: `cleanupImageDism`,
-    //     })
-    //     // runIsolatedCommandAsAdmin();
-
-    //     if (isConfirmed) {
-    //         // Swal.fire("systemFileChecker !", "", "success");
-    //         runIsolatedCommandAsAdmin('sfc /scannow');
-    //         await ipcRenderer.invoke('openProgressBar', {
-    //             title: 'fixPcUtils', detail: 'systemFileChecker will start soon ..'
-    //         });
-    //         return;
-
-    //     }
-
-    //     if (isDenied) {
-    //         runIsolatedCommandAsAdmin('DISM /Online /Cleanup-Image /RestoreHealth');
-    //         await ipcRenderer.invoke('openProgressBar', {
-    //             title: 'fixPcUtils', detail: 'cleanupImageDism will start soon ..'
-    //         });
-    //     }
-
-    // });
-
-
-
-
-
     fixPcUtils.addEventListener('dblclick', async () => {
 
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'bottom-right',
-            iconColor: 'white',
-            customClass: {
-                popup: 'colored-toast',
-            },
-            showConfirmButton: false,
-            timer: 2500,
-            timerProgressBar: true,
+        const toastErrConfig = Swal.mixin({
+            toast: true, timerProgressBar: true,
+            showConfirmButton: false, timer: 2500,
+            customClass: { popup: 'colored-toast', },
+            position: 'bottom-right', iconColor: 'white',
         })
 
         const swalObj = {
             showDenyButton: true,
-            title: '<h4><strong>ToolsToFixYourPc !</strong></h4>' 
-            + "select any fits your needs .." + "<br>",
+            title: '<h4><strong>ToolsToFixYourPc !</strong></h4>'
+                + "select any fits your needs .." + "<br>",
             confirmButtonText: "systemFileChecker",
             denyButtonText: `cleanupImageDism`,
             footer: '<h4>builtInTools - 🛠️ - windowsOs</h4>',
@@ -268,12 +196,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const success = await runIsolatedCommandAsAdmin('sfc /scannow');
             if (!success) {
-                await Toast.fire({
+                await toastErrConfig.fire({
                     icon: 'error',
                     title: 'An error occurred while running system file checker !'
                 })
             };
-
             return;
         }
 
@@ -289,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const success = await runIsolatedCommandAsAdmin('DISM /Online /Cleanup-Image /RestoreHealth');
             if (!success) {
-                await Toast.fire({
+                await toastErrConfig.fire({
                     icon: 'error',
                     title: 'An error occurred while invoke cleanup image Dism !'
                 })
@@ -297,11 +224,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return;
         }
-
         return;
     });
 
 
+    
+    // Action buttons on title bar ..
 
+    document.querySelector('.window__close').addEventListener('click', async () => {
+
+        await ipcRenderer.invoke('godModeWindows', 'close');
+    });
+
+    document.querySelector('.window__minimize').addEventListener('click', async () => {
+
+        await ipcRenderer.invoke('godModeWindows', 'minimize');
+    });
+
+    document.querySelector('.window__maximize').addEventListener('click', async () => {
+
+        await ipcRenderer.invoke('godModeWindows', 'maximize');
+    });
 
 });
