@@ -1,7 +1,9 @@
 
 
 
+
 const fs = require('fs').promises;
+const { extname } = require('path');
 const console = require('electron-log');
 const { clipboard, ipcRenderer } = require('electron');
 const { openFileDirectly } = require('../utils/childProcess');
@@ -15,6 +17,7 @@ const { openPowerShellAsAdmin, openPowerShellNoAdmin } = require('../utils/child
 const { openCmdInNewTabOrWindowFolder, timeOutPromise } = require('../utils/childProcess');
 const { initAndRunPlaylistFlow, pauseOrResume, playNext } = require('../utils/vlcManager');
 
+const scriptExtensions = ['.py', '.ps1', '.bat', '.js'];
 
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -101,7 +104,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             };
 
-            if (false) {
+
+            const shouldOpenInTerminal = scriptExtensions.includes(extname(path).toLowerCase());
+            if (shouldOpenInTerminal) {
 
                 const asAdmin = e.ctrlKey;
                 const { fullPathCommand, filePathCommand } = getCommandBaseType(path);
