@@ -292,32 +292,6 @@ const openCmdAndRunFromThere = (command, params = []) => {
 }
 
 
-const openCmdAndRunOnEnter = async (waitForInput, runWithInput, exePath) => {
-
-    const openCmdAndWaitForInput = `start cmd.exe /K "cd /d ${path.dirname(exePath)} && ${waitForInput} ${runWithInput}" `;
-    // const exeDir = path.dirname(exePath);
-
-    return new Promise((resolve, reject) => {
-        exec(
-            openCmdAndWaitForInput,
-            (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Error executing file: ${error.message}`);
-                    reject(new Error(`Error executing file: ${error.message}`));
-                    return;
-                }
-                if (stderr) {
-                    console.error(`Error output: ${stderr}`);
-                    reject(new Error(`Error output: ${stderr}`));
-                    return;
-                }
-                console.log(`Output: ${stdout}`);
-                resolve(stdout);
-            }
-        );
-    });
-};
-
 // Pass the name of the exe file , like vlcPortable.exe ...
 const isExeRunningOnWindows = async (exeName) => {
     const execAsync = promisify(exec);
@@ -389,7 +363,7 @@ module.exports = {
     openFileDirectly,
     openCmdAsAdmin, openPowerShellAsAdmin, timeOutPromise, runIsolatedCommandAsAdmin,
     getCommandBaseType, openCmdInNewTabOrWindow, runPowerShellFile, runExeFileAsAdmin, runExeAndCloseCmd, isExeRunningOnWindows,
-    openPowerShellNoAdmin, openCmdNoAdmin, openCmdAndRunOnEnter, runScriptOnNewTabOrWindow,
+    openPowerShellNoAdmin, openCmdNoAdmin, runScriptOnNewTabOrWindow,
 };
 
 

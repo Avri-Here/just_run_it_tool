@@ -2,7 +2,7 @@
 
 
 const path = require('path')
-const { ipcRenderer, clipboard, app } = require('electron');
+const { ipcRenderer, clipboard } = require('electron');
 const { runExeFileAsAdmin } = require('../../utils/childProcess');
 const { openCmdAndRunFromThere } = require('../../utils/childProcess');
 const { executeCommandWithSpawn } = require('../../utils/childProcess');
