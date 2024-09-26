@@ -4,14 +4,12 @@
 const fs = require('fs').promises;
 const console = require('electron-log');
 const { clipboard, ipcRenderer } = require('electron');
-const { convertMediaFile } = require('../utils/ffmpeg');
-const { openCmdInNewTabOrWindow } = require('../utils/childProcess');
 const { runScriptOnNewTabOrWindow } = require('../utils/childProcess');
 const { loveThisSong, getVlcClientMode } = require('../utils/vlcManager');
 const { openCmdAsAdmin, openCmdNoAdmin } = require('../utils/childProcess');
 const { openCmdInNewTabOrWindowAsAdmin } = require('../utils/childProcess');
 const { runExeAndCloseCmd, getCommandBaseType } = require('../utils/childProcess');
-const { openFileDirectly, shouldOpenInTerminal } = require('../utils/childProcess');
+const { openFileDirectly } = require('../utils/childProcess');
 const { playPrevious, deleteCurrentSongAndPlayNext, } = require('../utils/vlcManager');
 const { openPowerShellAsAdmin, openPowerShellNoAdmin } = require('../utils/childProcess');
 const { openCmdInNewTabOrWindowFolder, timeOutPromise } = require('../utils/childProcess');
@@ -102,6 +100,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 openCmdInNewTabOrWindowFolder(`cd /d"${path}"`);
                 return;
             };
+
+            const scriptExtensions = ['.py', '.ps1', '.bat', '.js'];
+            const extNameLower = path.extname(filePath).toLowerCase();
+
+            const shouldOpenInTerminal = scriptExtensions.includes(extNameLower);
 
             if (shouldOpenInTerminal(path)) {
 

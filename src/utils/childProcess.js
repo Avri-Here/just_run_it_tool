@@ -77,7 +77,6 @@ const openCmdInNewTabOrWindow = async (filePath, commandToRun) => {
     console.log(`dirPath : ${filePath}`);
 
     const command = `wt -w 0 nt cmd /k cd /d "${filePath}" & ${commandToRun}`;
-    // const command = `wt -w 0 nt cmd /k "cd /d "${filePath}" && ${commandToRun} || echo Error occurred while executing command && pause"`;
 
     exec(command, (err) => {
         if (err) {
@@ -113,11 +112,6 @@ const openFileDirectly = (filePath) => {
     });
 };
 
-const shouldOpenInTerminal = (filePath) => {
-
-    const scriptExtensions = ['.py', '.ps1', '.bat', '.js'];
-    return scriptExtensions.includes(path.extname(filePath).toLowerCase());
-};
 
 const openPowerShellAsAdmin = async () => {
 
@@ -164,27 +158,6 @@ const openCmdNoAdmin = async () => {
     }
 };
 
-// runExeAsAdmin function not closing the cmd window after the exe is executed ...
-
-const runExeAsAdmin = async (exeName, params, exeDir = 'misc') => {
-
-
-    const exePath = path.join(process.env.BINARIES_DIR, exeDir, exeName);
-    try {
-        // const command = `powershell -Command "Start-Process cmd -ArgumentList '/K ${exePath} ${params}' -Verb RunAs"`;
-        const command = `powershell -Command "Start-Process '${exePath}' ${params ? `-ArgumentList '${params}'` : ''
-            } -NoNewWindow -Wait"`;
-        const output = await executeCommand(command);
-        console.log(`runExeAsAdmin Output: ${output}`);
-    } catch (err) {
-        console.error(`Error: ${err.message}`);
-    }
-};
-
-
-
-
-
 const runExeAndCloseCmd = async (exeName, params, exeDir = 'misc') => {
 
     const exePath = path.join(process.env.BINARIES_DIR, exeDir, exeName);
@@ -198,29 +171,6 @@ const runExeAndCloseCmd = async (exeName, params, exeDir = 'misc') => {
     } catch (err) {
         console.error(`Error: ${err.message}`);
         throw new Error(`Error: ${err.message}`);
-    }
-};
-
-
-
-const openWindowsComponentAsAdmin = async (componentName) => {
-    const componentMap = {
-        'controlPanel': 'control',
-        'envVariables': 'rundll32 sysdm.cpl,EditEnvironmentVariables',
-        'services': 'services.msc',
-        'taskManager': 'taskmgr',
-        'programsAndFeatures': 'appwiz.cpl',
-        'pcExplorer': 'explorer.exe shell:MyComputerFolder'
-    };
-
-    const command = componentMap[componentName];
-
-    try {
-        const adminCommand = `powershell -Command "Start-Process ${command} -Verb RunAs"`;
-        await executeCommand(adminCommand);
-    } catch (err) {
-        console.error(`Error: ${err.message}`);
-        return;
     }
 };
 
@@ -368,52 +318,6 @@ const openCmdAndRunOnEnter = async (waitForInput, runWithInput, exePath) => {
     });
 };
 
-
-
-
-
-const executeSpawnWithListener = (batFilePath, params = [], callback) => {
-    try {
-        // Combine the batch file path and any parameters into a single command
-        const cmdArgs = ['/k', batFilePath, ...params];
-
-        // Spawn a new command prompt process to run the .bat file in an interactive mode
-        const child = spawn('cmd.exe', cmdArgs, {
-            shell: true,
-            stdio: 'inherit', // This will allow you to see and interact with the command prompt
-            detached: true // Detach the child process to keep it running independently
-        });
-
-        child.on('exit', (code) => {
-            const isDoneSuccessfully = code === 0;
-
-            const notificationMsg = {
-                title: `Command done with exit code ${code}`,
-                message: isDoneSuccessfully ? 'Command executed successfully!' : 'An error occurred while executing the command!',
-                icon: isDoneSuccessfully ? 'success' : 'error',
-                sound: true,
-                timeout: 5,
-            };
-
-            ipcRenderer.invoke('notificationWIthNode', notificationMsg);
-
-            if (!isDoneSuccessfully) {
-                throw new Error(`Error: Command done with exit code ${code}`);
-            }
-
-            callback && callback();
-
-            // Unreference the child process
-            child.unref();
-        });
-
-    } catch (error) {
-        console.error('Error in executeSpawnWithListener:', error);
-        throw error;
-    }
-};
-
-
 // Pass the name of the exe file , like vlcPortable.exe ...
 const isExeRunningOnWindows = async (exeName) => {
     const execAsync = promisify(exec);
@@ -435,28 +339,8 @@ const timeOutPromise = () => {
     })
 }
 
-
-// Run an isolated command - as an administrator - the windows not close on finish !
-// const runIsolatedCommandAsAdmin = (typeIt = 'color 4') => {
-
-//     const command = `powershell -Command "Start-Process cmd -ArgumentList '/k ${typeIt}' -Verb RunAs"`;
-
-//     exec(command, { shell: 'powershell.exe' }, (error, stdout, stderr) => {
-//         if (error) {
-//             console.error(`Error: ${error.message}`);
-//             return;
-//         }
-//         if (stderr) {
-//             console.error(`stderr: ${stderr}`);
-//             return;
-//         }
-//         console.log(`stdout: ${stdout}`);
-//     });
-// };
-
-
 const runIsolatedCommandAsAdmin = (typeIt = 'color 4') => {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         const command = `powershell -Command "Start-Process cmd -ArgumentList '/k ${typeIt}' -Verb RunAs"`;
 
         exec(command, { shell: 'powershell.exe' }, (error, stdout, stderr) => {
@@ -502,10 +386,9 @@ const runScriptOnNewTabOrWindow = (fullPathWithCommand, insertToHistory) => {
 module.exports = {
     openCmdInNewTabOrWindowAsAdmin, openCmdInNewTabOrWindowFolder,
     runPsCommand, executeCommandWithSpawn, openCmdAndRunFromThere,
-    openFileDirectly, shouldOpenInTerminal, executeSpawnWithListener,
+    openFileDirectly,
     openCmdAsAdmin, openPowerShellAsAdmin, timeOutPromise, runIsolatedCommandAsAdmin,
-    getCommandBaseType, openCmdInNewTabOrWindow, runPowerShellFile, runExeFileAsAdmin,
-    runExeAsAdmin, runExeAndCloseCmd, openWindowsComponentAsAdmin, isExeRunningOnWindows,
+    getCommandBaseType, openCmdInNewTabOrWindow, runPowerShellFile, runExeFileAsAdmin, runExeAndCloseCmd, isExeRunningOnWindows,
     openPowerShellNoAdmin, openCmdNoAdmin, openCmdAndRunOnEnter, runScriptOnNewTabOrWindow,
 };
 

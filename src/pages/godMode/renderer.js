@@ -65,23 +65,23 @@ document.addEventListener('DOMContentLoaded', () => {
     moveMouse.addEventListener('dblclick', () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'misc', 'moveMouse.exe');
-        ipcRenderer.invoke('godModeWindows', 'progressBar');
         runPowerShellFile(exePath);
+        ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
 
 
     bcUninstaller.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'bcUninstaller', 'allFiles', 'BCUninstaller.exe');
-        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         executeCommandWithSpawn(exePath);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
 
     fullEventLogView.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'fullEventLogView', `fullEventLogView.exe`);
-        await ipcRenderer.invoke('godModeWindows', 'progressBar');
         executeCommandWithSpawn(exePath);
+        await ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
 
 
@@ -305,46 +305,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 });
-
-
-// const handle64 = document.getElementById('handle64');
-
-// handle64Element.addEventListener('dblclick', () => {
-
-//     ipcRenderer.invoke('openFileDialog', 'handle64'); // Pass an identifier
-// });
-
-// memReductElement.addEventListener('dblclick', async () => {
-
-//     await runExeAndCloseCmd('memreduct.exe', undefined, 'memReduct');
-// });
-
-
-// ipcRenderer.on('selectedFile', async (_, { path, identifier }) => {
-
-//     if (!path) {
-//         alert('Hay ' + identifier + 'No file path was selected .');
-//         return;
-//     }
-
-//     alert(`Processing file from identifier : ${identifier} : ${path}`);
-
-//     if (identifier === 'handle64') {
-//         const { join } = require('path');
-//         const exeDir = 'misc';
-//         const exeName = 'handle64.exe';
-//         const params = ` "${path}" `;
-//         const isDev = process.defaultApp || /[\\/]electron[\\/]/.test(process.execPath);
-//         const baseDir = isDev
-//             ? join(__dirname, '..', '..', 'assets', 'binaries', exeDir, exeName)
-//             : join(process.resourcesPath, 'app.asar.unpacked', 'src', 'assets', 'binaries', exeDir, exeName);
-
-
-//         const command = ` "${baseDir}" ` + params;
-
-//         await openCmdInNewTabOrWindowAsAdmin(command);
-//     }
-// });
-
-
-// ExtractingTextFromImag ..
