@@ -8,18 +8,16 @@
     "buildUnpacked": "electron-builder --win --dir"
   },
   "author": "Avri",
-  "license": "ISC",
   "description": "Just Run It Tool",
   "dependencies": {
+    "trash": "^9.0.0",
+    "vlc-client": "^1.1.1",
     "electron-log": "^5.1.7",
-    "electron-progressbar": "^2.2.1",
-    "electron-reload": "^2.0.0-alpha.1",
+    "sweetalert2": "^11.14.0",
     "node-notifier": "^10.0.1",
     "node-powershell": "^3.1.1",
-    "powershell": "^2.3.2",
-    "sweetalert2": "^11.14.0",
-    "trash": "^9.0.0",
-    "vlc-client": "^1.1.1"
+    "electron-progressbar": "^2.2.1",
+    "electron-reload": "^2.0.0-alpha.1"
   },
   "devDependencies": {
     "@types/node-powershell": "^4.0.3",

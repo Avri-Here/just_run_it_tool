@@ -1,7 +1,6 @@
 
 
 
-const log = require('electron-log');
 const { globalShortcut } = require('electron');
 
 const registerShortcuts = (mainWindow) => {

@@ -77,24 +77,25 @@ ipcMain.on('selectedFile', async (_, { path, identifier }) => {
 
 
 // open notifications with input to paste url to download from youtube ..
-ipcMain.handle('notificationWithInput', async (_,) => {
 
-    const notificationInfo = {
-        title: `Let's start from the beginning ..`,
-        message: 'Drag only one file or folder .',
-        icon: 'error',
-        sound: false,
-        wait: true, // Wait for user action
-        timeout: 5,
-        // actions: ['Ok', 'Start'],
-        input: true,
-    }
+// ipcMain.handle('notificationWithInput', async (_,) => {
 
-    const res = await notifier.notify(notificationInfo);
+//     const notificationInfo = {
+//         title: `Let's start from the beginning ..`,
+//         message: 'Drag only one file or folder .',
+//         icon: 'error',
+//         sound: false,
+//         wait: true, // Wait for user action
+//         timeout: 5,
+//         // actions: ['Ok', 'Start'],
+//         input: true,
+//     }
+
+//     const res = await notifier.notify(notificationInfo);
 
 
 
-});
+// });
 
 
 ipcMain.handle('notificationWIthNode', (_, notificationInfo) => {
@@ -225,11 +226,7 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
 ipcMain.handle('openProgressBar', async (_, progressBarInfo = {}) => {
 
     const { timeToClose } = progressBarInfo;
-    const { text, title, detail } = progressBarInfo
-
-
-
-
+    const { text, title, detail } = progressBarInfo;
 
     const progressBar = new ProgressBar({
         text: text || 'Processing ...',
