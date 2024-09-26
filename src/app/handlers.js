@@ -208,7 +208,7 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                 const stopProgressAfter = options || 2500;
 
                 while (isProgressRunning) await new Promise(resolve => setTimeout(resolve, 200));
-                
+
                 isProgressRunning = true;
                 godModeWindow.setProgressBar(2);
                 await new Promise(resolve => setTimeout(resolve, stopProgressAfter));
@@ -252,3 +252,27 @@ ipcMain.handle('openProgressBar', async (_, progressBarInfo = {}) => {
     return;
 });
 
+
+
+
+ipcMain.handle('selectMusicType', async () => {
+
+    const result = await dialog.showMessageBox({
+        type: "question",
+        buttons: ["Foreign", "Hebrew", "Classic", "Discover"],
+        title: " musicTypeDialog ",
+        message: "Hay, what would you like to listen to today ?",
+        noLink: true, cancelId: 400,
+    });
+
+
+    // 4 is the "Cancel" button ...
+    if (result.response === 400) {
+        return;
+    }
+
+    const selectedOption = result.response;
+    const optionsMap = ["foreign", "hebrew", "classic", "discover"];
+    return optionsMap[selectedOption];
+
+});

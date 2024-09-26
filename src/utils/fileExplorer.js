@@ -16,4 +16,20 @@ const deleteFileToTrash = async (filePath, throwErr = true) => {
     }
 };
 
-module.exports = { deleteFileToTrash };
+
+const getAllFilesInDir = async (dirPath) => {
+
+
+    const fs = require('fs').promises;
+
+    try {
+        const files = await fs.readdir(dirPath);
+        return files;
+    } catch (error) {
+        console.error(`Error reading directory ${dirPath}:`, error);
+        return [];
+    }
+
+};
+
+module.exports = { deleteFileToTrash, getAllFilesInDir };

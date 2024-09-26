@@ -6,12 +6,14 @@ const fs = require('fs').promises;
 const { extname } = require('path');
 const console = require('electron-log');
 const { clipboard, ipcRenderer } = require('electron');
+const { getLatestTopSong } = require('../utils/lastFmUtils');
 const { openFileDirectly } = require('../utils/childProcess');
 const { runScriptOnNewTabOrWindow } = require('../utils/childProcess');
 const { loveThisSong, getVlcClientMode } = require('../utils/vlcManager');
 const { openCmdAsAdmin, openCmdNoAdmin } = require('../utils/childProcess');
 const { openCmdInNewTabOrWindowAsAdmin } = require('../utils/childProcess');
 const { runExeAndCloseCmd, getCommandBaseType } = require('../utils/childProcess');
+const { getYTubeUrlByNames, downloadSongsFromYt } = require('../utils/ytDlpWrap');
 const { playPrevious, deleteCurrentSongAndPlayNext, } = require('../utils/vlcManager');
 const { openPowerShellAsAdmin, openPowerShellNoAdmin } = require('../utils/childProcess');
 const { openCmdInNewTabOrWindowFolder, timeOutPromise } = require('../utils/childProcess');
@@ -187,12 +189,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
 
-    // initPlay.addEventListener('dblclick', async () => await initAndRunPlaylistFlow());
 
     initPlay.addEventListener('dblclick', async () => {
 
+        const musicType = await ipcRenderer.invoke('selectMusicType');
+
+        if (!musicType) return;
+
+        if (musicType === 'discover') {
+
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+
+            // const latestTopSong = await getLatestTopSong(undefined, 3);
+            // const ytUrlSongsRes = await getYTubeUrlByNames(latestTopSong);
+            const ytUrlSongsRes = [
+                {
+                    "songName": "Mr. Brightside",
+                    "url": "https://youtubwe.com/watch?v=gGdGFtwCNBE"
+                },
+                {
+                    "songName": "Float On",
+                    "url": "https://youtube.com/watch?v=CTAud5O7Qqk"
+                }
+            ];
+
+            const anyToPlayFromDiscoverDir = await downloadSongsFromYt(ytUrlSongsRes);
+
+            console.log(`anyToPlayFromDiscoverDir : ${anyToPlayFromDiscoverDir}`);
+
+
+            if (!anyToPlayFromDiscoverDir) {
+
+                console.error('Error with all processing of discover new songs ..');
+                const notificationInfo = {
+                    title: 'discoverNewSongsError',
+                    message: 'Error with all processing of discover new songs ..',
+                    icon: 'error', sound: true, timeout: 5,
+                }
+
+                ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+                return;
+            }
+        }
+
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         initPlay.disabled = true;
-        await initAndRunPlaylistFlow();
+        await initAndRunPlaylistFlow(musicType);
         initPlay.disabled = false;
     });
 
@@ -272,6 +317,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     musicContainer.addEventListener('mouseleave', () => { musicContainer.style.display = 'none'; });
     btnGroup.addEventListener('mouseleave', () => { musicContainer.style.display = 'none'; });
 });
+
+
 
 
 

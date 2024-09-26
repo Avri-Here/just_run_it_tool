@@ -3,11 +3,11 @@
 
 const path = require('path')
 const { ipcRenderer, clipboard } = require('electron');
+const { runPsCommand } = require('../../utils/childProcess');
 const { runExeFileAsAdmin } = require('../../utils/childProcess');
 const { openCmdAndRunFromThere } = require('../../utils/childProcess');
 const { executeCommandWithSpawn } = require('../../utils/childProcess');
 const { runIsolatedCommandAsAdmin } = require('../../utils/childProcess');
-const { runPowerShellFile, runPsCommand } = require('../../utils/childProcess');
 
 
 
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    
+
     // Action buttons on title bar ..
 
     document.querySelector('.window__close').addEventListener('click', async () => {

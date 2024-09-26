@@ -18,7 +18,7 @@ const vlc = new VLC.Client({ ip: 'localhost', port: 5029, username: '', password
 
 
 
-const playlistDir = path.join(homedir, 'Documents', 'appsAndMore', 'mySongs', 'playlist');
+const playlistDir = path.join(homedir, 'Documents', 'appsAndMore', 'mySongs', 'rest', 'playlistFiles');
 
 const checkVLCAndProceed = async (action) => {
 
@@ -93,16 +93,15 @@ const startAndExposeVlcPortable = async () => {
 
 
 
-const initAndRunPlaylistFlow = async () => {
+const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
 
     const soundsDir = path.join(process.env.ASSETS_DIR, 'sound');
-    const createPlaylistScriptPash = path.join(playlistDir, '!create_random_playlist.ps1');
+    const ps1ScriptPash = path.join(process.env.ASSETS_DIR, 'scripts', 'ps1', 'createPlaylist.ps1');
 
     const randomIndex = Math.floor(Math.random() * 2) + 1;
     const notificationSound = document.getElementById('notificationSound');
-    notificationSound.src = path.join(soundsDir, `princessPeachRescued${randomIndex}.mp3`);;
+    notificationSound.src = path.join(soundsDir, `princessPeachRescued${randomIndex}.mp3`);
     notificationSound.playbackRate = 1.4;
-    // const soundSrcOnDone = `./../../assets/sound/princessPeachRescued${randomIndex}.mp3`;
 
     try {
 
@@ -129,8 +128,8 @@ const initAndRunPlaylistFlow = async () => {
 
         await killAllVlcPortableInstancesIfAny();
         await startAndExposeVlcPortable();
-        await runPowerShellFile(createPlaylistScriptPash);
-        await addWplFileToPlaylist('foreign.wpl');
+        await runPowerShellFile(ps1ScriptPash, [musicSrc]);
+        await addWplFileToPlaylist(musicSrc);
 
         await notificationSound.play();
         notificationSound.addEventListener('ended', async () => {
@@ -144,12 +143,9 @@ const initAndRunPlaylistFlow = async () => {
 
         const notificationInfo = {
             title: 'Error starting VLC !',
-            message:
-                `Error starting VLC : ${error.message} ..` || 'Unknown error occurred ..',
-            icon: 'error',
-            sound: true,
-            timeout: 7,
-        }
+            icon: 'error', sound: true, timeout: 7,
+            message: `Info : ${error.message} ..` || 'Unknown error occurred ..',
+        };
 
         ipcRenderer.invoke('notificationWIthNode', notificationInfo);
         return;
@@ -169,14 +165,17 @@ const getVlcClientMode = async () => {
         if (playing) return 'playing';
         return 'unknown';
     } catch (error) {
-        // console.error(`Error checking VLC status : ${error}`);
         return 'unknown';
     }
 };
 
 const deleteCurrentSongAndPlayNext = async () => {
 
-    const playlistFolder = process.env.PLAY_LIST_NAME || 'foreign.wpl';
+
+    const playlist = await vlc.getPlaylist();
+    const currentEntry = playlist.find(entry => entry.isCurrent);
+    const fullPath = currentEntry.uri.replace('file:///', '');
+    const playlistFolder = path.basename(path.dirname(fullPath));
     const notificationSound = document.getElementById('notificationSound');
 
     return checkVLCAndProceed(async () => {
@@ -187,16 +186,15 @@ const deleteCurrentSongAndPlayNext = async () => {
             const currentEntry = playlist.find(entry => entry.isCurrent);
             await vlc.removeFromPlaylist(currentEntry.id);
             console.log(`removeFromPlaylist Song : ${currentMedia}`);
-            const filePathToOut = path.join(homedir, 'Documents', 'appsAndMore', 'mySongs', playlistFolder.split('.')[0], currentMedia);
+            const songsFolder = path.join(homedir, 'Documents', 'appsAndMore', 'mySongs');
+            const filePathToOut = path.join(songsFolder, playlistFolder, currentMedia);
             await deleteFileToTrash(filePathToOut, false);
             console.log('deleteCurrentSongAndPlayNext Done !');
-            const soundSrcOnDone = `./../../assets/sound/macEmptyTrash.mp3`;
-            notificationSound.src = soundSrcOnDone;
+            const soundSrcOnDelete = `./../../assets/sound/macEmptyTrash.mp3`;
+            notificationSound.src = soundSrcOnDelete;
             notificationSound.play();
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await vlc.togglePlay();
-            await new Promise(resolve => setTimeout(resolve, 500));
-            await vlc.play();
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            await vlc.next();
             return;
         } catch (error) {
             console.error(`Error deleting current song and playing next : ${error}`);
@@ -210,12 +208,11 @@ const loveThisSong = async () => {
 
     const currentVolume = await vlc.getVolume();
     const baseFolder = path.join(homedir, 'Documents', 'appsAndMore');
-    const loveThisSongsFolder = path.join(baseFolder, 'mySongs', 'rest', 'loveThisSongs');
-
+    const loveThisSongsDir = path.join(baseFolder, 'mySongs', 'likedSongs');
 
 
     if (!require('fs').existsSync()) {
-        await fs.mkdir(loveThisSongsFolder, { recursive: true })
+        await fs.mkdir(loveThisSongsDir, { recursive: true });
     };
 
     const playlist = await vlc.getPlaylist();
@@ -223,7 +220,7 @@ const loveThisSong = async () => {
     const fullPath = currentEntry.uri.replace('file:///', '');
     console.log(`fullPath Song : ${fullPath}`);
     const fileName = path.basename(fullPath);
-    const newFilePath = path.join(loveThisSongsFolder, fileName);
+    const newFilePath = path.join(loveThisSongsDir, fileName);
     await fs.copyFile(fullPath, newFilePath);
     const notificationSound = document.getElementById('notificationSound');
     const soundSrcOnDone = `./../../assets/sound/successSound.mp3`;
@@ -232,17 +229,16 @@ const loveThisSong = async () => {
     notificationSound.play();
     await new Promise(resolve => setTimeout(resolve, 1300));
     await vlc.setVolume(currentVolume);
-    console.log(`Song copied to loveThisSongs folder : ${newFilePath}`);
+    console.log(`Song copied to likedSongs folder : ${newFilePath}`);
     return;
 };
 
 
-const addWplFileToPlaylist = async (wplFileName = 'foreign.wpl') => {
+const addWplFileToPlaylist = async (wplFileName = 'foreign') => {
 
-    const playlistFilePath = path.join(playlistDir, wplFileName);
+    const playlistFilePath = path.join(playlistDir, `${wplFileName}.wpl`);
     await vlc.addToPlaylist(playlistFilePath);
-    console.log(`PlaylistFile ${wplFileName} added successfully !`);
-    // await new Promise(resolve => setTimeout(resolve, 500));
+    console.log(`playlistFile ${wplFileName} added successfully !`);
     return;
 };
 
