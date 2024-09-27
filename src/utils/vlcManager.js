@@ -11,6 +11,7 @@ const console = require('electron-log');
 const { ipcRenderer } = require('electron');
 const { exec, spawn } = require('child_process');
 const { deleteFileToTrash } = require('./fileExplorer');
+const { likeThisSong, unLikeThisSong } = require('./lastFmUtils');
 const fs = require('fs').promises, path = require('path');
 const { runPowerShellFile, isExeRunningOnWindows, timeOutPromise } = require('./childProcess');
 
@@ -181,6 +182,8 @@ const deleteCurrentSongAndPlayNext = async () => {
     return checkVLCAndProceed(async () => {
 
         try {
+
+
             const currentMedia = await vlc.getFileName();
             const playlist = await vlc.getPlaylist();
             const currentEntry = playlist.find(entry => entry.isCurrent);
@@ -188,7 +191,20 @@ const deleteCurrentSongAndPlayNext = async () => {
             console.log(`removeFromPlaylist Song : ${currentMedia}`);
             const songsFolder = path.join(homedir, 'Documents', 'appsAndMore', 'mySongs');
             const filePathToOut = path.join(songsFolder, playlistFolder, currentMedia);
-            await deleteFileToTrash(filePathToOut, false);
+            const fileName = path.basename(filePathToOut);
+            const fromFolder = path.basename(path.dirname(filePathToOut));
+            console.log(`fileName : ${fileName} , fromFolder : ${fromFolder}`);
+
+            const isThisFromDiscover = fromFolder === 'discover';
+
+            !isThisFromDiscover && await deleteFileToTrash(filePathToOut, false);
+
+            if (isThisFromDiscover) {
+                const withoutExtension = fileName.replace('.mp3', '');
+                const [songName, artistName] = withoutExtension.split('_');
+                await unLikeThisSong(artistName, songName);
+            };
+            
             console.log('deleteCurrentSongAndPlayNext Done !');
             const soundSrcOnDelete = `./../../assets/sound/macEmptyTrash.mp3`;
             notificationSound.src = soundSrcOnDelete;
@@ -218,10 +234,23 @@ const loveThisSong = async () => {
     const playlist = await vlc.getPlaylist();
     const currentEntry = playlist.find(entry => entry.isCurrent);
     const fullPath = currentEntry.uri.replace('file:///', '');
-    console.log(`fullPath Song : ${fullPath}`);
+
+
     const fileName = path.basename(fullPath);
+    const fromFolder = path.basename(path.dirname(fullPath));
+    console.log(`fileName : ${fileName} , fromFolder : ${fromFolder}`);
+
     const newFilePath = path.join(loveThisSongsDir, fileName);
     await fs.copyFile(fullPath, newFilePath);
+
+    const isThisFromDiscover = fromFolder === 'discover';
+
+    if (isThisFromDiscover) {
+
+        const withoutExtension = fileName.replace('.mp3', '');
+        const [songName, artistName] = withoutExtension.split('_');
+        await likeThisSong(artistName, songName);
+    }
     // await vlc.removeFromPlaylist(currentEntry.id);
     // await fs.unlink(fullPath);
     const notificationSound = document.getElementById('notificationSound');

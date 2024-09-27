@@ -6,8 +6,8 @@ const fs = require('fs').promises;
 const { extname } = require('path');
 const console = require('electron-log');
 const { clipboard, ipcRenderer } = require('electron');
-const { getLatestTopSong } = require('../utils/lastFmUtils');
 const { openFileDirectly } = require('../utils/childProcess');
+const { getLatestTopSong, getSimilarSongs } = require('../utils/lastFmUtils');
 const { runScriptOnNewTabOrWindow } = require('../utils/childProcess');
 const { loveThisSong, getVlcClientMode } = require('../utils/vlcManager');
 const { openCmdAsAdmin, openCmdNoAdmin } = require('../utils/childProcess');
@@ -202,8 +202,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-
-            const latestTopSong = await getLatestTopSong();
+            const artist = 'NF';
+            const track = 'just like you';
+            const latestTopSong = await getSimilarSongs(artist, track);
+            // const latestTopSong = await getLatestTopSong('israel', 1);
             const ytUrlSongsRes = await getYTubeUrlByNames(latestTopSong);
             const anyToPlayFromDiscoverDir = await downloadSongsFromYt(ytUrlSongsRes);
 

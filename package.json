@@ -10,13 +10,15 @@
   "author": "Avri",
   "description": "Just Run It Tool",
   "dependencies": {
-    "electron-log": "^5.1.7",
+    "electron-log": "^5.2.0",
     "electron-progressbar": "^2.2.1",
     "electron-reload": "^2.0.0-alpha.1",
+    "ffmetadata": "^1.7.0",
     "node-notifier": "^10.0.1",
-    "node-powershell": "^3.1.1",
+    "node-powershell": "^5.0.1",
     "powershell": "^2.3.2",
-    "sweetalert2": "^11.14.0",
+    "simple-lastfm": "^1.0.6",
+    "sweetalert2": "^11.14.1",
     "trash": "^9.0.0",
     "vlc-client": "^1.1.1",
     "yt-dlp-wrap": "^2.3.12",
@@ -24,8 +26,8 @@
   },
   "devDependencies": {
     "@types/node-powershell": "^4.0.3",
-    "electron": "^31.3.1",
-    "electron-builder": "^24.13.3"
+    "electron": "^32.1.2",
+    "electron-builder": "^25.0.5"
   },
   "build": {
     "appId": "com.avri.just_run_it_tool",
