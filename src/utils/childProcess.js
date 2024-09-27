@@ -85,7 +85,7 @@ const openCmdInNewTabOrWindow = async (filePath, commandToRun) => {
     });
 };
 
-const openCmdInNewTabOrWindowAsAdmin = async (command) => {
+const openCmdAndRunAsAdmin = async (command) => {
 
     const adminCommand = `powershell -Command "Start-Process 'cmd.exe' -ArgumentList '/K ${command}' -Verb RunAs"`;
 
@@ -307,7 +307,7 @@ const isExeRunningOnWindows = async (exeName) => {
 
 const timeOutPromise = () => {
     return new Promise(resolve => {
-        setTimeout(() => { resolve('timeOut') }, 15000);
+        setTimeout(() => { resolve('timeOut') }, 20000);
     })
 }
 
@@ -356,7 +356,7 @@ const runScriptOnNewTabOrWindow = (fullPathWithCommand, insertToHistory) => {
 };
 
 module.exports = {
-    openCmdInNewTabOrWindowAsAdmin, openCmdInNewTabOrWindowFolder,
+    openCmdAndRunAsAdmin, openCmdInNewTabOrWindowFolder,
     runPsCommand, executeCommandWithSpawn, openCmdAndRunFromThere,
     openPowerShellAsAdmin, timeOutPromise, runIsolatedCommandAsAdmin,
     openPowerShellNoAdmin, openCmdNoAdmin, runScriptOnNewTabOrWindow,

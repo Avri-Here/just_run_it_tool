@@ -46,7 +46,7 @@ const getYTubeUrlByNames = async (songNames) => {
         const songName = name, artistName = artist.name;
         const query = `${songName} ${artistName}`;
         const result = await ytSearch(query);
-        
+
         console.log('ytSearchUrl - work async :', index + 1 + ' index from', filterSongs.length);
 
         if (!result.videos.length) {
@@ -70,39 +70,50 @@ const getYTubeUrlByNames = async (songNames) => {
 
 const downloadSongsFromYt = async (ytUrlSongs) => {
 
-
-
+    
     const homedir = require('os').homedir();
     const songsFolder = join(homedir, 'Documents', 'appsAndMore', 'mySongs');
     const downloadDir = join(songsFolder, 'discover');
-
-
     const allFilesInDir = await getAllFilesInDir(downloadDir);
-
+    
     if (!ytUrlSongs.length) {
+
         console.log('All songs are already downloaded !');
         return allFilesInDir.length > 0;
+    };
+
+   
+
+    try {
+
+
+        const downloadSongs = await Promise.allSettled(
+
+            ytUrlSongs.map(async ({ songName, artistName, url }, index) => {
+
+
+                await ytDlpWrap.execPromise([
+                    url, '-f', 'bestaudio',
+                    '--extract-audio', '--audio-format', 'mp3',
+                    '-o', join(downloadDir, songName + ')$(' + artistName),
+                ]);
+
+                // console.log('downloadSong - work async :', index + 1 + ' index from', ytUrlSongs.length);
+                return;
+
+            }));
+
+
+        const filterResolve = downloadSongs.filter(({ status }) => status === 'fulfilled');
+
+        console.log('Total songs downloaded :', filterResolve.length);
+        return filterResolve.length + allFilesInDir.length > 0;
+
+    } catch (error) {
+
+        console.error('Error downloading songs from YouTube :', error);
+        return false;
     }
-
-    const downloadSongs = await ytUrlSongs.map(async ({ songName, artistName, url }, index) => {
-
-
-        await ytDlpWrap.execPromise([
-            url, '-f', 'bestaudio',
-            '--extract-audio', '--audio-format', 'mp3',
-            '-o', join(downloadDir, songName + '_' + artistName),
-        ]);
-        console.log('downloadSong - work async :', index + 1 + ' index from', ytUrlSongs.length);
-        return;
-
-    });
-
-    const results = await Promise.allSettled(downloadSongs);
-    const filterResolve = results.filter(({ status }) => status === 'fulfilled');
-
-    console.log('Total songs downloaded :', filterResolve.length + ' from', ytUrlSongs.length);
-    return filterResolve.length + allFilesInDir.length > 0;
-
 };
 
 

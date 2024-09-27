@@ -3,15 +3,14 @@
 
 
 const fs = require('fs').promises;
-const { extname } = require('path');
-const console = require('electron-log');
-const { clipboard, ipcRenderer } = require('electron');
+const { extname, dirname, join } = require('path');
 const { openFileDirectly } = require('../utils/childProcess');
-const { getLatestTopSong, getSimilarSongs } = require('../utils/lastFmUtils');
+const { clipboard, ipcRenderer, webUtils } = require('electron');
+const { openCmdAndRunAsAdmin } = require('../utils/childProcess');
+const { discoverReallyNewMusic } = require('../utils/lastFmUtils');
 const { runScriptOnNewTabOrWindow } = require('../utils/childProcess');
 const { loveThisSong, getVlcClientMode } = require('../utils/vlcManager');
 const { openCmdAsAdmin, openCmdNoAdmin } = require('../utils/childProcess');
-const { openCmdInNewTabOrWindowAsAdmin } = require('../utils/childProcess');
 const { runExeAndCloseCmd, getCommandBaseType } = require('../utils/childProcess');
 const { getYTubeUrlByNames, downloadSongsFromYt } = require('../utils/ytDlpWrap');
 const { playPrevious, deleteCurrentSongAndPlayNext, } = require('../utils/vlcManager');
@@ -41,14 +40,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const progressContainer = document.querySelector('.progressContainer');
 
 
-    btnGroup.addEventListener('dragover', (e) => { e.preventDefault() });
-    btnGroup.addEventListener('dragleave', (e) => { e.preventDefault() });
+    btnGroup.addEventListener('dragover', async (e) => { e.preventDefault() });
+    btnGroup.addEventListener('dragleave', async (e) => { e.preventDefault() });
 
     btnGroup.addEventListener('drop', async (e) => {
 
         e.preventDefault();
 
         const { files } = e.dataTransfer;
+
+
 
         try {
 
@@ -76,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 const notificationInfo = {
                     title: 'No path found on drop event or on clipboard !',
-                    message: 'Use a valid file or folder .',
+                    message: 'Use a valid file or folder path.',
                     icon: 'error',
                     sound: true,
                     timeout: 5,
@@ -86,74 +87,62 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
+            btnGroup.draggable = false;
             btnGroup.style.display = 'none';
             progressContainer.style.display = 'block';
 
-            const path = files[0]?.path || txtClipboard;
+            const dropFileFullPath = files[0] ? webUtils.getPathForFile(files[0]) : txtClipboard;
+            console.log(`dropFileFullPath is : ${dropFileFullPath}`);
+
+
             await new Promise((resolve) => setTimeout(resolve, 1350));
-
-            // const dirPath = require('path').dirname(path);
-            const stats = await fs.stat(path);
-
+            const stats = await fs.stat(dropFileFullPath);
 
             if (stats.isDirectory()) {
                 const openOnExplorerPlus = e.ctrlKey;
                 if (openOnExplorerPlus) {
-                    await runExeAndCloseCmd('explorer++.exe', path);
+                    await runExeAndCloseCmd('explorer++.exe', dropFileFullPath);
                     return;
                 }
-                openCmdInNewTabOrWindowFolder(`cd /d"${path}"`);
+                openCmdInNewTabOrWindowFolder(`cd /d"${dropFileFullPath}"`);
                 return;
             };
 
 
-            const shouldOpenInTerminal = scriptExtensions.includes(extname(path).toLowerCase());
+            const extFile = extname(dropFileFullPath).toLowerCase();
+            const shouldOpenInTerminal = scriptExtensions.includes(extFile);
+
             if (shouldOpenInTerminal) {
 
                 const asAdmin = e.ctrlKey;
-                const { fullPathCommand, filePathCommand } = getCommandBaseType(path);
+                const { fullPathCommand, filePathCommand } = getCommandBaseType(dropFileFullPath);
 
                 if (asAdmin) {
-                    openCmdInNewTabOrWindowAsAdmin(fullPathCommand);
+                    openCmdAndRunAsAdmin(fullPathCommand);
                     return;
                 }
 
 
                 clipboard.writeText(filePathCommand);
+                clipboard.writeText('cd ' + dirname(dropFileFullPath) + ' & ' + fullPathCommand);
                 runScriptOnNewTabOrWindow(fullPathCommand);
                 return;
             };
 
             // Default case - Open file directly ..
-            openFileDirectly(path);
-
-
-
-            // const ext = require('path').extname(path).toLowerCase();
-
-            // const isMadiaFile = [
-            //     '.mp3', '.wav', '.aac', '.flac',
-            //     '.ogg', '.wma', '.mp4', '.mkv',
-            //     '.avi', '.mov', '.flv', '.wmv'].includes(ext);
-
-            // if (isMadiaFile) {
-            //     convertMediaFile(path);
-            //     return;
-            // };
-
-
+            openFileDirectly(dropFileFullPath);
 
         }
         catch (err) {
-            console.error(`Error :`, err);
+            console.error(`Error :` + err);
             return;
         }
 
         finally {
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            await new Promise((resolve) => setTimeout(resolve, 200));
             progressContainer.style.display = 'none';
             btnGroup.style.display = 'block';
-            // btnGroup.draggable = true;
+            btnGroup.draggable = true;
         }
     });
 
@@ -200,21 +189,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (musicType === 'discover') {
 
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+            const randomIndex = Math.floor(Math.random() * 6) + 1;
+            const soundsDir = join(process.env.ASSETS_DIR, 'sound', 'musicOnHold');
+            const soundElement = document.getElementById('notificationSound');
+            soundElement.src = join(soundsDir, `${randomIndex}.mp3`);
+            soundElement.play();
 
-            const artist = 'NF';
-            const track = 'just like you';
-            const latestTopSong = await getSimilarSongs(artist, track);
-            // const latestTopSong = await getLatestTopSong('israel', 1);
+            const latestTopSong = await discoverReallyNewMusic(2);
             const ytUrlSongsRes = await getYTubeUrlByNames(latestTopSong);
+
+            const notificationInfo = {
+                title: 'Discovering New Songs !',
+                icon: 'music', sound: false, timeout: 5000,
+                message: `Total new songs found : ${ytUrlSongsRes.length}`
+            };
+
+            ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+
             const anyToPlayFromDiscoverDir = await downloadSongsFromYt(ytUrlSongsRes);
 
-            console.log(`isAnyToPlayFromDiscoverDir : ${anyToPlayFromDiscoverDir}`);
-
+            console.log('anyToPlayFromDiscoverDir :', anyToPlayFromDiscoverDir);
 
             if (!anyToPlayFromDiscoverDir) {
 
+                soundElement.pause();
+
                 console.error('Error with all processing of discoverNewSongsFlow ..');
+
                 const notificationInfo = {
                     title: 'discoverNewSongsError',
                     message: 'Error with all processing of discoverNewSongsFlow ..',
@@ -224,11 +225,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ipcRenderer.invoke('notificationWIthNode', notificationInfo);
                 initPlay.disabled = false;
                 return;
-            }
+            };
+
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+            soundElement.pause();
+
         }
-
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         await initAndRunPlaylistFlow(musicType);
         initPlay.disabled = false;
@@ -315,3 +317,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
+// const artist = 'NF';
+// const track = 'just like you';
+// const latestTopSong = await getSimilarSongs(artist, track);

@@ -1,5 +1,8 @@
 
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+
 const { join } = require('path');
 const { app } = require('electron');
 const homedir = require('os').homedir();

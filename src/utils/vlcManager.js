@@ -201,7 +201,7 @@ const deleteCurrentSongAndPlayNext = async () => {
 
             if (isThisFromDiscover) {
                 const withoutExtension = fileName.replace('.mp3', '');
-                const [songName, artistName] = withoutExtension.split('_');
+                const [songName, artistName] = withoutExtension.split(')$(');
                 await unLikeThisSong(artistName, songName);
             };
             
@@ -248,7 +248,9 @@ const loveThisSong = async () => {
     if (isThisFromDiscover) {
 
         const withoutExtension = fileName.replace('.mp3', '');
-        const [songName, artistName] = withoutExtension.split('_');
+        const [songName, artistName] = withoutExtension.split(')$(');
+        console.log(`songName : ${songName} , artistName : ${artistName}`);
+        
         await likeThisSong(artistName, songName);
     }
     // await vlc.removeFromPlaylist(currentEntry.id);

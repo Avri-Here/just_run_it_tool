@@ -70,7 +70,7 @@ ipcMain.on('selectedFile', async (_, { path, identifier }) => {
         const command = `${fixBaseDir} ${fixParams}`;
 
 
-        const handleResult = await openCmdInNewTabOrWindowAsAdmin('handle64.exe', command);
+        const handleResult = await openCmdAndRunAsAdmin('handle64.exe', command);
         console.log(`handleResult: ${handleResult}`);
     }
 });
