@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             soundElement.src = join(soundsDir, `${randomIndex}.mp3`);
             soundElement.play();
 
-            const latestTopSong = await discoverReallyNewMusic(2);
+            const latestTopSong = await discoverReallyNewMusic(10);
             const ytUrlSongsRes = await getYTubeUrlByNames(latestTopSong);
 
             const notificationInfo = {

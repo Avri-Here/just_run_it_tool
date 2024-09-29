@@ -213,6 +213,8 @@ const runPowerShellFile = (ps1FilePath, params = []) => {
 
 const runPsCommand = async (commands = []) => {
 
+
+    // Work on various - node-powershell  "^3.1.1" ! 
     const shell = require('node-powershell');
 
     const ps = new shell({ executionPolicy: 'Bypass', noProfile: true });
