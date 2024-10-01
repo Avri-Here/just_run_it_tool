@@ -76,49 +76,17 @@ ipcMain.on('selectedFile', async (_, { path, identifier }) => {
 });
 
 
-// open notifications with input to paste url to download from youtube ..
-
-// ipcMain.handle('notificationWithInput', async (_,) => {
-
-//     const notificationInfo = {
-//         title: `Let's start from the beginning ..`,
-//         message: 'Drag only one file or folder .',
-//         icon: 'error',
-//         sound: false,
-//         wait: true, // Wait for user action
-//         timeout: 5,
-//         // actions: ['Ok', 'Start'],
-//         input: true,
-//     }
-
-//     const res = await notifier.notify(notificationInfo);
-
-
-
-// });
 
 
 ipcMain.handle('notificationWIthNode', (_, notificationInfo) => {
 
     notificationInfo.icon = path.join(process.env.ASSETS_DIR, 'img/icons/notification', `${notificationInfo.icon}.ico`);
-    console.log('notificationInfo :', path.join(process.env.ASSETS_DIR, 'img/icons/notification', `${notificationInfo.icon}.ico`));
-
-    // just after run the exe file, the notification icon will be shown ..
-    // Get-StartApps | Where-Object { $_.Name -eq "justRunItTool" }
 
     // notificationInfo.appID = 'com.avri.just_run_it_tool';
     notificationInfo.appID = `C:\\Users\\avrahamy\\Documents\\myWorkspace\\justRunItTool\\dist\\win-unpacked\\justRunItTool.exe`;
 
 
-    notifier.notify(notificationInfo, (err, response, metadata) => {
-
-        if (err) { console.error(err); return; }
-
-        console.log('User click on btnName :', response);
-        // console.log('User clicked button :', metadata.activationValue);
-
-
-    });
+    notifier.notify(notificationInfo);
 
     // notifier.on('timeout', (notifierObject, options) => { });
 });

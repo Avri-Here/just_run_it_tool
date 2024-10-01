@@ -6,13 +6,14 @@ const VLC_NAME = 'vlcPortable.exe';
 const util = require('util');
 
 const VLC = require('vlc-client');
+const fsExtra = require('fs-extra');
 const homedir = require('os').homedir()
 const console = require('electron-log');
 const { ipcRenderer } = require('electron');
 const { exec, spawn } = require('child_process');
 const { deleteFileToTrash } = require('./fileExplorer');
-const { likeThisSong, unLikeThisSong } = require('./lastFmUtils');
 const fs = require('fs').promises, path = require('path');
+const { scrobbleTrackOnLastFm } = require('./lastFmUtils');
 const { runPowerShellFile, isExeRunningOnWindows, timeOutPromise } = require('./childProcess');
 
 const vlc = new VLC.Client({ ip: 'localhost', port: 5029, username: '', password: 'pass' });
@@ -202,9 +203,8 @@ const deleteCurrentSongAndPlayNext = async () => {
             if (isThisFromDiscover) {
                 const withoutExtension = fileName.replace('.mp3', '');
                 const [songName, artistName] = withoutExtension.split(')$(');
-                await unLikeThisSong(artistName, songName);
             };
-            
+
             console.log('deleteCurrentSongAndPlayNext Done !');
             const soundSrcOnDelete = `./../../assets/sound/macEmptyTrash.mp3`;
             notificationSound.src = soundSrcOnDelete;
@@ -241,28 +241,49 @@ const loveThisSong = async () => {
     console.log(`fileName : ${fileName} , fromFolder : ${fromFolder}`);
 
     const newFilePath = path.join(loveThisSongsDir, fileName);
-    await fs.copyFile(fullPath, newFilePath);
 
     const isThisFromDiscover = fromFolder === 'discover';
 
-    if (isThisFromDiscover) {
+    if (!isThisFromDiscover) {
 
-        const withoutExtension = fileName.replace('.mp3', '');
-        const [songName, artistName] = withoutExtension.split(')$(');
-        console.log(`songName : ${songName} , artistName : ${artistName}`);
-        
-        await likeThisSong(artistName, songName);
+        console.log(` ${fromFolder}`);
+
+        const notificationInfo = {
+            title: 'loveThisSongSkip',
+            icon: 'music', sound: true, timeout: 7,
+            message: `Song is not from discover folder !`
+        };
+
+        ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+        return;
     }
-    // await vlc.removeFromPlaylist(currentEntry.id);
-    // await fs.unlink(fullPath);
+
     const notificationSound = document.getElementById('notificationSound');
     const soundSrcOnDone = `./../../assets/sound/successSound.mp3`;
+    const withoutExtension = fileName.replace('.mp3', '');
+    const [songName, artistName] = withoutExtension.split(')$(');
+    console.log(`songName : ${songName} , artistName : ${artistName}`);
+    await scrobbleTrackOnLastFm(artistName, songName, true);
+    const stopOn = await vlc.getProgress();
+    console.log(`stopOn : ${stopOn}`);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    await vlc.removeFromPlaylist(currentEntry.id);
+    // await fs.copyFile(fullPath, newFilePath);
+    fsExtra.move(fullPath, newFilePath, { overwrite: true }, err => {
+        if (err) throw err;
+        console.log('Moved file to likedSongs folder !');
+    });
+    await new Promise(resolve => setTimeout(resolve, 500));
+    await vlc.setVolume(0);
     notificationSound.src = soundSrcOnDone;
-    await vlc.setVolume((currentVolume / 2));
     notificationSound.play();
     await new Promise(resolve => setTimeout(resolve, 1300));
+    await vlc.playFile(newFilePath);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    await vlc.setTime(stopOn - 5);
+    await new Promise(resolve => setTimeout(resolve, 500));
     await vlc.setVolume(currentVolume);
-    console.log(`Song copied to likedSongs folder : ${newFilePath}`);
+    await new Promise(resolve => setTimeout(resolve, 500));
     return;
 };
 

@@ -7,8 +7,8 @@ const { extname, dirname, join } = require('path');
 const { openFileDirectly } = require('../utils/childProcess');
 const { clipboard, ipcRenderer, webUtils } = require('electron');
 const { openCmdAndRunAsAdmin } = require('../utils/childProcess');
-const { discoverReallyNewMusic } = require('../utils/lastFmUtils');
 const { runScriptOnNewTabOrWindow } = require('../utils/childProcess');
+const { discoverYourRecommendedMusic } = require('../utils/lastFmUtils');
 const { loveThisSong, getVlcClientMode } = require('../utils/vlcManager');
 const { openCmdAsAdmin, openCmdNoAdmin } = require('../utils/childProcess');
 const { runExeAndCloseCmd, getCommandBaseType } = require('../utils/childProcess');
@@ -189,19 +189,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (musicType === 'discover') {
 
+
+            const latestTopSong = await discoverYourRecommendedMusic(5);
+
+            if (latestTopSong === 'youDiscoverFolderIsFull') {
+                const message = 'Already news songs waiting to your opinion !'
+                const notificationInfo = {
+                    title: 'Discovering New Songs !',
+                    message, icon: 'music', sound: true, timeout: 5,
+                }
+
+                ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+                await initAndRunPlaylistFlow(musicType);
+                initPlay.disabled = false;
+                return;
+            }
+
             const randomIndex = Math.floor(Math.random() * 6) + 1;
             const soundsDir = join(process.env.ASSETS_DIR, 'sound', 'musicOnHold');
             const soundElement = document.getElementById('notificationSound');
             soundElement.src = join(soundsDir, `${randomIndex}.mp3`);
             soundElement.play();
 
-            const latestTopSong = await discoverReallyNewMusic(10);
+
+
+            // const latestTopSong = await discoverYourRecommendedMusic(10);
             const ytUrlSongsRes = await getYTubeUrlByNames(latestTopSong);
 
             const notificationInfo = {
                 title: 'Discovering New Songs !',
                 icon: 'music', sound: false, timeout: 5000,
-                message: `Total new songs found : ${ytUrlSongsRes.length}`
+                message: `Download and play ${ytUrlSongsRes.length} songs !`,
             };
 
             ipcRenderer.invoke('notificationWIthNode', notificationInfo);
@@ -214,11 +232,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 soundElement.pause();
 
-                console.error('Error with all processing of discoverNewSongsFlow ..');
+                console.info('anyToPlayFromDiscoverDir');
 
                 const notificationInfo = {
                     title: 'discoverNewSongsError',
-                    message: 'Error with all processing of discoverNewSongsFlow ..',
+                    message: 'Error - No songs found to play !',
                     icon: 'error', sound: true, timeout: 5,
                 }
 
