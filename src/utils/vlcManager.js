@@ -103,7 +103,7 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
     const randomIndex = Math.floor(Math.random() * 2) + 1;
     const notificationSound = document.getElementById('notificationSound');
     notificationSound.src = path.join(soundsDir, `princessPeachRescued${randomIndex}.mp3`);
-    notificationSound.playbackRate = 1.4;
+    notificationSound.playbackRate = 1.5;
 
     try {
 
@@ -132,6 +132,14 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
         await startAndExposeVlcPortable();
         await runPowerShellFile(ps1ScriptPash, [musicSrc]);
         await addWplFileToPlaylist(musicSrc);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await vlc.setRandom(false);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await vlc.setLooping(false);
+
+        // if (musicSrc === 'discover') {
+
+        // }
 
         await notificationSound.play();
         notificationSound.addEventListener('ended', async () => {
@@ -173,50 +181,38 @@ const getVlcClientMode = async () => {
 
 const deleteCurrentSongAndPlayNext = async () => {
 
-
     const playlist = await vlc.getPlaylist();
     const currentEntry = playlist.find(entry => entry.isCurrent);
     const fullPath = currentEntry.uri.replace('file:///', '');
     const playlistFolder = path.basename(path.dirname(fullPath));
     const notificationSound = document.getElementById('notificationSound');
 
-    return checkVLCAndProceed(async () => {
 
-        try {
+    try {
 
+        const playlist = await vlc.getPlaylist();
+        const currentMedia = await vlc.getFileName();
+        const currentEntry = playlist.find(entry => entry.isCurrent);
+        await vlc.removeFromPlaylist(currentEntry.id);
+        console.log(`removeFromPlaylist Song : ${currentMedia}`);
+        const songsFolder = path.join(homedir, 'Documents', 'appsAndMore', 'mySongs');
+        const filePathToOut = path.join(songsFolder, playlistFolder, currentMedia);
+        const fileName = path.basename(filePathToOut);
+        const fromFolder = path.basename(path.dirname(filePathToOut));
+        console.log(`fileName : ${fileName} , fromFolder : ${fromFolder}`);
 
-            const currentMedia = await vlc.getFileName();
-            const playlist = await vlc.getPlaylist();
-            const currentEntry = playlist.find(entry => entry.isCurrent);
-            await vlc.removeFromPlaylist(currentEntry.id);
-            console.log(`removeFromPlaylist Song : ${currentMedia}`);
-            const songsFolder = path.join(homedir, 'Documents', 'appsAndMore', 'mySongs');
-            const filePathToOut = path.join(songsFolder, playlistFolder, currentMedia);
-            const fileName = path.basename(filePathToOut);
-            const fromFolder = path.basename(path.dirname(filePathToOut));
-            console.log(`fileName : ${fileName} , fromFolder : ${fromFolder}`);
-
-            const isThisFromDiscover = fromFolder === 'discover';
-
-            !isThisFromDiscover && await deleteFileToTrash(filePathToOut, false);
-
-            if (isThisFromDiscover) {
-                const withoutExtension = fileName.replace('.mp3', '');
-                const [songName, artistName] = withoutExtension.split(')$(');
-            };
-
-            console.log('deleteCurrentSongAndPlayNext Done !');
-            const soundSrcOnDelete = `./../../assets/sound/macEmptyTrash.mp3`;
-            notificationSound.src = soundSrcOnDelete;
-            notificationSound.play();
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            await vlc.next();
-            return;
-        } catch (error) {
-            console.error(`Error deleting current song and playing next : ${error}`);
-            return;
-        }
-    });
+        await deleteFileToTrash(filePathToOut, false);
+        console.log('deleteCurrentSongAndPlayNext Done !');
+        const soundSrcOnDelete = `./../../assets/sound/macEmptyTrash.mp3`;
+        notificationSound.src = soundSrcOnDelete;
+        notificationSound.play();
+        await new Promise(resolve => setTimeout(resolve, 1300));
+        await vlc.next();
+        return;
+    } catch (error) {
+        console.error(`Error deleting current song and playing next : ${error}`);
+        return;
+    }
 };
 
 
@@ -224,7 +220,7 @@ const loveThisSong = async () => {
 
     const currentVolume = await vlc.getVolume();
     const baseFolder = path.join(homedir, 'Documents', 'appsAndMore');
-    const loveThisSongsDir = path.join(baseFolder, 'mySongs', 'likedSongs');
+    const loveThisSongsDir = path.join(baseFolder, 'mySongs', 'foreign');
 
 
     if (!require('fs').existsSync()) {
@@ -238,20 +234,21 @@ const loveThisSong = async () => {
 
     const fileName = path.basename(fullPath);
     const fromFolder = path.basename(path.dirname(fullPath));
-    console.log(`fileName : ${fileName} , fromFolder : ${fromFolder}`);
 
     const newFilePath = path.join(loveThisSongsDir, fileName);
 
-    const isThisFromDiscover = fromFolder === 'discover';
 
-    if (!isThisFromDiscover) {
+    // Is the files name on this dir is on format of : songName)$($artistName.mp3
+    const isThisDirSported = fromFolder === 'discover' || fromFolder === 'foreign';
+
+    if (!isThisDirSported) {
 
         console.log(` ${fromFolder}`);
 
         const notificationInfo = {
-            title: 'loveThisSongSkip',
-            icon: 'music', sound: true, timeout: 7,
-            message: `Song is not from discover folder !`
+            title: 'loveThisSongAction',
+            icon: 'info', sound: true, timeout: 7,
+            message: `Song is not from Discover Or Foreign folder !`
         };
 
         ipcRenderer.invoke('notificationWIthNode', notificationInfo);
@@ -262,16 +259,55 @@ const loveThisSong = async () => {
     const soundSrcOnDone = `./../../assets/sound/successSound.mp3`;
     const withoutExtension = fileName.replace('.mp3', '');
     const [songName, artistName] = withoutExtension.split(')$(');
-    console.log(`songName : ${songName} , artistName : ${artistName}`);
-    await scrobbleTrackOnLastFm(artistName, songName, true);
+
+    if (!songName || !artistName) {
+
+        console.error(`Error getting songName or artistName from fileName : ${fileName}`);
+
+        const notificationInfo = {
+            title: 'scrobbleTrackError',
+            icon: 'error', sound: true, timeout: 7,
+            message: `Error getting songName or artistName from fileName : ${fileName}`
+        };
+
+        ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+        return;
+    };
+
+    console.log(`scrobbleTrackOnLastFm : songName: ${songName} , artistName: ${artistName} `);
+
+    const anyErrorOnScrobble = await scrobbleTrackOnLastFm(artistName, songName, true);
+
+    if (!anyErrorOnScrobble) {
+
+        console.error(`Error with scrobbleTrackOnLastFm : ${fileName}`);
+
+        const notificationInfo = {
+            title: 'scrobbleTrackError',
+            message: `scrobbleError : ${fileName}`,
+            icon: 'error', sound: true, timeout: 7,
+        };
+
+        ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+        return;
+    };
+
+    if (fromFolder !== 'discover') {
+
+        await vlc.setVolume(currentVolume / 2);
+        notificationSound.src = soundSrcOnDone;
+        notificationSound.play();
+        await new Promise(resolve => setTimeout(resolve, 1300));
+        await vlc.setVolume(currentVolume);
+        return;
+    }
+
     const stopOn = await vlc.getProgress();
-    console.log(`stopOn : ${stopOn}`);
     await new Promise(resolve => setTimeout(resolve, 500));
     await vlc.removeFromPlaylist(currentEntry.id);
-    // await fs.copyFile(fullPath, newFilePath);
     fsExtra.move(fullPath, newFilePath, { overwrite: true }, err => {
         if (err) throw err;
-        console.log('Moved file to likedSongs folder !');
+        console.log('Moved file to likedSongs ( foreign ) folder !');
     });
     await new Promise(resolve => setTimeout(resolve, 500));
     await vlc.setVolume(0);
@@ -283,8 +319,7 @@ const loveThisSong = async () => {
     await vlc.setTime(stopOn - 5);
     await new Promise(resolve => setTimeout(resolve, 500));
     await vlc.setVolume(currentVolume);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return;
+    // await new Promise(resolve => setTimeout(resolve, 500));
 };
 
 
@@ -292,13 +327,12 @@ const addWplFileToPlaylist = async (wplFileName = 'foreign') => {
 
     const playlistFilePath = path.join(playlistDir, `${wplFileName}.wpl`);
     await vlc.addToPlaylist(playlistFilePath);
-    console.log(`playlistFile ${wplFileName} added successfully !`);
+    console.log(`playlistFile ${wplFileName} added successfully!`);
     return;
 };
 
 const pauseOrResume = async () => {
 
-    // return checkVLCAndProceed(async () => {
 
     try {
         const isPlaying = await vlc.isPlaying();
@@ -314,10 +348,9 @@ const pauseOrResume = async () => {
         }
         return;
     } catch (error) {
-        console.error(`Error pausing or resuming playback : ${error}`);
+        console.error(`Error pausing or resuming playback: ${error} `);
         return;
     }
-    // });
 };
 
 const playNext = () => {
@@ -326,7 +359,7 @@ const playNext = () => {
             await vlc.next();
             console.log('Playing next song .');
         } catch (error) {
-            console.error(`Error playing next song : ${error}`);
+            console.error(`Error playing next song: ${error} `);
             return;
 
         }
@@ -339,7 +372,7 @@ const playPrevious = () => {
             await vlc.previous();
             console.log('Playing previous song .');
         } catch (error) {
-            console.error(`Error playing previous song : ${error}`);
+            console.error(`Error playing previous song: ${error} `);
             return;
         }
     });

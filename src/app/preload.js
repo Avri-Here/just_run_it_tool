@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (musicType === 'discover') {
 
 
-            const latestTopSong = await discoverYourRecommendedMusic(5);
+            const latestTopSong = await discoverYourRecommendedMusic(8);
 
             if (latestTopSong === 'youDiscoverFolderIsFull') {
                 const message = 'Already news songs waiting to your opinion !'
@@ -213,7 +213,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 
-            // const latestTopSong = await discoverYourRecommendedMusic(10);
             const ytUrlSongsRes = await getYTubeUrlByNames(latestTopSong);
 
             const notificationInfo = {
@@ -254,44 +253,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         initPlay.disabled = false;
     });
 
-
-
-
-    document.querySelector('.togglePlayPause').addEventListener('click', async () => {
-
-        playIcon.style.display = 'inline-block';
-        pauseIcon.style.display = 'none';
-
-        try {
-            const getState = await pauseOrResume();
-            if (getState === 'paused') {
-                playIcon.style.display = 'inline-block';
-                pauseIcon.style.display = 'none';
-                return;
-            } if (getState === 'play') {
-                playIcon.style.display = 'none';
-                pauseIcon.style.display = 'inline-block';
-                return;
-
-            }
-        } catch (error) {
-            console.error('Error toggling playback :', error);
-            playIcon.style.display = 'inline-block';
-            pauseIcon.style.display = 'none';
-            return;
-
-        }
-    });
-
-
-
-
     nextSong.addEventListener('click', async () => await playNext());
     previousSong.addEventListener('click', async () => await playPrevious());
     deleteSong.addEventListener('click', async () => await deleteCurrentSongAndPlayNext());
     loveSong.addEventListener('click', async () => await loveThisSong());
 
 
+    document.querySelector('.togglePlayPause').addEventListener('click', async () => {
+
+        pauseIcon.style.display = 'none';
+        playIcon.style.display = 'inline-block';
+
+        const getState = await pauseOrResume();
+        if (getState === 'paused') {
+            playIcon.style.display = 'inline-block';
+            pauseIcon.style.display = 'none';
+            return;
+        };
+
+        if (getState === 'play') {
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'inline-block';
+            return;
+
+        }
+
+    });
 
     // <!-- Rest Controls  - GodModeWin , CMD , PS-->
 

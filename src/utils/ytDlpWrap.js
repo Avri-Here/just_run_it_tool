@@ -6,7 +6,7 @@ const ytSearch = require('yt-search');
 const YTDlpWrap = require('yt-dlp-wrap').default;
 const fs = require('fs'), { join } = require('path');
 const { getAllFilesInDir } = require('./fileExplorer');
-const { initSessionKey, loveAndMarkAsKnown } = require('./lastFmUtils');
+const { initSessionKey, loveAndMarkAsKnown, searchTrackByNameAndArtist } = require('./lastFmUtils');
 
 
 const homedir = require('os').homedir();
@@ -21,8 +21,6 @@ const ytDlpWrap = new YTDlpWrap(ytDlpExe);
 
 const getYTubeUrlByNames = async (songNames) => {
 
-
-    console.log('getYTubeUrlByNames :', JSON.stringify(songNames, null, 2));
     const homedir = require('os').homedir();
     const songsFolder = join(homedir, 'Documents', 'appsAndMore', 'mySongs');
     const discoverDir = join(songsFolder, 'discover');
@@ -87,6 +85,14 @@ const downloadSongsFromYt = async (ytUrlSongs) => {
             ytUrlSongs.map(async ({ songName, artistName, url }) => {
 
                 try {
+
+                    const trackInfo = await searchTrackByNameAndArtist(songName, artistName);
+
+                    if (!trackInfo) {
+                        console.error(`Failed to find track info for ${songName} by ${artistName} !`);
+                        throw new Error(`Failed to find track info for ${songName} by ${artistName} !`);
+                    };
+
                     await ytDlpWrap.execPromise([
                         url, '-f', 'bestaudio',
                         '--extract-audio', '--audio-format', 'mp3',
@@ -110,7 +116,6 @@ const downloadSongsFromYt = async (ytUrlSongs) => {
         console.log('Total songs downloaded :', filterResolve.length);
 
         if (filterReject.length) {
-            // Log rejected downloads with details
             console.error('Total songs failed :', filterReject.length, JSON.stringify(filterReject, null, 2));
         }
 
