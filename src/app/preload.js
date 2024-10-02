@@ -144,9 +144,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const vlcClientState = await getVlcClientMode();
         const vlcUnderControl = vlcClientState !== 'unknown';
 
-        // const vlcClientState = await Promise.race([timeOutPromise(), getVlcClientMode()]);
-        // const vlcUnderControl = vlcClientState !== 'timeout' && vlcClientState !== 'unknown';
-
         if (!vlcUnderControl) {
             musicContainer.style.display = 'none';
             return;
