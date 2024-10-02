@@ -15,6 +15,7 @@
     "electron-reload": "^2.0.0-alpha.1",
     "ffmetadata": "^1.7.0",
     "form-data": "^4.0.0",
+    "fs-extra": "^11.2.0",
     "node-notifier": "^10.0.1",
     "node-powershell": "^3.1.1",
     "powershell": "^2.3.2",

@@ -49,9 +49,13 @@ const getCommandBaseType = (fullPath) => {
                 filePathCommand: fileName
             };
         case '.js':
+            // return {
+            //     fullPathCommand: `node --watch "${fullPath}"`,
+            //     filePathCommand: `node --watch "${fileName}"`
+            // };
             return {
-                fullPathCommand: `node --watch "${fullPath}"`,
-                filePathCommand: `node --watch "${fileName}"`
+                fullPathCommand: `nodemon --watch "${fullPath}" --exec "node ${fullPath}"`,
+                filePathCommand: `nodemon --watch "${fileName}" --exec "node ${fileName}"`
             };
         default:
             return {
@@ -340,7 +344,7 @@ const runScriptOnNewTabOrWindow = (commandToRun) => {
 
     console.log(`Command to run : ${commandToRun}`);
 
-    const openCMD = `wt -w 0 nt cmd /K "${commandToRun}"`; 
+    const openCMD = `wt -w 0 nt cmd /K "${commandToRun}"`;
     exec(openCMD, (error, _, stderr) => {
 
         if (error) {
