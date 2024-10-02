@@ -25,13 +25,30 @@
     href="https://fonts.googleapis.com/css?family=Roboto:300,400,500|Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" />
   <link rel="stylesheet" href="./styles/index.css" />
   <link rel="stylesheet" href="./styles/more.css" />
+  
+  <style>
+    .fullscreen-gif {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
 
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 
 <body>
   <div class="window__handler">
     <div class="window__title"></div>
-    <!-- <div class="window__title">GodModeArea</div> -->
     <div class="window__controls">
       <a class="window__close"></a>
       <a class="window__maximize"></a>
@@ -80,13 +97,19 @@
     </button>
   </div>
   <div class="inputApps">
-    <!-- <img src="./img/icons/desktop/store.ico" />
-    <img src="./img/icons/desktop/microsoftWindows.ico" />
-    <img src="./img/icons/desktop/files.ico" /> -->
     <img src="./img/icons/desktop/dashboard.ico" />
     <img src="./img/icons/desktop/log.ico" id="fixPcUtils" title="fixPcUtils" />
     <img src="./img/icons/desktop/clock.ico" />
   </div>
+  <div id="gifContainer" class="fullscreen-gif">
+  <img src="./../../assets/img/misc/win11.gif" alt="Windows 11 GIF" width="1500" />
+</div>
+  </div>
+  <script>
+    setTimeout(function () {
+      document.getElementById('gifContainer').classList.add('hidden');
+    }, 3000);
+  </script>
 </body>
 
 </html>
