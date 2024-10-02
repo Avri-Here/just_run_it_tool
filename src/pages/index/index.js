@@ -84,7 +84,7 @@ window.onload = async () => {
 
     sessionStorage.setItem('xpStartupSound', true);
 
-    const audio = new Audio('./../../assets/sound/win8StartupSound.mp3');
+    const audio = new Audio('./../../assets/sound/startup/win8StartupSound.mp3');
     audio.play().catch(error => {
         console.error('Error playing sound :', error);
     });

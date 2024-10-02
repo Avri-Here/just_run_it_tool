@@ -76,9 +76,7 @@ const downloadSongsFromYt = async (ytUrlSongs) => {
         return null;
     });
 
-    if (!sessionKey) {
-        return;
-    };
+    if (!sessionKey) return
 
     try {
         const downloadSongs = await Promise.allSettled(

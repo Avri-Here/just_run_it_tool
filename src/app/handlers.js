@@ -5,8 +5,8 @@
 
 let isProgressRunning = false;
 const notifier = require('node-notifier');
+const path = require('path'), log = console;
 const ProgressBar = require('electron-progressbar');
-const path = require('path'), log = require('electron-log');
 const { dialog, ipcMain, Notification } = require('electron');
 const { nativeImage, BrowserWindow, screen } = require('electron');
 

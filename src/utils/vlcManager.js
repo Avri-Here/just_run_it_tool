@@ -8,7 +8,6 @@ const util = require('util');
 const VLC = require('vlc-client');
 const fsExtra = require('fs-extra');
 const homedir = require('os').homedir()
-const console = require('electron-log');
 const { ipcRenderer } = require('electron');
 const { exec, spawn } = require('child_process');
 const { deleteFileToTrash } = require('./fileExplorer');
@@ -97,19 +96,23 @@ const startAndExposeVlcPortable = async () => {
 
 const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
 
-    const soundsDir = path.join(process.env.ASSETS_DIR, 'sound');
+    const notificationSound = document.getElementById('notificationSound');
+    const soundsDir = path.join(process.env.ASSETS_DIR, 'sound', 'startup');
     const ps1ScriptPash = path.join(process.env.ASSETS_DIR, 'scripts', 'ps1', 'createPlaylist.ps1');
 
-    const randomIndex = Math.floor(Math.random() * 2) + 1;
-    const notificationSound = document.getElementById('notificationSound');
-    notificationSound.src = path.join(soundsDir, `princessPeachRescued${randomIndex}.mp3`);
     notificationSound.playbackRate = 1.5;
+    const randomIndex = Math.floor(Math.random() * 2) + 1;
+    notificationSound.src = path.join(soundsDir, `princessPeachRescued${randomIndex}.mp3`);
 
     try {
 
-        const vlcClientState = await Promise.race([timeOutPromise(), getVlcClientMode()]);
-        const isVlcUnderControl = vlcClientState !== 'timeout' && vlcClientState !== 'unknown';
+        // const vlcClientState = await Promise.race([timeOutPromise(), getVlcClientMode()]);
+        // const isVlcUnderControl = vlcClientState !== 'timeout' && vlcClientState !== 'unknown';
 
+
+
+        const vlcClientState = await getVlcClientMode();
+        const isVlcUnderControl = vlcClientState !== 'unknown';
 
         if (isVlcUnderControl) {
 
@@ -127,7 +130,6 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
             }
         };
 
-
         await killAllVlcPortableInstancesIfAny();
         await startAndExposeVlcPortable();
         await runPowerShellFile(ps1ScriptPash, [musicSrc]);
@@ -137,9 +139,6 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
         await new Promise(resolve => setTimeout(resolve, 500));
         await vlc.setLooping(false);
 
-        // if (musicSrc === 'discover') {
-
-        // }
 
         await notificationSound.play();
         notificationSound.addEventListener('ended', async () => {
@@ -165,7 +164,6 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
 
 const getVlcClientMode = async () => {
 
-
     try {
 
         const paused = await vlc.isPaused();
@@ -186,6 +184,7 @@ const deleteCurrentSongAndPlayNext = async () => {
     const fullPath = currentEntry.uri.replace('file:///', '');
     const playlistFolder = path.basename(path.dirname(fullPath));
     const notificationSound = document.getElementById('notificationSound');
+    const soundSrcOnDelete = `./../../assets/sound/startup/macEmptyTrash.mp3`;
 
 
     try {
@@ -203,7 +202,6 @@ const deleteCurrentSongAndPlayNext = async () => {
 
         await deleteFileToTrash(filePathToOut, false);
         console.log('deleteCurrentSongAndPlayNext Done !');
-        const soundSrcOnDelete = `./../../assets/sound/macEmptyTrash.mp3`;
         notificationSound.src = soundSrcOnDelete;
         notificationSound.play();
         await new Promise(resolve => setTimeout(resolve, 1300));
@@ -234,7 +232,6 @@ const loveThisSong = async () => {
 
     const fileName = path.basename(fullPath);
     const fromFolder = path.basename(path.dirname(fullPath));
-
     const newFilePath = path.join(loveThisSongsDir, fileName);
 
 
@@ -243,11 +240,9 @@ const loveThisSong = async () => {
 
     if (!isThisDirSported) {
 
-        console.log(` ${fromFolder}`);
-
         const notificationInfo = {
             title: 'loveThisSongAction',
-            icon: 'info', sound: true, timeout: 7,
+            icon: 'info', sound: true, timeout: 6,
             message: `Song is not from Discover Or Foreign folder !`
         };
 
@@ -256,7 +251,7 @@ const loveThisSong = async () => {
     }
 
     const notificationSound = document.getElementById('notificationSound');
-    const soundSrcOnDone = `./../../assets/sound/successSound.mp3`;
+    const soundSrcOnDone = `./../../assets/sound/startup/successSound.mp3`;
     const withoutExtension = fileName.replace('.mp3', '');
     const [songName, artistName] = withoutExtension.split(')$(');
 
@@ -319,7 +314,6 @@ const loveThisSong = async () => {
     await vlc.setTime(stopOn - 5);
     await new Promise(resolve => setTimeout(resolve, 500));
     await vlc.setVolume(currentVolume);
-    // await new Promise(resolve => setTimeout(resolve, 500));
 };
 
 
@@ -332,7 +326,6 @@ const addWplFileToPlaylist = async (wplFileName = 'foreign') => {
 };
 
 const pauseOrResume = async () => {
-
 
     try {
         const isPlaying = await vlc.isPlaying();
@@ -348,7 +341,7 @@ const pauseOrResume = async () => {
         }
         return;
     } catch (error) {
-        console.error(`Error pausing or resuming playback: ${error} `);
+        // console.error(`Error pausing or resuming playback : ${error} `);
         return;
     }
 };
@@ -360,8 +353,7 @@ const playNext = () => {
             console.log('Playing next song .');
         } catch (error) {
             console.error(`Error playing next song: ${error} `);
-            return;
-
+            return
         }
     });
 };
@@ -378,8 +370,28 @@ const playPrevious = () => {
     });
 };
 
+const pausePlaying = async () => {
+    try {
+        await vlc.pause();
+        await new Promise(resolve => setTimeout(resolve, 400));
+        console.log('vlcPause - Done !');
+    } catch (error) {
+        return;
+    }
+};
+
+const resumePlaying = async () => {
+    try {
+        await vlc.play();
+        await new Promise(resolve => setTimeout(resolve, 400));
+        console.log('vlcPlay - Done !');
+    } catch (error) {
+        return;
+    }
+};
 
 module.exports = {
+    pausePlaying, resumePlaying,
     playNext, playPrevious, loveThisSong,
     initAndRunPlaylistFlow, pauseOrResume,
     deleteCurrentSongAndPlayNext, getVlcClientMode

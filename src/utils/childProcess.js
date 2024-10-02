@@ -1,7 +1,6 @@
 
 
 const { promisify } = require('util');
-const console = require('electron-log');
 const { exec, spawn } = require('child_process');
 const path = require('path'), { ipcRenderer } = require('electron');
 
@@ -166,7 +165,7 @@ const runExeAndCloseCmd = async (exeName, params, exeDir = 'misc') => {
 
         const command = `powershell -Command "Start-Process '${exePath}' -ArgumentList '${params}' -NoNewWindow -Wait"`;
         const output = await executeCommand(command);
-        console.log(`runExeAndCloseCmd Output : ${output}`);
+        console.log(`runExeAndCloseCmd Done !`);
         return output;
     } catch (err) {
         console.error(`Error: ${err.message}`);
@@ -175,7 +174,7 @@ const runExeAndCloseCmd = async (exeName, params, exeDir = 'misc') => {
 };
 
 const runPowerShellFile = (ps1FilePath, params = []) => {
-    
+
     const PowerShell = require("powershell");
 
     return new Promise((resolve, reject) => {
@@ -213,8 +212,7 @@ const runPowerShellFile = (ps1FilePath, params = []) => {
 
 const runPsCommand = async (commands = []) => {
 
-
-    // Work on various - node-powershell  "^3.1.1" ! 
+    // work on var - node-powershell  "3.1.1" !
     const shell = require('node-powershell');
 
     const ps = new shell({ executionPolicy: 'Bypass', noProfile: true });
@@ -285,10 +283,10 @@ const openCmdAndRunFromThere = (command, params = []) => {
                 return;
             }
             if (stderr) {
-                console.error(`Error output : ${stderr}`);
+                console.error(`Error : ${stderr || 'unknown'}`);
                 return;
             }
-            console.log(`Output : ${stdout}`);
+            console.log(`executed successfully !`);
         });
 }
 
@@ -336,26 +334,27 @@ const runIsolatedCommandAsAdmin = (typeIt = 'color 4') => {
 
 
 
-//  run JS script in a new CMD tab or window and keep it running with node --watch
-const runScriptOnNewTabOrWindow = (fullPathWithCommand, insertToHistory) => {
+//  run JS script in a new CMD tab or window and keep it running !
 
-    console.log(`fullPathWithCommand : ${fullPathWithCommand}`);
+const runScriptOnNewTabOrWindow = (commandToRun) => {
 
-    const openCMD = `wt -w 0 nt cmd /k ${fullPathWithCommand}`;
+    console.log(`Command to run : ${commandToRun}`);
 
-    exec(openCMD, (error, stdout, stderr) => {
+    const openCMD = `wt -w 0 nt cmd /K "${commandToRun}"`; 
+    exec(openCMD, (error, _, stderr) => {
 
         if (error) {
-            console.error(`Error : ${error.message}`);
+            console.error(`Error: ${error.message}`);
             return;
         }
         if (stderr) {
-            console.error(`Stderr : ${stderr}`);
+            console.error(`Stderr: ${stderr}`);
             return;
         }
-        console.log(`Output : ${stdout}`);
+        console.info(`RunScriptOnNew Done!`);
     });
 };
+
 
 module.exports = {
     openCmdAndRunAsAdmin, openCmdInNewTabOrWindowFolder,

@@ -4,18 +4,20 @@
 
 const fs = require('fs').promises;
 const { extname, dirname, join } = require('path');
+const { getAllFilesInDir } = require('../utils/fileExplorer');
 const { openFileDirectly } = require('../utils/childProcess');
+const { startDiscoverFlow } = require('../utils/lastFmUtils');
+const { getCommandBaseType } = require('../utils/childProcess');
 const { clipboard, ipcRenderer, webUtils } = require('electron');
 const { openCmdAndRunAsAdmin } = require('../utils/childProcess');
 const { runScriptOnNewTabOrWindow } = require('../utils/childProcess');
-const { discoverYourRecommendedMusic } = require('../utils/lastFmUtils');
+const { pausePlaying, resumePlaying } = require('../utils/vlcManager');
 const { loveThisSong, getVlcClientMode } = require('../utils/vlcManager');
+const { openCmdInNewTabOrWindowFolder } = require('../utils/childProcess');
 const { openCmdAsAdmin, openCmdNoAdmin } = require('../utils/childProcess');
-const { runExeAndCloseCmd, getCommandBaseType } = require('../utils/childProcess');
 const { getYTubeUrlByNames, downloadSongsFromYt } = require('../utils/ytDlpWrap');
 const { playPrevious, deleteCurrentSongAndPlayNext, } = require('../utils/vlcManager');
 const { openPowerShellAsAdmin, openPowerShellNoAdmin } = require('../utils/childProcess');
-const { openCmdInNewTabOrWindowFolder, timeOutPromise } = require('../utils/childProcess');
 const { initAndRunPlaylistFlow, pauseOrResume, playNext } = require('../utils/vlcManager');
 
 const scriptExtensions = ['.py', '.ps1', '.bat', '.js'];
@@ -25,10 +27,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     const cmdBtn = document.querySelector('.cmdBtn');
-    const playIcon = document.querySelector('.icon-play');
-    const initPlay = document.querySelector('.initPlay');
     const nextSong = document.querySelector('.nextSong');
+    const initPlay = document.querySelector('.initPlay');
     const loveSong = document.querySelector('.loveSong');
+    const playIcon = document.querySelector('.icon-play');
     const btnGroup = document.querySelector('.btn-group');
     const pauseIcon = document.querySelector('.icon-pause');
     const godModeBtn = document.querySelector('.godModeBtn');
@@ -49,61 +51,52 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const { files } = e.dataTransfer;
 
+        if (files.length > 1) {
+            const notificationInfo = {
+                title: `Let's start from the beginning ..`,
+                message: 'Drag only one file or folder .',
+                icon: 'error',
+                sound: true,
+                timeout: 5,
+            }
+
+            ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+            return;
+        }
+
+        //  Vscode extensions - Copy Relative Path from a File - alexdima.com .
+        const txtClipboard = clipboard.readText();
+        const optionalFilePath = /^[a-zA-Z]:\\/.test(txtClipboard);
+
+        if (!files.length && !optionalFilePath) {
+
+
+            const notificationInfo = {
+                title: 'No path found on drop event or on clipboard !',
+                message: 'Use a valid file or folder path.',
+                icon: 'error',
+                sound: true,
+                timeout: 5,
+            }
+
+            ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+            return;
+        }
+
+
+        btnGroup.draggable = false;
+        btnGroup.style.display = 'none';
+        progressContainer.style.display = 'block';
 
 
         try {
 
-            if (files.length > 1) {
-
-                const notificationInfo = {
-                    title: `Let's start from the beginning ..`,
-                    message: 'Drag only one file or folder .',
-                    icon: 'error',
-                    sound: true,
-                    timeout: 5,
-                }
-
-                ipcRenderer.invoke('notificationWIthNode', notificationInfo);
-                return;
-            }
-
-
-            //  Vscode extensions - Copy Relative Path from a File - alexdima.com .
-            const txtClipboard = clipboard.readText();
-            const optionalFilePath = /^[a-zA-Z]:\\/.test(txtClipboard);
-
-            if (!files.length && !optionalFilePath) {
-
-
-                const notificationInfo = {
-                    title: 'No path found on drop event or on clipboard !',
-                    message: 'Use a valid file or folder path.',
-                    icon: 'error',
-                    sound: true,
-                    timeout: 5,
-                }
-
-                ipcRenderer.invoke('notificationWIthNode', notificationInfo);
-                return;
-            }
-
-            btnGroup.draggable = false;
-            btnGroup.style.display = 'none';
-            progressContainer.style.display = 'block';
-
             const dropFileFullPath = files[0] ? webUtils.getPathForFile(files[0]) : txtClipboard;
-            console.log(`dropFileFullPath is : ${dropFileFullPath}`);
-
-
             await new Promise((resolve) => setTimeout(resolve, 1350));
             const stats = await fs.stat(dropFileFullPath);
 
             if (stats.isDirectory()) {
-                const openOnExplorerPlus = e.ctrlKey;
-                if (openOnExplorerPlus) {
-                    await runExeAndCloseCmd('explorer++.exe', dropFileFullPath);
-                    return;
-                }
+
                 openCmdInNewTabOrWindowFolder(`cd /d"${dropFileFullPath}"`);
                 return;
             };
@@ -115,17 +108,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (shouldOpenInTerminal) {
 
                 const asAdmin = e.ctrlKey;
-                const { fullPathCommand, filePathCommand } = getCommandBaseType(dropFileFullPath);
-
                 if (asAdmin) {
+                    const { fullPathCommand } = getCommandBaseType(dropFileFullPath);
                     openCmdAndRunAsAdmin(fullPathCommand);
                     return;
                 }
 
+                const { filePathCommand } = getCommandBaseType(dropFileFullPath);
 
                 clipboard.writeText(filePathCommand);
-                clipboard.writeText('cd ' + dirname(dropFileFullPath) + ' & ' + fullPathCommand);
-                runScriptOnNewTabOrWindow(fullPathCommand);
+                const pathDirToOpen = dirname(dropFileFullPath);
+                const commandToRun = `cd ${pathDirToOpen} && ${filePathCommand}`;
+                runScriptOnNewTabOrWindow(commandToRun);
                 return;
             };
 
@@ -134,33 +128,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         }
         catch (err) {
-            console.error(`Error :` + err);
+            console.error(`Error :` + JSON.stringify(err, null, 2));
             return;
         }
-
         finally {
-            await new Promise((resolve) => setTimeout(resolve, 200));
-            progressContainer.style.display = 'none';
-            btnGroup.style.display = 'block';
             btnGroup.draggable = true;
+            btnGroup.style.display = 'block';
+            progressContainer.style.display = 'none';
         }
     });
 
 
     musicPlayer.addEventListener('mouseover', async () => {
 
+        const vlcClientState = await getVlcClientMode();
+        const vlcUnderControl = vlcClientState !== 'unknown';
 
-        const vlcClientState = await Promise.race([timeOutPromise(), getVlcClientMode()]);
-
-
-
-        const vlcUnderControl = vlcClientState !== 'timeout' && vlcClientState !== 'unknown';
+        // const vlcClientState = await Promise.race([timeOutPromise(), getVlcClientMode()]);
+        // const vlcUnderControl = vlcClientState !== 'timeout' && vlcClientState !== 'unknown';
 
         if (!vlcUnderControl) {
             musicContainer.style.display = 'none';
             return;
         }
-
 
         if (vlcClientState === 'paused') {
             playIcon.style.display = 'inline-block';
@@ -173,8 +163,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         musicContainer.style.display = 'block';
-
-
     });
 
 
@@ -182,61 +170,85 @@ document.addEventListener('DOMContentLoaded', async () => {
     initPlay.addEventListener('dblclick', async () => {
 
         const musicType = await ipcRenderer.invoke('selectMusicType');
+        if (!musicType) {
+            console.info('No music type selected ! - returning ..');
+            return;
+        };
 
-        if (!musicType) return;
+
+        const homedir = require('os').homedir();
+        const soundElement = document.getElementById('notificationSound');
+        const musicOnHoldDir = join(process.env.ASSETS_DIR, 'sound', 'musicOnHold');
+        const voiceInstructions = join(process.env.ASSETS_DIR, 'sound', 'voiceInstructions');
+        const discoverDir = join(homedir, 'Documents', 'appsAndMore', 'mySongs', 'discover');
 
         initPlay.disabled = true;
 
         if (musicType === 'discover') {
 
+            // Pause and resume logic for existing playlist playing
+            await pausePlaying();
+            const allFilesInDir = await getAllFilesInDir(discoverDir);
 
-            const latestTopSong = await discoverYourRecommendedMusic(8);
-
-            if (latestTopSong === 'youDiscoverFolderIsFull') {
-                const message = 'Already news songs waiting to your opinion !'
-                const notificationInfo = {
-                    title: 'Discovering New Songs !',
-                    message, icon: 'music', sound: true, timeout: 5,
-                }
-
-                ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+            // Check if there are at least 10 files in the directory
+            if (allFilesInDir.length >= 10) {
+                soundElement.pause(); // Ensure previous sound is paused
+                soundElement.src = join(voiceInstructions, `previousSongsWaiting.mp3`);
+                soundElement.load();
+                await soundElement.play();
+                await new Promise((resolve) => setTimeout(resolve, 4000));
+                await resumePlaying();
                 await initAndRunPlaylistFlow(musicType);
                 initPlay.disabled = false;
                 return;
             }
 
+
             const randomIndex = Math.floor(Math.random() * 6) + 1;
-            const soundsDir = join(process.env.ASSETS_DIR, 'sound', 'musicOnHold');
-            const soundElement = document.getElementById('notificationSound');
-            soundElement.src = join(soundsDir, `${randomIndex}.mp3`);
-            soundElement.play();
+            soundElement.pause();
+            soundElement.src = join(musicOnHoldDir, `${randomIndex}.mp3`);
+            soundElement.load();
+            soundElement.loop = true;
+            await soundElement.play();
+            const songsNames = await startDiscoverFlow(4);
+            console.log('startDiscoverFlow :', songsNames);
 
-
-
-            const ytUrlSongsRes = await getYTubeUrlByNames(latestTopSong);
-
-            const notificationInfo = {
-                title: 'Discovering New Songs !',
-                icon: 'music', sound: false, timeout: 5000,
-                message: `Download and play ${ytUrlSongsRes.length} songs !`,
+            if (!songsNames.length) {
+                console.warn('No songs found to play! Exiting...');
+                console.info('You should explore more songs...');
+                soundElement.loop = false;
+                soundElement.pause();
+                return;
             };
 
-            ipcRenderer.invoke('notificationWIthNode', notificationInfo);
-
-            const anyToPlayFromDiscoverDir = await downloadSongsFromYt(ytUrlSongsRes);
-
-            console.log('anyToPlayFromDiscoverDir :', anyToPlayFromDiscoverDir);
-
-            if (!anyToPlayFromDiscoverDir) {
-
+            const ytUrlSongs = await getYTubeUrlByNames(songsNames);
+            const currentPosition = soundElement.currentTime;
+            soundElement.pause();
+            soundElement.src = join(voiceInstructions, `totalSongsAre.mp3`);
+            soundElement.load();
+            soundElement.loop = false;
+            await soundElement.play();
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            const speech = new SpeechSynthesisUtterance(ytUrlSongs.length.toString());
+            speech.rate = 1;
+            speech.lang = 'en-US';
+            await new Promise((resolve) => setTimeout(resolve, 3500));
+            window.speechSynthesis.speak(speech);
+            soundElement.src = join(musicOnHoldDir, `${randomIndex}.mp3`);
+            soundElement.load();
+            soundElement.loop = true;
+            soundElement.currentTime = currentPosition;
+            soundElement.play();
+            const downloadSongsRes = await downloadSongsFromYt(ytUrlSongs);
+            if (!downloadSongsRes) {
                 soundElement.pause();
-
+                soundElement.loop = false;
                 console.info('anyToPlayFromDiscoverDir');
 
                 const notificationInfo = {
                     title: 'discoverNewSongsError',
                     message: 'Error - No songs found to play !',
-                    icon: 'error', sound: true, timeout: 5,
+                    icon: 'error', sound: true, timeout: 6,
                 }
 
                 ipcRenderer.invoke('notificationWIthNode', notificationInfo);
@@ -244,9 +256,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             };
 
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             soundElement.pause();
-
+            soundElement.loop = false;
         }
 
         await initAndRunPlaylistFlow(musicType);
@@ -254,9 +266,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     nextSong.addEventListener('click', async () => await playNext());
+    loveSong.addEventListener('click', async () => await loveThisSong());
     previousSong.addEventListener('click', async () => await playPrevious());
     deleteSong.addEventListener('click', async () => await deleteCurrentSongAndPlayNext());
-    loveSong.addEventListener('click', async () => await loveThisSong());
 
 
     document.querySelector('.togglePlayPause').addEventListener('click', async () => {
@@ -318,10 +330,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnGroup.addEventListener('mouseleave', () => { musicContainer.style.display = 'none'; });
 });
 
-
-
-
-
-// const artist = 'NF';
-// const track = 'just like you';
-// const latestTopSong = await getSimilarSongs(artist, track);
