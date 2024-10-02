@@ -3,8 +3,6 @@
 
 const VLC_NAME = 'vlcPortable.exe';
 
-
-
 const util = require('util');
 const VLC = require('vlc-client');
 const fsExtra = require('fs-extra');
