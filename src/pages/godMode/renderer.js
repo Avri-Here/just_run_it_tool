@@ -1,20 +1,20 @@
 
 
 
-const path = require('path')
+const path = require('path');
 const { ipcRenderer, clipboard } = require('electron');
 const { runPsCommand } = require('../../utils/childProcess');
+const { getInstalledPrograms } = require('../../utils/wmicManger');
 const { runExeFileAsAdmin } = require('../../utils/childProcess');
 const { openCmdAndRunFromThere } = require('../../utils/childProcess');
 const { executeCommandWithSpawn } = require('../../utils/childProcess');
-const { runIsolatedCommandAsAdmin } = require('../../utils/childProcess');
+const { runIsolatedCommandAsAdmin, openCmdAndRunAsAdminFix } = require('../../utils/childProcess');
 
 
 
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    const { default: Swal } = require('sweetalert2');
 
     const ffBatch = document.getElementById('ffBatch');
     const freeRam = document.getElementById('freeRam');
@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const fullEventLogView = document.getElementById('fullEventLogView');
     const environmentEditor = document.getElementById('environmentEditor');
 
+
+    setTimeout(() => { document.getElementById('gifContainer').classList.add('hidden') }, 3000);
 
 
     ffBatch.addEventListener('dblclick', async () => {
@@ -162,43 +164,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
     advanceUninstall.addEventListener('dblclick', async () => {
-        // const { value: formValues } = await Swal.fire({
-        //     title: "advanceUninstall",
-        //     html: `
-        //     <form id="optionsForm">
-        //       <label><input type="checkbox" id="option1"> Option 1</label><br>
-        //       <div class="options-row">
-        //         <label><input type="checkbox" id="option2"> Option 2</label>
-        //         <label><input type="checkbox" id="option3"> Option 3</label>
-        //       </div>
-        //     </form>
-        //   `,
-        //     focusConfirm: false,
-        //     showCancelButton: true,
-        //     preConfirm: () => {
-        //         const option1 = document.getElementById('option1').checked;
-        //         const option2 = document.getElementById('option2').checked;
-        //         const option3 = document.getElementById('option3').checked;
-        //         return {
-        //             option1,
-        //             option2,
-        //             option3,
-        //         };
-            // },
-        // });
 
-        // if (formValues) {
-        //     Swal.fire(`
-        //       Option 1: ${formValues.option1}
-        //       Option 2: ${formValues.option2}
-        //       Option 3: ${formValues.option3}
-        //     `);
+        // await ipcRenderer.invoke('godModeWindows', 'progressBar');
+        const allInstalledPrograms = await getInstalledPrograms();
+        const result = await ipcRenderer.invoke('openDialog', {
+            type: 'question',
+            buttons: allInstalledPrograms,
+            title: 'advanceUninstallWithWmic',
+            message: 'Click a program to uninstall ..',
+            cancelId: 400
+        });
 
+        if (result.response === 400) {
+            console.log('User canceled advance Uninstall !');
+            return;
+        }
+
+        const selectedProgram = allInstalledPrograms[result.response];
+        // const commandToRun = `wmic product where "name='Nokia Connectivity Cable Driver'" call uninstall /nointeractive`
+        const commandToRun = `wmic product where "name='${selectedProgram}'" call uninstall /nointeractive`;
+        console.log(commandToRun);
+        await openCmdAndRunAsAdminFix(commandToRun);
 
     });
+
+
     fixPcUtils.addEventListener('dblclick', async () => {
 
+        const { default: Swal } = require('sweetalert2');
         const toastErrConfig = Swal.mixin({
             toast: true, timerProgressBar: true,
             showConfirmButton: false, timer: 2500,
@@ -213,8 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
             confirmButtonText: "systemFileChecker",
             denyButtonText: `cleanupImageDism`,
             footer: '<h4>builtInTools - 🛠️ - windowsOs</h4>',
-            background: '#87adbd',
-
+            background: '#87adbd'
         }
 
         document.body.style.background = '#87adbd';
@@ -242,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await toastErrConfig.fire({
                     icon: 'error',
                     title: 'An error occurred while running system file checker !'
-                })
+                });
             };
             return;
         }
@@ -271,22 +265,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-
-    // Action buttons on title bar ..
-
     document.querySelector('.window__close').addEventListener('click', async () => {
 
         await ipcRenderer.invoke('godModeWindows', 'close');
     });
+
 
     document.querySelector('.window__minimize').addEventListener('click', async () => {
 
         await ipcRenderer.invoke('godModeWindows', 'minimize');
     });
 
+
     document.querySelector('.window__maximize').addEventListener('click', async () => {
 
         await ipcRenderer.invoke('godModeWindows', 'maximize');
     });
+
 
 });

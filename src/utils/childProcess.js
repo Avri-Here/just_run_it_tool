@@ -319,6 +319,8 @@ const runIsolatedCommandAsAdmin = (typeIt = 'color 4') => {
     return new Promise(resolve => {
         const command = `powershell -Command "Start-Process cmd -ArgumentList '/k ${typeIt}' -Verb RunAs"`;
 
+        console.log(`Command to run : ${command}`);
+
         exec(command, { shell: 'powershell.exe' }, (error, stdout, stderr) => {
             if (error) {
                 console.error(`User denied UAC or other error occurred : ${error.message}`);
@@ -335,6 +337,31 @@ const runIsolatedCommandAsAdmin = (typeIt = 'color 4') => {
         });
     });
 };
+
+
+
+const openCmdAndRunAsAdminFix = async (command) => {
+    // Escape single quotes for PowerShell
+    const escapedCommand = command.replace(/'/g, "''"); // Escape single quotes
+    const adminCommand = `powershell -Command "Start-Process 'cmd.exe' -ArgumentList '/K ${escapedCommand}' -Verb RunAs"`;
+  
+    console.log(adminCommand);
+    
+    exec(adminCommand, (err, stdout, stderr) => {
+      if (err) {
+        console.error('Error running command as admin:', err);
+        throw err;
+      }
+      if (stderr) {
+        console.error('Error running command as admin:', stderr);
+        throw stderr;
+      }
+      console.log(`Command executed successfully: ${stdout}`);
+      return stdout;
+    });
+  };
+  
+
 
 
 
@@ -365,8 +392,8 @@ module.exports = {
     runPsCommand, executeCommandWithSpawn, openCmdAndRunFromThere,
     openPowerShellAsAdmin, timeOutPromise, runIsolatedCommandAsAdmin,
     openPowerShellNoAdmin, openCmdNoAdmin, runScriptOnNewTabOrWindow,
-    isExeRunningOnWindows, openFileDirectly, openCmdAsAdmin, runPowerShellFile,
     getCommandBaseType, openCmdInNewTabOrWindow, runExeFileAsAdmin, runExeAndCloseCmd,
+    isExeRunningOnWindows, openFileDirectly, openCmdAsAdmin, runPowerShellFile, openCmdAndRunAsAdminFix
 };
 
 

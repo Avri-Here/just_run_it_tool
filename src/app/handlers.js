@@ -184,6 +184,7 @@ ipcMain.handle('godModeWindows', async (_, action, options) => {
                 godModeWindow.setProgressBar(-1);
                 resolve();
                 break;
+
         }
     });
 });
