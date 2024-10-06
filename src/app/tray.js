@@ -19,7 +19,6 @@ const createTray = (mainWindow = new BrowserWindow()) => {
                         return;
                     }
                     mainWindow.webContents.openDevTools({ mode: 'undocked' });
-                    mainWindow.webContents.setDevToolsTitle('desktopTollBar');
 
                 },
             },

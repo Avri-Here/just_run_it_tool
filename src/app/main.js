@@ -54,9 +54,9 @@ const createDesktopTollBar = () => {
         }
     });
 
-
-
 };
 
 
-app.whenReady().then(() => { createDesktopTollBar() });
+app.whenReady().then(() => {
+    createDesktopTollBar()
+});

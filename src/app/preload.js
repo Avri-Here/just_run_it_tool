@@ -183,13 +183,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (musicType === 'discover') {
 
-            // Pause and resume logic for existing playlist playing
             await pausePlaying();
             const allFilesInDir = await getAllFilesInDir(discoverDir);
 
-            // Check if there are at least 10 files in the directory
             if (allFilesInDir.length >= 10) {
-                soundElement.pause(); // Ensure previous sound is paused
+                soundElement.pause();
                 soundElement.src = join(voiceInstructions, `previousSongsWaiting.mp3`);
                 soundElement.load();
                 await soundElement.play();
@@ -198,8 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await initAndRunPlaylistFlow(musicType);
                 initPlay.disabled = false;
                 return;
-            }
-
+            };
 
             const randomIndex = Math.floor(Math.random() * 6) + 1;
             soundElement.pause();
@@ -211,8 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log('startDiscoverFlow :', songsNames);
 
             if (!songsNames.length) {
-                console.warn('No songs found to play! Exiting...');
-                console.info('You should explore more songs...');
+                console.warn('No songs found to play ! Exiting ...');
                 soundElement.loop = false;
                 soundElement.pause();
                 return;
@@ -229,6 +225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const speech = new SpeechSynthesisUtterance(ytUrlSongs.length.toString());
             speech.rate = 1;
             speech.lang = 'en-US';
+            // Object.assign(speech, { rate: 1, lang: 'en-US' });
             await new Promise((resolve) => setTimeout(resolve, 3500));
             window.speechSynthesis.speak(speech);
             soundElement.src = join(musicOnHoldDir, `${randomIndex}.mp3`);

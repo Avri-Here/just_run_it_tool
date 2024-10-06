@@ -95,6 +95,7 @@ const startAndExposeVlcPortable = async () => {
 
 const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
 
+    const randomOrLoop = musicSrc !== 'discover' ? true : false;
     const notificationSound = document.getElementById('notificationSound');
     const soundsDir = path.join(process.env.ASSETS_DIR, 'sound', 'startup');
     const ps1ScriptPash = path.join(process.env.ASSETS_DIR, 'scripts', 'ps1', 'createPlaylist.ps1');
@@ -104,11 +105,6 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
     notificationSound.src = path.join(soundsDir, `princessPeachRescued${randomIndex}.mp3`);
 
     try {
-
-        // const vlcClientState = await Promise.race([timeOutPromise(), getVlcClientMode()]);
-        // const isVlcUnderControl = vlcClientState !== 'timeout' && vlcClientState !== 'unknown';
-
-
 
         const vlcClientState = await getVlcClientMode();
         const isVlcUnderControl = vlcClientState !== 'unknown';
@@ -133,16 +129,18 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
         await startAndExposeVlcPortable();
         await runPowerShellFile(ps1ScriptPash, [musicSrc]);
         await addWplFileToPlaylist(musicSrc);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        await vlc.setRandom(false);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        await vlc.setLooping(false);
 
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await vlc.setRandom(randomOrLoop);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        await vlc.setLooping(randomOrLoop);
 
         await notificationSound.play();
         notificationSound.addEventListener('ended', async () => {
             await vlc.togglePlay();
-            if (await vlc.isPaused()) { await vlc.play() };
+            if (await vlc.isPaused()) {
+                await vlc.play()
+            };
         });
 
     } catch (error) {
@@ -166,6 +164,7 @@ const getVlcClientMode = async () => {
     try {
 
         const paused = await vlc.isPaused();
+        await new Promise(resolve => setTimeout(resolve, 500));
         const playing = await vlc.isPlaying();
 
         if (paused) return 'paused';
