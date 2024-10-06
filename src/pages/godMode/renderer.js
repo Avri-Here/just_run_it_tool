@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ytDlpPlaylist = document.getElementById('ytDlpPlaylist');
     const cleanSweep2Cli = document.getElementById('cleanSweep2Cli');
     const hostsFileEditor = document.getElementById('hostsFileEditor');
+    const advanceUninstall = document.getElementById('advanceUninstall');
     const fullEventLogView = document.getElementById('fullEventLogView');
     const environmentEditor = document.getElementById('environmentEditor');
 
@@ -161,7 +162,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    advanceUninstall.addEventListener('dblclick', async () => {
+        // const { value: formValues } = await Swal.fire({
+        //     title: "advanceUninstall",
+        //     html: `
+        //     <form id="optionsForm">
+        //       <label><input type="checkbox" id="option1"> Option 1</label><br>
+        //       <div class="options-row">
+        //         <label><input type="checkbox" id="option2"> Option 2</label>
+        //         <label><input type="checkbox" id="option3"> Option 3</label>
+        //       </div>
+        //     </form>
+        //   `,
+        //     focusConfirm: false,
+        //     showCancelButton: true,
+        //     preConfirm: () => {
+        //         const option1 = document.getElementById('option1').checked;
+        //         const option2 = document.getElementById('option2').checked;
+        //         const option3 = document.getElementById('option3').checked;
+        //         return {
+        //             option1,
+        //             option2,
+        //             option3,
+        //         };
+            // },
+        // });
 
+        // if (formValues) {
+        //     Swal.fire(`
+        //       Option 1: ${formValues.option1}
+        //       Option 2: ${formValues.option2}
+        //       Option 3: ${formValues.option3}
+        //     `);
+
+
+    });
     fixPcUtils.addEventListener('dblclick', async () => {
 
         const toastErrConfig = Swal.mixin({
