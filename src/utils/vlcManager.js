@@ -315,10 +315,10 @@ const loveThisSong = async () => {
     await new Promise(resolve => setTimeout(resolve, 500));
     await vlc.setVolume(currentVolume);
     await new Promise(resolve => setTimeout(resolve, 500));
-    const playlistAll = await vlc.getPlaylist();
-    const currentSong = playlistAll.find(entry => entry.isCurrent);
-    await vlc.removeFromPlaylist(currentSong.id);
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // const playlistAll = await vlc.getPlaylist();
+    // const currentSong = playlistAll.find(entry => entry.isCurrent);
+    // await vlc.removeFromPlaylist(currentSong.id);
+    // await new Promise(resolve => setTimeout(resolve, 500));
 };
 
 

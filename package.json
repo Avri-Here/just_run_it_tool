@@ -5,7 +5,7 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
-    "buildUnpacked": "electron-builder --win --dir"
+    "buildUnpacked2": "electron-builder --win --dir"
   },
   "author": "Avri",
   "description": "Just Run It Tool",
@@ -20,6 +20,7 @@
     "simple-lastfm": "^1.0.6",
     "sweetalert2": "^11.14.1",
     "trash": "^9.0.0",
+    "yt-dlp-wrap": "^2.3.12",
     "vlc-client": "^1.1.1",
     "yt-search": "^2.12.1"
   },
