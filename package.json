@@ -5,7 +5,7 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
-    "buildUnpacked2": "electron-builder --win --dir"
+    "buildUnpacked": "electron-builder --win --dir"
   },
   "author": "Avri",
   "description": "Just Run It Tool",
