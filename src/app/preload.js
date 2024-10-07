@@ -190,8 +190,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             await pausePlaying();
             const allFilesInDir = await getAllFilesInDir(discoverDir);
 
-            if (allFilesInDir.length >= 3) {
-            // if (allFilesInDir.length >= 10) {
+            if (allFilesInDir.length >= 10) {
                 soundElement.pause();
                 soundElement.src = join(voiceInstructions, `previousSongsWaiting.mp3`);
                 soundElement.load();
@@ -209,7 +208,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             soundElement.load();
             soundElement.loop = true;
             await soundElement.play();
-            const songsNames = await getRecommendedByTopHistory(5);
+            const songsNames = await getRecommendedByTopHistory(7);
             console.log('startDiscoverFlowRes:', songsNames);
 
             if (!songsNames.length) {
