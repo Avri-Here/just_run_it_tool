@@ -13,8 +13,6 @@
     "axios": "^1.7.7",
     "electron-progressbar": "^2.2.1",
     "electron-reload": "^2.0.0-alpha.1",
-    "ffmetadata": "^1.7.0",
-    "form-data": "^4.0.0",
     "fs-extra": "^11.2.0",
     "node-notifier": "^10.0.1",
     "node-powershell": "^3.1.1",
@@ -23,8 +21,6 @@
     "sweetalert2": "^11.14.1",
     "trash": "^9.0.0",
     "vlc-client": "^1.1.1",
-    "wmic-js": "^0.0.3",
-    "yt-dlp-wrap": "^2.3.12",
     "yt-search": "^2.12.1"
   },
   "devDependencies": {

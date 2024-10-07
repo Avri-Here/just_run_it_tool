@@ -13,6 +13,7 @@ const { nativeImage, BrowserWindow, screen } = require('electron');
 
 
 ipcMain.handle('openDialog', async (_, options) => {
+    Object.assign(options, { noLink: true });
     const result = await dialog.showMessageBox(options);
     return result;
 });
@@ -226,22 +227,16 @@ ipcMain.handle('openProgressBar', async (_, progressBarInfo = {}) => {
 
 ipcMain.handle('selectMusicType', async () => {
 
+    const musicOptions = ["Foreign", "Discover", "Hebrew", "Classic"];
+
     const result = await dialog.showMessageBox({
-        type: "question",
-        buttons: ["Foreign", "Hebrew", "Classic", "Discover"],
-        title: " musicTypeDialog ",
-        message: "Hay, what would you like to listen to today ?",
-        noLink: true, cancelId: 400,
+        noLink: true, cancelId: -1, type: "question",
+        buttons: musicOptions, title: "musicTypeDialog",
+        message: "Hay, What music type do you want to play ?",
     });
 
-
-    // 4 is the "Cancel" button ...
-    if (result.response === 400) {
-        return;
-    }
+    if (result.response === -1) return
 
     const selectedOption = result.response;
-    const optionsMap = ["foreign", "hebrew", "classic", "discover"];
-    return optionsMap[selectedOption];
-
+    return musicOptions[selectedOption].toLowerCase();
 });

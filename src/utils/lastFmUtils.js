@@ -1,10 +1,7 @@
 
 const axios = require('axios');
-const { join } = require('path');
 const Lastfm = require('simple-lastfm');
 const baseUrl = 'http://ws.audioscrobbler.com/2.0/';
-const { getAllFilesInDir } = require('./fileExplorer');
-
 
 const apiKey = process.env.justRunItAppKey;
 const userName = process.env.lastfmUserName;
@@ -15,29 +12,76 @@ const lastfm = new Lastfm({
   api_secret: process.env.justRunItAppApiSecret
 });
 
-const getRandomItems = (arr, numItems) => {
+
+const initSessionKey = async () => {
+  return new Promise((resolve, reject) => {
+    lastfm.getSessionKey((result) => {
+      if (result.success) {
+        resolve(result.session_key);
+        return;
+      }
+      reject(result.error);
+    });
+  });
+};
+
+
+const getRandomItemsFromList = (arr, numItems) => {
   const shuffled = arr.sort(() => 0.5 - Math.random());
   return shuffled.slice(0, numItems);
 }
 
-const getSimilarSongs = async (artist, track, limit = 40) => {
 
+const getSimilarSongs = async (artist, track, limit = 20) => {
 
   const urlApi = `${baseUrl}?method=track.getsimilar&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(track)}&api_key=${apiKey}&format=json&limit=${limit}`;
 
   const { data } = await axios(urlApi);
 
   const similartracks = data.similartracks?.track || [];
-  return similartracks.map(({ name, artist, url }) => ({ name, artist: artist.name, url }));
-
-
+  return similartracks;
 
 };
 
 
+// track And artist Required  !!
+const getTheSimilarSong = async (track, artist) => {
+
+  const urlApi = `${baseUrl}?method=track.getsimilar&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(track)}&api_key=${apiKey}&format=json&limit=1`;
 
 
+  const { data } = await axios(urlApi);
 
+  if (data.error) {
+    console.warn('Warn from Last.fm API - getTheSimilarSong :', data.message);
+    return;
+  };
+
+  const similarTrack = data.similartracks?.track[0];
+  return similarTrack;
+
+};
+
+
+const getSimilarSongsAndPikeRandom = async (track, artist) => {
+
+  const urlApi = `${baseUrl}?method=track.getsimilar&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(track)}&api_key=${apiKey}&format=json&limit=15`;
+
+
+  const { data } = await axios(urlApi);
+
+
+  if (data.error) {
+    console.warn('Warn from Last.fm API - getTheSimilarSong :', data.message);
+    return;
+  };
+
+
+  const randomIndex = Math.floor(Math.random() * 15);
+  const similarTrack = data.similartracks?.track[randomIndex];
+  return similarTrack;
+
+};
 
 const getLatestTopSongByCountry = async (country = 'united states', limit = 15) => {
 
@@ -47,26 +91,11 @@ const getLatestTopSongByCountry = async (country = 'united states', limit = 15) 
 };
 
 
-const initSessionKey = async () => {
-  return new Promise((resolve, reject) => {
-    lastfm.getSessionKey((result) => {
-      if (result.success) {
-        resolve(result.session_key);
-      } else {
-        reject(result.error);
-      }
-    });
-  });
-};
-
-
-
-
 // just to make it as Known - not really Love it !
 const loveAndMarkAsKnown = async (artist, track, initSession) => {
 
   if (initSession) {
-    await initSessionKey();
+    await initSessionKey()
   };
 
   return new Promise((resolve, reject) => {
@@ -85,35 +114,6 @@ const loveAndMarkAsKnown = async (artist, track, initSession) => {
 }
 
 
-const isThisTrackValid = async (artist, track) => {
-
-  const url = `${baseUrl}?method=track.getInfo&api_key=${apiKey}&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(track)}&format=json`;
-
-  try {
-
-
-    const { data } = await axios(url);
-
-    console.log('trackData :', JSON.stringify(data, null, 2));
-
-    const isValid = data.track && data.track.streamable['#text'] === '1';
-
-    if (!isValid) {
-
-      console.error(`Track "${track}" by "${artist}" not found or not streamAble !`);
-      return false;
-    }
-
-    console.log(`Track "${track}" by "${artist}" is streamAble ! Proceeding to scrobble ...`);
-    return true;
-  }
-
-  catch (error) {
-    console.error('Error fetching track data:', error);
-    throw new Error('Failed to validate track ..');
-  }
-};
-
 const isSongAlreadyKnown = async (artist, track) => {
 
   const apiUrl = `${baseUrl}?method=track.getinfo&api_key=${apiKey}&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(track)}&user=${userName}&format=json`;
@@ -130,7 +130,7 @@ const isSongAlreadyKnown = async (artist, track) => {
     const userLoved = Number(data.track.userloved);
     const userPlayCount = Number(data.track.userplaycount);
 
-    console.log(`isSongAlreadyKnown : ${userPlayCount + userLoved > 0}`);
+    // console.log(`isSongAlreadyKnown : ${userPlayCount + userLoved > 0}`);
     return userPlayCount + userLoved > 0;
 
   } catch (error) {
@@ -139,7 +139,6 @@ const isSongAlreadyKnown = async (artist, track) => {
     return false;
   }
 };
-
 
 
 const getLatestTopArtists = async (limit = 5) => {
@@ -172,9 +171,6 @@ const getTopSongsByArtist = async (artist, limit = 5) => {
   return data.toptracks?.track || [];
 }
 
-
-
-// latest top songs by Top Artists !
 const discoverReallyNewMusic = async (minSize = 10) => {
 
   try {
@@ -207,53 +203,72 @@ const discoverReallyNewMusic = async (minSize = 10) => {
 };
 
 
-const getRecommendedByTopHistory = async (maxSize) => {
+const getRecommendedByTopHistory = async (minSize) => {
 
+  const limitRes = 70;
+  let collectionResults = [];
   const periodArr = ['7day', '1month', '3month', '6month', '12month'];
 
-  const randomIndex = Math.floor(Math.random() * periodArr.length);
-  const randomPeriod = periodArr[randomIndex];
+  while (collectionResults.length < minSize) {
 
-  const limitRes = 100;
-  const urlApi = `${baseUrl}?method=user.gettoptracks&user=${userName}&api_key=${apiKey}&format=json&limit=${limitRes}&period=${randomPeriod}`;
+    const randomIndex = Math.floor(Math.random() * periodArr.length);
+    const randomPeriod = periodArr[randomIndex];
 
-  try {
+    const urlApi = `${baseUrl}?method=user.gettoptracks&user=${userName}&api_key=${apiKey}&format=json&limit=${limitRes}&period=${randomPeriod}`;
 
-    const response = await axios.get(urlApi);
-    const topTracks = response.data.toptracks.track;
-    const pick4RandomTrack = getRandomItems(topTracks, maxSize);
+    try {
 
-    console.log('pick4RandomTrack :', pick4RandomTrack.length);
+      const { data } = await axios.get(urlApi);
+      const topTracks = data.toptracks.track;
+      const pickRandomTrack = getRandomItemsFromList(topTracks, minSize);
 
-    const similarSongsRes = await Promise.all(pick4RandomTrack.map(
-      async ({ artist, name }) => {
-        const [similarTracks] = await getSimilarSongs(artist.name, name, 1);
-        return similarTracks;
+      const similarSongsRes = await Promise.all(pickRandomTrack.map(async ({ name, artist }) => {
+        return await getSimilarSongsAndPikeRandom(name, artist.name);
       }));
 
-    const trackFiltered = similarSongsRes.filter((item) => item);
-    console.log('similarSongsRes :', similarSongsRes.length);
+      const trackFiltered = similarSongsRes.filter((item) => item);
 
-    return trackFiltered.length ? trackFiltered : null;
-  } catch (error) {
-    console.error('Error fetching top tracks:', error);
-    throw error;
+      const filterEverPlayed = await Promise.all(trackFiltered.map(async (item) => {
+        const isSongPlayed = await isSongAlreadyKnown(item.artist.name, item.name);
+        return isSongPlayed ? null : item;
+      }));
+
+      const reallyNewSongs = filterEverPlayed.filter((item) => item);
+
+      if (reallyNewSongs.length) {
+        collectionResults = [...collectionResults, ...reallyNewSongs];
+      }
+
+      if (collectionResults.length >= minSize) {
+        collectionResults = collectionResults.slice(0, minSize);
+        break;
+      }
+    }
+
+    catch (error) {
+      console.error('Error fetching songs :', JSON.stringify(error, null, 2));
+      throw error;
+    }
   }
+
+  return collectionResults;
+
+
 };
 
 
 
-const getYourLastPlayedTracks = async (limit = 100) => {
+// const getYourLastPlayedTracks = async (limit = 100) => {
 
-  const url = `${baseUrl}?method=user.getrecenttracks&user=${userName}&api_key=${apiKey}&format=json&limit=${limit}`;
+//   const url = `${baseUrl}?method=user.getrecenttracks&user=${userName}&api_key=${apiKey}&format=json&limit=${limit}`;
 
-  const response = await axios.get(url);
+//   const response = await axios.get(url);
 
-  const lastPlayedTracks = response.data.recenttracks.track;
+//   const lastPlayedTracks = response.data.recenttracks.track;
 
-  return lastPlayedTracks;
+//   return lastPlayedTracks;
 
-};
+// };
 
 
 const scrobbleTrackOnLastFm = async (artist, track, initSession) => {
@@ -282,12 +297,16 @@ const scrobbleTrackOnLastFm = async (artist, track, initSession) => {
 };
 
 
-
 const searchTrackByNameAndArtist = async (songName, artist, limit = 1) => {
 
   try {
 
-    const url = `${baseUrl}?method=track.search&track=${encodeURIComponent(songName)}&artist=${encodeURIComponent(artist || '')}&api_key=${apiKey}&format=json&limit=${limit}`;
+    let url = `${baseUrl}?method=track.search&track=${encodeURIComponent(songName)}&api_key=${apiKey}&format=json&limit=${limit}`;
+
+    if (artist) {
+      url += `&artist=${encodeURIComponent(artist)}`;
+    }
+
     const { data } = await axios.get(url);
 
     if (data.results && data.results.trackmatches.track.length > 0) {
@@ -315,11 +334,8 @@ const startDiscoverFlow = async (minSize) => {
     try {
       const tracksRes = await getRecommendedByTopHistory(minSize);
 
-      console.log('tracksRes :', tracksRes.length);
-
       if (tracksRes) {
         allNewSongs = [...allNewSongs, ...tracksRes];
-        console.log('tracksRes :', tracksRes.length);
       };
 
 
@@ -330,8 +346,8 @@ const startDiscoverFlow = async (minSize) => {
     }
 
     catch (error) {
-      console.error('Error fetching songs:', JSON.stringify(error, null, 2));
-      throw error;
+      console.error('Error fetching songs :', JSON.stringify(error, null, 2));
+      break;
     }
   }
 
@@ -340,22 +356,24 @@ const startDiscoverFlow = async (minSize) => {
 
 
 module.exports = {
-  isSongAlreadyKnown,
-  loveAndMarkAsKnown, initSessionKey,
-  scrobbleTrackOnLastFm, startDiscoverFlow,
-  getSimilarSongs, getLatestTopSongByCountry,
-  discoverReallyNewMusic, searchTrackByNameAndArtist
+  initSessionKey, loveAndMarkAsKnown, scrobbleTrackOnLastFm,
+  isSongAlreadyKnown, discoverReallyNewMusic, searchTrackByNameAndArtist,
+  getRecommendedByTopHistory, getSimilarSongs, getLatestTopSongByCountry,
 };
 
 
 
-// const mathRandomDiction = Math.random() > 0.5;
-
-// const tracksRes = mathRandomDiction
-// ? await discoverReallyNewMusic(minSize)
-// : await getRecommendedByTopHistory(minSize);
-
-// console.info('mathRandom diction :', mathRandomDiction ? 'discoverReallyNewMusic' : 'getRecommendedByTopHistory');
+// async function test() {
 
 
+
+
+
+//   const recommendedByTopHistory = await getRecommendedByTopHistory(9);
+//   console.log('getRecommendedByTopHistory :', recommendedByTopHistory);
+
+
+// }
+
+// test();
 

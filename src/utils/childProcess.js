@@ -49,13 +49,10 @@ const getCommandBaseType = (fullPath) => {
                 filePathCommand: fileName
             };
         case '.js':
-            // return {
-            //     fullPathCommand: `node --watch "${fullPath}"`,
-            //     filePathCommand: `node --watch "${fileName}"`
-            // };
             return {
                 fullPathCommand: `nodemon --watch "${fullPath}" --exec "node ${fullPath}"`,
-                filePathCommand: `nodemon --watch "${fileName}" --exec "node ${fileName}"`
+                filePathCommand: `nodemon --watch "${fileName}" --exec "node ${fileName}"`,
+                fileBaseCommand: `node "${fileName}"`
             };
         default:
             return {
@@ -66,7 +63,6 @@ const getCommandBaseType = (fullPath) => {
 }
 
 const openCmdInNewTabOrWindowFolder = async (command) => {
-
 
     exec(`wt -w 0 nt cmd /k ${command}`, (err) => {
         if (err) {
@@ -397,6 +393,3 @@ module.exports = {
 };
 
 
-
-// '
-// powershell -Command "Start-Process 'cmd' -ArgumentList '/c node \"C:\Users\Avri !\Desktop\childProcess.js\" & pause' -Verb RunAs"'

@@ -4,11 +4,11 @@
 const path = require('path');
 const { ipcRenderer, clipboard } = require('electron');
 const { runPsCommand } = require('../../utils/childProcess');
-const { getInstalledPrograms } = require('../../utils/wmicManger');
 const { runExeFileAsAdmin } = require('../../utils/childProcess');
 const { openCmdAndRunFromThere } = require('../../utils/childProcess');
 const { executeCommandWithSpawn } = require('../../utils/childProcess');
-const { runIsolatedCommandAsAdmin, openCmdAndRunAsAdminFix } = require('../../utils/childProcess');
+const { runIsolatedCommandAsAdmin } = require('../../utils/childProcess');
+const { openCmdInNewTabOrWindowFolder } = require('../../utils/childProcess');
 
 
 
@@ -167,26 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     advanceUninstall.addEventListener('dblclick', async () => {
 
-        // await ipcRenderer.invoke('godModeWindows', 'progressBar');
-        const allInstalledPrograms = await getInstalledPrograms();
-        const result = await ipcRenderer.invoke('openDialog', {
-            type: 'question',
-            buttons: allInstalledPrograms,
-            title: 'advanceUninstallWithWmic',
-            message: 'Click a program to uninstall ..',
-            cancelId: 400
-        });
-
-        if (result.response === 400) {
-            console.log('User canceled advance Uninstall !');
-            return;
-        }
-
-        const selectedProgram = allInstalledPrograms[result.response];
-        // const commandToRun = `wmic product where "name='Nokia Connectivity Cable Driver'" call uninstall /nointeractive`
-        const commandToRun = `wmic product where "name='${selectedProgram}'" call uninstall /nointeractive`;
-        console.log(commandToRun);
-        await openCmdAndRunAsAdminFix(commandToRun);
+        const ps1ScriptPash = path.join(process.env.ASSETS_DIR, 'scripts', 'ps1', 'wmicList.ps1');
+        const command = `powershell -File "${ps1ScriptPash}"`;
+        await openCmdInNewTabOrWindowFolder(command);
 
     });
 

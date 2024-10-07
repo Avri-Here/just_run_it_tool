@@ -95,14 +95,11 @@ const startAndExposeVlcPortable = async () => {
 
 const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
 
-    const randomOrLoop = musicSrc !== 'discover' ? true : false;
-    const notificationSound = document.getElementById('notificationSound');
+    const randomPlay = musicSrc === 'discover' ? false : true;
     const soundsDir = path.join(process.env.ASSETS_DIR, 'sound', 'startup');
     const ps1ScriptPash = path.join(process.env.ASSETS_DIR, 'scripts', 'ps1', 'createPlaylist.ps1');
 
-    notificationSound.playbackRate = 1.5;
-    const randomIndex = Math.floor(Math.random() * 2) + 1;
-    notificationSound.src = path.join(soundsDir, `princessPeachRescued${randomIndex}.mp3`);
+
 
     try {
 
@@ -123,20 +120,27 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
                 console.log('Skip Restarting VLC ...');
                 return;
             }
-        };
 
+            vlc.stop();
+        };
+        const notificationSound = document.getElementById('notificationSound');
+        const randomIndex = Math.floor(Math.random() * 2) + 1;
+        notificationSound.src = path.join(soundsDir, `princessPeachRescued${randomIndex}.mp3`);
+        notificationSound.load();
+        notificationSound.playbackRate = 1.5;
+        await notificationSound.play();
         await killAllVlcPortableInstancesIfAny();
         await startAndExposeVlcPortable();
         await runPowerShellFile(ps1ScriptPash, [musicSrc]);
         await addWplFileToPlaylist(musicSrc);
 
         await new Promise(resolve => setTimeout(resolve, 500));
-        await vlc.setRandom(randomOrLoop);
+        await vlc.setRandom(randomPlay);
         await new Promise(resolve => setTimeout(resolve, 500));
-        await vlc.setLooping(randomOrLoop);
+        await vlc.setLooping(true);
 
-        await notificationSound.play();
         notificationSound.addEventListener('ended', async () => {
+            notificationSound.playbackRate = 1.0;
             await vlc.togglePlay();
             if (await vlc.isPaused()) {
                 await vlc.play()
@@ -177,34 +181,32 @@ const getVlcClientMode = async () => {
 
 const deleteCurrentSongAndPlayNext = async () => {
 
-    const playlist = await vlc.getPlaylist();
-    const currentEntry = playlist.find(entry => entry.isCurrent);
-    const fullPath = currentEntry.uri.replace('file:///', '');
-    const playlistFolder = path.basename(path.dirname(fullPath));
     const notificationSound = document.getElementById('notificationSound');
     const soundSrcOnDelete = `./../../assets/sound/startup/macEmptyTrash.mp3`;
+    const songsFolder = path.join(homedir, 'Documents', 'appsAndMore', 'mySongs');
+
+
+
 
 
     try {
 
         const playlist = await vlc.getPlaylist();
-        const currentMedia = await vlc.getFileName();
         const currentEntry = playlist.find(entry => entry.isCurrent);
         await vlc.removeFromPlaylist(currentEntry.id);
+        const fullPath = currentEntry.uri.replace('file:///', '');
+        const playlistFolder = path.basename(path.dirname(fullPath));
+        const currentMedia = currentEntry.name;
+        // const currentMedia = await vlc.getFileName();
         console.log(`removeFromPlaylist Song : ${currentMedia}`);
-        const songsFolder = path.join(homedir, 'Documents', 'appsAndMore', 'mySongs');
         const filePathToOut = path.join(songsFolder, playlistFolder, currentMedia);
-        const fileName = path.basename(filePathToOut);
-        const fromFolder = path.basename(path.dirname(filePathToOut));
-        console.log(`fileName : ${fileName} , fromFolder : ${fromFolder}`);
-
         await deleteFileToTrash(filePathToOut, false);
+        await vlc.next();
         console.log('deleteCurrentSongAndPlayNext Done !');
         notificationSound.src = soundSrcOnDelete;
         notificationSound.play();
-        await new Promise(resolve => setTimeout(resolve, 1300));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         await vlc.next();
-        return;
     } catch (error) {
         console.error(`Error deleting current song and playing next : ${error}`);
         return;
@@ -290,7 +292,7 @@ const loveThisSong = async () => {
         await vlc.setVolume(currentVolume / 2);
         notificationSound.src = soundSrcOnDone;
         notificationSound.play();
-        await new Promise(resolve => setTimeout(resolve, 1300));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         await vlc.setVolume(currentVolume);
         return;
     }
@@ -306,13 +308,19 @@ const loveThisSong = async () => {
     await vlc.setVolume(0);
     notificationSound.src = soundSrcOnDone;
     notificationSound.play();
-    await new Promise(resolve => setTimeout(resolve, 1300));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await vlc.playFile(newFilePath);
     await new Promise(resolve => setTimeout(resolve, 500));
-    await vlc.setTime(stopOn - 5);
+    await vlc.setTime(stopOn);
     await new Promise(resolve => setTimeout(resolve, 500));
     await vlc.setVolume(currentVolume);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const playlistAll = await vlc.getPlaylist();
+    const currentSong = playlistAll.find(entry => entry.isCurrent);
+    await vlc.removeFromPlaylist(currentSong.id);
+    await new Promise(resolve => setTimeout(resolve, 500));
 };
+
 
 
 const addWplFileToPlaylist = async (wplFileName = 'foreign') => {

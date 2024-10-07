@@ -5,8 +5,7 @@
 const ytSearch = require('yt-search');
 const YTDlpWrap = require('yt-dlp-wrap').default;
 const fs = require('fs'), { join } = require('path');
-const { getAllFilesInDir } = require('./fileExplorer');
-const { initSessionKey, loveAndMarkAsKnown, searchTrackByNameAndArtist } = require('./lastFmUtils');
+const { initSessionKey, loveAndMarkAsKnown } = require('./lastFmUtils');
 
 
 const homedir = require('os').homedir();
@@ -29,15 +28,13 @@ const getYTubeUrlByNames = async (songNames) => {
         fs.mkdirSync(discoverDir, { recursive: true });
     };
 
-    const searchPromises = await songNames.map(async (item, index) => {
+    const searchPromises = await songNames.map(async (item) => {
 
         try {
-            const artistName = item.artist?.name || item.artist;
-            const songName = item.name || item.title;
+            const songName = item.name;
+            const artistName = item.artist.name;
             const query = `${songName} ${artistName}`;
             const result = await ytSearch(query);
-
-            console.log('ytSearchUrl - work async :', index + 1 + ' index from', songNames.length);
 
             if (!result.videos.length) {
                 throw new Error(`No YouTube URL found for song ${songName}`);
@@ -53,7 +50,7 @@ const getYTubeUrlByNames = async (songNames) => {
 
     });
 
-    // Use Promise.allSettled to wait for all promises to either resolve or reject
+    // Use Promise.allSettled to wait for all promises to either resolve or reject ..
     const results = await Promise.allSettled(searchPromises);
 
 
@@ -71,39 +68,25 @@ const downloadSongsFromYt = async (ytUrlSongs) => {
     const songsFolder = join(homedir, 'Documents', 'appsAndMore', 'mySongs');
     const downloadDir = join(songsFolder, 'discover');
 
-    const sessionKey = await initSessionKey().catch((error) => {
-        console.error('Failed to initialize session key :', error);
-        return null;
-    });
-
-    if (!sessionKey) return
-
     try {
+
+
+        await initSessionKey();
         const downloadSongs = await Promise.allSettled(
             ytUrlSongs.map(async ({ songName, artistName, url }) => {
 
                 try {
 
-                    const trackInfo = await searchTrackByNameAndArtist(songName, artistName);
 
-                    if (!trackInfo) {
-                        console.error(`Failed to find track info for ${songName} by ${artistName} !`);
-                        throw new Error(`Failed to find track info for ${songName} by ${artistName} !`);
-                    };
-
-                    await ytDlpWrap.execPromise([
-                        url, '-f', 'bestaudio',
-                        '--extract-audio', '--audio-format', 'mp3',
-                        '-o', join(downloadDir, songName + ')$(' + artistName),
-                    ]);
+                    const fileName = join(downloadDir, songName + ')$(' + artistName) + '.mp3';
+                    await ytDlpWrap.execPromise([url, '-f', 'bestaudio', '--extract-audio', '--audio-format', 'mp3', '-o', fileName]);
 
                     await loveAndMarkAsKnown(artistName, songName);
-                    console.log('song downloaded and mark As Known !', songName + ')$(' + artistName + '.mp3');
+                    console.log('Song downloaded and mark As Known !', songName + ')$(' + artistName + '.mp3');
 
                 } catch (err) {
-                    // Log the specific error for this song
                     console.error(`Failed to download ${songName} by ${artistName} from ${url}:`, err);
-                    throw err;  // rethrow to be caught by Promise.allSettled as 'rejected'
+                    throw err;
                 }
             })
         );
@@ -127,3 +110,13 @@ const downloadSongsFromYt = async (ytUrlSongs) => {
 
 module.exports = { downloadSongsFromYt, getYTubeUrlByNames };
 
+// async function test() {
+
+//     const songNames = [
+//         { songName: 'Million Voices - Radio Edit', artistName: 'Otto Knows', url: 'https://youtu.be/3G8Zz1OAbxA' }
+//     ];
+//     const data = await downloadSongsFromYt(songNames);
+//     console.log(data);
+// }
+
+// test();
