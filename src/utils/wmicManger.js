@@ -2,6 +2,7 @@
 
 
 const wmic = require('wmic-js');
+const { exec } = require('child_process');
 
 
 const getInstalledPrograms = async () => {
@@ -31,7 +32,45 @@ const uninstallProgram = async (programName) => {
 }
 
 
-module.exports = { getInstalledPrograms, uninstallProgram }
+
+const restartExplorer = async () => {
+
+    try {
+        // await wmic.getValue('process where name="explorer.exe" call terminate');
+
+        await wmic().alias('process').where('name', '=', 'explorer.exe').call('terminate');
+        console.log('Explorer.exe terminated.');
+        exec('start explorer.exe', (error) => {
+
+            if (error) {
+                console.error(`Error restarting explorer: ${error}`);
+                return;
+            }
+            console.log('Explorer restarted successfully');
+        });
+
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+}
+
+
+const refreshDnsCache = async () => {
+
+    exec('ipconfig /flushdns', (error) => {
+        if (error) {
+            console.error(`Error flushing DNS cache: ${error}`);
+            return;
+        }
+        console.log('DNS cache flushed successfully');
+    });
+}
+
+
+module.exports = {
+    restartExplorer, refreshDnsCache,
+    getInstalledPrograms, uninstallProgram,
+}
 
 
 

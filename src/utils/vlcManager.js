@@ -18,7 +18,7 @@ const vlc = new VLC.Client({ ip: 'localhost', port: 5029, username: '', password
 
 
 
-const playlistDir = path.join(homedir, 'Documents', 'appsAndMore', 'mySongs', 'rest', 'playlistFiles');
+const playlistDir = path.join(homedir, 'Documents', 'myBackupFolder', 'songs', 'rest', 'playlistFiles');
 
 const checkVLCAndProceed = async (action) => {
 
@@ -95,7 +95,7 @@ const startAndExposeVlcPortable = async () => {
 
 const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
 
-    const randomPlay = musicSrc === 'discover' ? false : true;
+    // const randomPlay = musicSrc === 'discover' ? false : true;
     const soundsDir = path.join(process.env.ASSETS_DIR, 'sound', 'startup');
     const ps1ScriptPash = path.join(process.env.ASSETS_DIR, 'scripts', 'ps1', 'createPlaylist.ps1');
 
@@ -135,7 +135,7 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
         await addWplFileToPlaylist(musicSrc);
 
         await new Promise(resolve => setTimeout(resolve, 500));
-        await vlc.setRandom(randomPlay);
+        await vlc.setRandom(false);
         await new Promise(resolve => setTimeout(resolve, 500));
         await vlc.setLooping(true);
 
@@ -183,7 +183,7 @@ const deleteCurrentSongAndPlayNext = async () => {
 
     const notificationSound = document.getElementById('notificationSound');
     const soundSrcOnDelete = `./../../assets/sound/startup/macEmptyTrash.mp3`;
-    const songsFolder = path.join(homedir, 'Documents', 'appsAndMore', 'mySongs');
+    const songsFolder = path.join(homedir, 'Documents', 'myBackupFolder', 'songs');
 
 
 
@@ -217,8 +217,8 @@ const deleteCurrentSongAndPlayNext = async () => {
 const loveThisSong = async () => {
 
     const currentVolume = await vlc.getVolume();
-    const baseFolder = path.join(homedir, 'Documents', 'appsAndMore');
-    const loveThisSongsDir = path.join(baseFolder, 'mySongs', 'foreign');
+    const baseFolder = path.join(homedir, 'Documents', 'myBackupFolder');
+    const loveThisSongsDir = path.join(baseFolder, 'songs', 'foreign');
 
 
     if (!require('fs').existsSync()) {

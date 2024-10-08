@@ -10,7 +10,7 @@ const { initSessionKey, loveAndMarkAsKnown } = require('./lastFmUtils');
 
 const homedir = require('os').homedir();
 
-process.env.BINARIES_DIR = process.env.BINARIES_DIR || join(homedir, 'Documents', 'appsAndMore', 'binaries');
+process.env.BINARIES_DIR = process.env.BINARIES_DIR || join(homedir, 'Documents', 'myBackupFolder', 'binaries');
 
 
 const ytDlpExe = join(process.env.BINARIES_DIR, 'misc', 'ytDlp');
@@ -21,7 +21,7 @@ const ytDlpWrap = new YTDlpWrap(ytDlpExe);
 const getYTubeUrlByNames = async (songNames) => {
 
     const homedir = require('os').homedir();
-    const songsFolder = join(homedir, 'Documents', 'appsAndMore', 'mySongs');
+    const songsFolder = join(homedir, 'Documents', 'myBackupFolder', 'songs');
     const discoverDir = join(songsFolder, 'discover');
 
     if (!fs.existsSync(discoverDir)) {
@@ -65,7 +65,7 @@ const getYTubeUrlByNames = async (songNames) => {
 const downloadSongsFromYt = async (ytUrlSongs) => {
 
     const homedir = require('os').homedir();
-    const songsFolder = join(homedir, 'Documents', 'appsAndMore', 'mySongs');
+    const songsFolder = join(homedir, 'Documents', 'myBackupFolder', 'songs');
     const downloadDir = join(songsFolder, 'discover');
 
     try {

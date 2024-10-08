@@ -5,7 +5,7 @@ $homeDirectory = [System.Environment]::GetFolderPath('MyDocuments')
 
 
 $musicSource = $args[0]
-$songDir = "$homeDirectory\appsAndMore\mySongs\$musicSource"
+$songDir = "$homeDirectory\myBackupFolder\songs\$musicSource"
 
 # Function to encode special characters for XML
 function Encode-Xml {
@@ -31,7 +31,7 @@ function Shuffle-Array {
 }
 
 $outputFileName = $musicSource +".wpl"
-$outputFilePath = "$homeDirectory\appsAndMore\mySongs\rest\playlistFiles\$outputFileName"
+$outputFilePath = "$homeDirectory\myBackupFolder\songs\rest\playlistFiles\$outputFileName"
 # Get all files in the directory and subdirectories
 $files = Get-ChildItem -Path $songDir -Recurse -File
 

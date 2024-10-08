@@ -9,6 +9,7 @@ const { openCmdAndRunFromThere } = require('../../utils/childProcess');
 const { executeCommandWithSpawn } = require('../../utils/childProcess');
 const { runIsolatedCommandAsAdmin } = require('../../utils/childProcess');
 const { openCmdInNewTabOrWindowFolder } = require('../../utils/childProcess');
+const { restartExplorer, refreshDnsCache } = require('../../utils/wmicManger');
 
 
 
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fixPcUtils = document.getElementById('fixPcUtils');
     const taskManager = document.getElementById('taskManager');
     const textFromImag = document.getElementById('textFromImag');
+    const resetExplorer = document.getElementById('resetExplorer');
     const bcUninstaller = document.getElementById('bcUninstaller');
     const ytDlpPlaylist = document.getElementById('ytDlpPlaylist');
     const cleanSweep2Cli = document.getElementById('cleanSweep2Cli');
@@ -164,6 +166,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
+    resetExplorer.addEventListener('dblclick', async () => {
+
+        await restartExplorer();
+        await refreshDnsCache();
+    });
 
     advanceUninstall.addEventListener('dblclick', async () => {
 

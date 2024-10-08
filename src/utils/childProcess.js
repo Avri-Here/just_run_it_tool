@@ -1,8 +1,8 @@
 
 
+const path = require('path')
 const { promisify } = require('util');
 const { exec, spawn } = require('child_process');
-const path = require('path'), { ipcRenderer } = require('electron');
 
 
 const containsExclamationMark = path.join(require('os').homedir(), 'Desktop').includes('!');
@@ -137,10 +137,10 @@ const openPowerShellNoAdmin = async () => {
 };
 
 
-const openCmdAsAdmin = async () => {
+const openCmdAsAdmin = async (pathToOpen = desktopPath) => {
 
     try {
-        const command = `powershell -Command "Start-Process cmd -ArgumentList '/K', 'title Command Prompt & cd /d ${desktopPath}' -Verb RunAs"`;
+        const command = `powershell -Command "Start-Process cmd -ArgumentList '/K', 'title Command Prompt & cd /d ${pathToOpen}' -Verb RunAs"`;
         await executeCommand(command);
     } catch (err) {
         console.error(`Error: ${err.message}`);

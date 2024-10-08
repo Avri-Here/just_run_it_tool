@@ -21,9 +21,9 @@ const { openPowerShellAsAdmin, openPowerShellNoAdmin } = require('../utils/child
 const { initAndRunPlaylistFlow, pauseOrResume, playNext } = require('../utils/vlcManager');
 
 const scriptExtensions = ['.py', '.ps1', '.bat', '.js'];
-const soundElement = document.getElementById('notificationSound');
-const musicOnHoldDir = join(process.env.ASSETS_DIR, 'sound', 'musicOnHold');
-const voiceInstructions = join(process.env.ASSETS_DIR, 'sound', 'voiceInstructions');
+// const soundElement = document.getElementById('notificationSound');
+// const musicOnHoldDir = join(process.env.ASSETS_DIR, 'sound', 'musicOnHold');
+// const voiceInstructions = join(process.env.ASSETS_DIR, 'sound', 'voiceInstructions');
 
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -99,6 +99,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const stats = await fs.stat(dropFileFullPath);
 
             if (stats.isDirectory()) {
+
+                const asAdmin = e.ctrlKey;
+                if (asAdmin) {
+                    openCmdAsAdmin(dropFileFullPath);
+                    return;
+                }
 
                 openCmdInNewTabOrWindowFolder(`cd /d"${dropFileFullPath}"`);
                 return;
@@ -182,7 +188,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const soundElement = document.getElementById('notificationSound');
         const musicOnHoldDir = join(process.env.ASSETS_DIR, 'sound', 'musicOnHold');
         const voiceInstructions = join(process.env.ASSETS_DIR, 'sound', 'voiceInstructions');
-        const discoverDir = join(homedir, 'Documents', 'appsAndMore', 'mySongs', 'discover');
+        const discoverDir = join(homedir, 'Documents', 'myBackupFolder', 'songs', 'discover');
 
 
         if (musicType === 'discover') {
@@ -348,22 +354,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 //     try {
 
-        // const homedir = require('os').homedir();
-        // const discoverDir = join(homedir, 'Documents', 'appsAndMore', 'mySongs', 'discover');
-        // await pausePlaying();
-        // const allFilesInDir = await getAllFilesInDir(discoverDir);
+// const homedir = require('os').homedir();
+// const discoverDir = join(homedir, 'Documents', 'myBackupFolder', 'songs', 'discover');
+// await pausePlaying();
+// const allFilesInDir = await getAllFilesInDir(discoverDir);
 
-        // if (allFilesInDir.length >= 10) {
-        //     soundElement.pause();
-        //     soundElement.src = join(voiceInstructions, `previousSongsWaiting.mp3`);
-        //     soundElement.load();
-        //     await soundElement.play();
-        //     await new Promise((resolve) => setTimeout(resolve, 4000));
-        //     await resumePlaying();
-        //     await initAndRunPlaylistFlow(musicType);
-        //     initPlay.disabled = false;
-        //     return;
-        // };
+// if (allFilesInDir.length >= 10) {
+//     soundElement.pause();
+//     soundElement.src = join(voiceInstructions, `previousSongsWaiting.mp3`);
+//     soundElement.load();
+//     await soundElement.play();
+//     await new Promise((resolve) => setTimeout(resolve, 4000));
+//     await resumePlaying();
+//     await initAndRunPlaylistFlow(musicType);
+//     initPlay.disabled = false;
+//     return;
+// };
 
 //         const randomIndex = Math.floor(Math.random() * 6) + 1;
 //         soundElement.pause();
