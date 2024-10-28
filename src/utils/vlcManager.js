@@ -99,9 +99,7 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
     const notificationSound = document.getElementById('notificationSound');
     const soundsDir = path.join(process.env.ASSETS_DIR, 'sound', 'startup');
     const ps1ScriptPash = path.join(process.env.ASSETS_DIR, 'scripts', 'ps1', 'createPlaylist.ps1');
-
-
-
+    
     try {
 
         const vlcClientState = await getVlcClientMode();
@@ -170,7 +168,6 @@ const getVlcClientMode = async () => {
     try {
 
         const paused = await vlc.isPaused();
-        await new Promise(resolve => setTimeout(resolve, 500));
         const playing = await vlc.isPlaying();
         if (paused) return 'paused';
         if (playing) return 'playing';

@@ -21,9 +21,6 @@ const { openPowerShellAsAdmin, openPowerShellNoAdmin } = require('../utils/child
 const { initAndRunPlaylistFlow, pauseOrResume, playNext } = require('../utils/vlcManager');
 
 const scriptExtensions = ['.py', '.ps1', '.bat', '.js'];
-// const soundElement = document.getElementById('notificationSound');
-// const musicOnHoldDir = join(process.env.ASSETS_DIR, 'sound', 'musicOnHold');
-// const voiceInstructions = join(process.env.ASSETS_DIR, 'sound', 'voiceInstructions');
 
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -324,10 +321,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     cmdBtn.addEventListener('mouseover', () => { musicContainer.style.display = 'none'; });
+    btnGroup.addEventListener('mouseleave', () => { musicContainer.style.display = 'none'; });
     godModeBtn.addEventListener('mouseover', () => { musicContainer.style.display = 'none'; });
     powerShellBtn.addEventListener('mouseover', () => { musicContainer.style.display = 'none'; });
     musicContainer.addEventListener('mouseleave', () => { musicContainer.style.display = 'none'; });
-    btnGroup.addEventListener('mouseleave', () => { musicContainer.style.display = 'none'; });
 });
 
 
