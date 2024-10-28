@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     freeRam.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'memReduct', `memReduct.exe`);
-        executeCommandWithSpawn(exePath);
+        runExeFileAsAdmin(exePath);
         await ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
 
@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     bcUninstaller.addEventListener('dblclick', async () => {
 
         const exePath = path.join(process.env.BINARIES_DIR, 'bcUninstaller', 'BCUninstaller.exe');
-        executeCommandWithSpawn(exePath);
+        runExeFileAsAdmin(exePath);
         await ipcRenderer.invoke('godModeWindows', 'progressBar');
     });
 

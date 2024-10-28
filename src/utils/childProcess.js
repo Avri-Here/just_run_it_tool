@@ -240,14 +240,24 @@ const runPsCommand = async (commands = []) => {
 
 // Spawn make it keep on the process running even after the parent process dies .
 
-const executeCommandWithSpawn = (exePath, params = []) => {
+const executeCommandWithSpawn = (command, params = []) => {
 
-    console.log('Executing command with spawn :', exePath, params);
-    // const child = spawn(exePath, params, { shell: true, stdio: 'inherit', detached: true });
-    const child = spawn(exePath, params, { detached: false, stdio: 'ignore' });
+    console.log('Executing command with spawn :', command, params);
+    const child = spawn(command, params, { detached: true, stdio: 'ignore' });
     child.unref();
-    return child.pid;
 }
+
+
+// cons = (command, params = []) => {
+
+//     console.log('Executing command with spawn as Admin:', command, params);
+
+//     const powershellCommand = `Start-Process -FilePath "${command}" -ArgumentList ${params.map(param => `"${param}"`).join(',')} -Verb RunAs`;
+
+//     const child = spawn('powershell.exe', ['-Command', powershellCommand], { detached: true, stdio: 'ignore' });
+
+//     child.unref();
+// };
 
 
 // As admin via Spawn and PS, will close the cmd window after the exe is executed and will stay open even after the parent process dies ..
@@ -268,7 +278,6 @@ const runExeFileAsAdmin = (exePath) => {
 const openCmdAndRunFromThere = (command, params = []) => {
 
     const cdIntoDir = path.dirname(command);
-
 
     // if you want make it open on new window not matter what ..
     // exec(`start cmd.exe /K "cd /d ${exeDir} && ${path.basename(command)} ${params}"`, (error, stdout, stderr) => {
@@ -340,23 +349,23 @@ const openCmdAndRunAsAdminFix = async (command) => {
     // Escape single quotes for PowerShell
     const escapedCommand = command.replace(/'/g, "''"); // Escape single quotes
     const adminCommand = `powershell -Command "Start-Process 'cmd.exe' -ArgumentList '/K ${escapedCommand}' -Verb RunAs"`;
-  
+
     console.log(adminCommand);
-    
+
     exec(adminCommand, (err, stdout, stderr) => {
-      if (err) {
-        console.error('Error running command as admin:', err);
-        throw err;
-      }
-      if (stderr) {
-        console.error('Error running command as admin:', stderr);
-        throw stderr;
-      }
-      console.log(`Command executed successfully: ${stdout}`);
-      return stdout;
+        if (err) {
+            console.error('Error running command as admin:', err);
+            throw err;
+        }
+        if (stderr) {
+            console.error('Error running command as admin:', stderr);
+            throw stderr;
+        }
+        console.log(`Command executed successfully: ${stdout}`);
+        return stdout;
     });
-  };
-  
+};
+
 
 
 
@@ -387,8 +396,8 @@ module.exports = {
     openCmdAndRunAsAdmin, openCmdInNewTabOrWindowFolder,
     runPsCommand, executeCommandWithSpawn, openCmdAndRunFromThere,
     openPowerShellAsAdmin, timeOutPromise, runIsolatedCommandAsAdmin,
-    openPowerShellNoAdmin, openCmdNoAdmin, runScriptOnNewTabOrWindow,
     getCommandBaseType, openCmdInNewTabOrWindow, runExeFileAsAdmin, runExeAndCloseCmd,
+    openPowerShellNoAdmin, openCmdNoAdmin, runScriptOnNewTabOrWindow,
     isExeRunningOnWindows, openFileDirectly, openCmdAsAdmin, runPowerShellFile, openCmdAndRunAsAdminFix
 };
 

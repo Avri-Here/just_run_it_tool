@@ -95,7 +95,8 @@ const startAndExposeVlcPortable = async () => {
 
 const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
 
-    // const randomPlay = musicSrc === 'discover' ? false : true;
+    const currentYear = new Date().getFullYear().toString();
+    const notificationSound = document.getElementById('notificationSound');
     const soundsDir = path.join(process.env.ASSETS_DIR, 'sound', 'startup');
     const ps1ScriptPash = path.join(process.env.ASSETS_DIR, 'scripts', 'ps1', 'createPlaylist.ps1');
 
@@ -123,7 +124,6 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
 
             vlc.stop();
         };
-        const notificationSound = document.getElementById('notificationSound');
         const randomIndex = Math.floor(Math.random() * 2) + 1;
         notificationSound.src = path.join(soundsDir, `princessPeachRescued${randomIndex}.mp3`);
         notificationSound.load();
@@ -131,9 +131,9 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
         await notificationSound.play();
         await killAllVlcPortableInstancesIfAny();
         await startAndExposeVlcPortable();
-        await runPowerShellFile(ps1ScriptPash, [musicSrc]);
+        const paramsOfPsScript = musicSrc === 'foreign' ? musicSrc + `/${currentYear}` : musicSrc;
+        await runPowerShellFile(ps1ScriptPash, [paramsOfPsScript]);
         await addWplFileToPlaylist(musicSrc);
-
         await new Promise(resolve => setTimeout(resolve, 500));
         await vlc.setRandom(false);
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -149,12 +149,14 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
 
     } catch (error) {
 
-        console.error(`An error occurred : ${error.message}`);
+
+        console.error(`An error occurred : ${JSON.stringify(error, null, 2)}`);
+        notificationSound?.pause();
 
         const notificationInfo = {
             title: 'Error starting VLC !',
-            icon: 'error', sound: true, timeout: 7,
-            message: `Info : ${error.message} ..` || 'Unknown error occurred ..',
+            icon: 'vlc', sound: true, timeout: 7,
+            message: `Info : ${error.message || 'Unknown error occurred'} ..`
         };
 
         ipcRenderer.invoke('notificationWIthNode', notificationInfo);
@@ -185,30 +187,21 @@ const deleteCurrentSongAndPlayNext = async () => {
     const soundSrcOnDelete = `./../../assets/sound/startup/macEmptyTrash.mp3`;
     const songsFolder = path.join(homedir, 'Documents', 'myBackupFolder', 'songs');
 
-
-
-
-
     try {
 
         const playlist = await vlc.getPlaylist();
         const currentEntry = playlist.find(entry => entry.isCurrent);
         await vlc.removeFromPlaylist(currentEntry.id);
         const fullPath = currentEntry.uri.replace('file:///', '');
-        const playlistFolder = path.basename(path.dirname(fullPath));
-        const currentMedia = currentEntry.name;
-        // const currentMedia = await vlc.getFileName();
-        console.log(`removeFromPlaylist Song : ${currentMedia}`);
-        const filePathToOut = path.join(songsFolder, playlistFolder, currentMedia);
-        await deleteFileToTrash(filePathToOut, false);
-        await vlc.next();
+        await deleteFileToTrash(fullPath);
+        await vlc.togglePlay();
         console.log('deleteCurrentSongAndPlayNext Done !');
         notificationSound.src = soundSrcOnDelete;
         notificationSound.play();
         await new Promise(resolve => setTimeout(resolve, 1000));
-        await vlc.next();
+        await vlc.play();
     } catch (error) {
-        console.error(`Error deleting current song and playing next : ${error}`);
+        console.error(`Error deleteCurrentSongAndPlayNext : ${JSON.stringify(error, null, 2)}`);
         return;
     }
 };
@@ -217,11 +210,12 @@ const deleteCurrentSongAndPlayNext = async () => {
 const loveThisSong = async () => {
 
     const currentVolume = await vlc.getVolume();
+    const currentYear = new Date().getFullYear().toString();
     const baseFolder = path.join(homedir, 'Documents', 'myBackupFolder');
-    const loveThisSongsDir = path.join(baseFolder, 'songs', 'foreign');
+    const loveThisSongsDir = path.join(baseFolder, 'songs', 'foreign', currentYear);
 
 
-    if (!require('fs').existsSync()) {
+    if (!require('fs').existsSync(loveThisSongsDir)) {
         await fs.mkdir(loveThisSongsDir, { recursive: true });
     };
 
@@ -235,15 +229,17 @@ const loveThisSong = async () => {
     const newFilePath = path.join(loveThisSongsDir, fileName);
 
 
-    // Is the files name on this dir is on format of : songName)$($artistName.mp3
-    const isThisDirSported = fromFolder === 'discover' || fromFolder === 'foreign';
 
-    if (!isThisDirSported) {
+
+    // Check if fromFolder is either "discover" or from "foreign" ( matches the pattern "\YEAR" ) - with format name of : songName)$($artistName.mp3
+    const isThisDirSportedScrobble = fromFolder === 'discover' || /^\d{4}$/.test(fromFolder);
+
+    if (!isThisDirSportedScrobble) {
 
         const notificationInfo = {
             title: 'loveThisSongAction',
             icon: 'info', sound: true, timeout: 6,
-            message: `Song is not from Discover Or Foreign folder !`
+            message: `Song is not from Discover or Foreign folder !`
         };
 
         ipcRenderer.invoke('notificationWIthNode', notificationInfo);
@@ -295,7 +291,7 @@ const loveThisSong = async () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         await vlc.setVolume(currentVolume);
         return;
-    }
+    };
 
     const stopOn = await vlc.getProgress();
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -315,10 +311,6 @@ const loveThisSong = async () => {
     await new Promise(resolve => setTimeout(resolve, 500));
     await vlc.setVolume(currentVolume);
     await new Promise(resolve => setTimeout(resolve, 500));
-    // const playlistAll = await vlc.getPlaylist();
-    // const currentSong = playlistAll.find(entry => entry.isCurrent);
-    // await vlc.removeFromPlaylist(currentSong.id);
-    // await new Promise(resolve => setTimeout(resolve, 500));
 };
 
 

@@ -30,7 +30,9 @@ function Shuffle-Array {
     return $array
 }
 
-$outputFileName = $musicSource +".wpl"
+# $outputFileName = $musicSource +".wpl"
+$outputFileName = ($musicSource -split "/")[0] + ".wpl"
+
 $outputFilePath = "$homeDirectory\myBackupFolder\songs\rest\playlistFiles\$outputFileName"
 # Get all files in the directory and subdirectories
 $files = Get-ChildItem -Path $songDir -Recurse -File

@@ -19,7 +19,6 @@ const deleteFileToTrash = async (filePath, throwErr = true) => {
 
 const getAllFilesInDir = async (dirPath) => {
 
-
     const fs = require('fs').promises;
 
     try {
@@ -32,4 +31,19 @@ const getAllFilesInDir = async (dirPath) => {
 
 };
 
+
+// const deleteFileToTrashOnWinOnly = (filePath) => {
+
+//     const { exec } = require('child_process');
+
+//     const command = `powershell.exe -Command "Remove-Item -Path '${filePath}' -Recurse -Confirm:$false -ErrorAction Stop | Out-Null"`;
+
+//     exec(command, (error) => {
+//         if (error) {
+//             console.error(`Error moving file to trash: ${error.message}`);
+//         } else {
+//             console.log(`File moved to trash: ${filePath}`);
+//         }
+//     });
+// }
 module.exports = { deleteFileToTrash, getAllFilesInDir };

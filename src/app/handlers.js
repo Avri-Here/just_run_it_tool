@@ -81,15 +81,13 @@ ipcMain.on('selectedFile', async (_, { path, identifier }) => {
 
 ipcMain.handle('notificationWIthNode', (_, notificationInfo) => {
 
+    // ffmpeg -i vlc.ico -vf scale=48:48 output.ico
+
     notificationInfo.icon = path.join(process.env.ASSETS_DIR, 'img/icons/notification', `${notificationInfo.icon}.ico`);
 
     // notificationInfo.appID = 'com.avri.just_run_it_tool';
     notificationInfo.appID = `C:\\Users\\avrahamy\\Documents\\myWorkspace\\justRunItTool\\dist\\win-unpacked\\justRunItTool.exe`;
-
-
     notifier.notify(notificationInfo);
-
-    // notifier.on('timeout', (notifierObject, options) => { });
 });
 
 
