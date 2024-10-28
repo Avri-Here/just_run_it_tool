@@ -172,7 +172,6 @@ const getVlcClientMode = async () => {
         const paused = await vlc.isPaused();
         await new Promise(resolve => setTimeout(resolve, 500));
         const playing = await vlc.isPlaying();
-
         if (paused) return 'paused';
         if (playing) return 'playing';
         return 'unknown';
@@ -185,7 +184,6 @@ const deleteCurrentSongAndPlayNext = async () => {
 
     const notificationSound = document.getElementById('notificationSound');
     const soundSrcOnDelete = `./../../assets/sound/startup/macEmptyTrash.mp3`;
-    const songsFolder = path.join(homedir, 'Documents', 'myBackupFolder', 'songs');
 
     try {
 
@@ -194,12 +192,11 @@ const deleteCurrentSongAndPlayNext = async () => {
         await vlc.removeFromPlaylist(currentEntry.id);
         const fullPath = currentEntry.uri.replace('file:///', '');
         await deleteFileToTrash(fullPath);
-        await vlc.togglePlay();
         console.log('deleteCurrentSongAndPlayNext Done !');
         notificationSound.src = soundSrcOnDelete;
         notificationSound.play();
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        await vlc.play();
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        await vlc.next();
     } catch (error) {
         console.error(`Error deleteCurrentSongAndPlayNext : ${JSON.stringify(error, null, 2)}`);
         return;
@@ -283,6 +280,7 @@ const loveThisSong = async () => {
         return;
     };
 
+
     if (fromFolder !== 'discover') {
 
         await vlc.setVolume(currentVolume / 2);
@@ -293,24 +291,35 @@ const loveThisSong = async () => {
         return;
     };
 
-    const stopOn = await vlc.getProgress();
-    await new Promise(resolve => setTimeout(resolve, 500));
     await vlc.removeFromPlaylist(currentEntry.id);
-    fsExtra.move(fullPath, newFilePath, { overwrite: true }, err => {
-        if (err) throw err;
+
+    fsExtra.move(fullPath, newFilePath, { overwrite: true }, async err => {
+
+        if (err) {
+
+            console.error(`Error with fsExtraMoveFile : ${fileName}`);
+            const notificationInfo = {
+                title: 'fsExtraMoveFile',
+                message: `Error with move to discover folder fileName : ${fileName}`,
+                icon: 'error', sound: true, timeout: 7,
+            };
+
+            ipcRenderer.invoke('notificationWIthNode', notificationInfo);
+            await new Promise(resolve => setTimeout(resolve, 250));
+            await vlc.next();
+            return;
+        }
+
         console.log('Moved file to likedSongs ( foreign ) folder !');
+        notificationSound.src = soundSrcOnDone;
+        notificationSound.play();
+        await new Promise(resolve => setTimeout(resolve, 1100));
+        await vlc.next();
     });
-    await new Promise(resolve => setTimeout(resolve, 500));
-    await vlc.setVolume(0);
-    notificationSound.src = soundSrcOnDone;
-    notificationSound.play();
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await vlc.playFile(newFilePath);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    await vlc.setTime(stopOn);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    await vlc.setVolume(currentVolume);
-    await new Promise(resolve => setTimeout(resolve, 500));
+
+
+
+
 };
 
 

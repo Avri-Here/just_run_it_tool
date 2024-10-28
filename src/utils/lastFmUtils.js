@@ -285,7 +285,7 @@ const scrobbleTrackOnLastFm = async (artist, track, initSession) => {
     lastfm.scrobbleTrack({
       artist, track, callback: (result) => {
         if (result.success) {
-          console.log('scrobbleTrack result :', JSON.stringify(result, null, 2));
+          console.log('scrobbleTrack success ! ', artist, track);
           resolve({ artist, track });
         } else {
           console.error('scrobbleTrack error :', result.error);
