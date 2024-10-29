@@ -356,7 +356,7 @@ const getSimilarTracks = async (track, artist) => {
 
   const similartracks = data.similartracks?.track.map((item) => { return { name: item.name, artist: item.artist.name } });
 
-  return similartracks;
+  return similartracks || [];
 };
 
 
@@ -379,7 +379,7 @@ const getSimilarTracks = async (track, artist) => {
 
 if (process.env.getSimilarTracks) {
 
-  const songName = 'Je te pardonne (feat. Sia) - Pilule bleue';
+  const songName = 'Brisé - Pilule bleue';
   const artistName = 'GIMS';
 
   (async () => {
@@ -389,13 +389,22 @@ if (process.env.getSimilarTracks) {
     try {
 
       const similartracks = await getSimilarTracks(songName, artistName);
+      console.log('all similar tracks :', similartracks);
 
-      if (!similartracks.length) {
-        console.warn('No similar tracks found for :', songName + ' - ' + artistName);
+      const everPlayedRes = await Promise.all(similartracks.map(async (item) => {
+        return await isSongAlreadyKnown(item.artist, item.name)
+      }));
+
+      const filterJustNew = similartracks.filter((_, index) => !everPlayedRes[index]);
+      
+      if (!filterJustNew.length) {
+        console.warn('No new tracks found that are not played before ..');
         return;
       };
-      console.log('all similar tracks :', similartracks);
-      const ytUrlTracks = await getYTubeUrlByNames(similartracks);
+      
+      console.log('filterJustNew :', filterJustNew);
+
+      const ytUrlTracks = await getYTubeUrlByNames(filterJustNew);
       console.log('all ytUrlTracks :', ytUrlTracks);
       const downloadSongsLength = await downloadSongsFromYt(ytUrlTracks);
       console.log({ downloadSongsLength });
@@ -408,21 +417,6 @@ if (process.env.getSimilarTracks) {
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
