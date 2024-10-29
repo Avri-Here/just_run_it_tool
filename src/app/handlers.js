@@ -81,7 +81,7 @@ ipcMain.on('selectedFile', async (_, { path, identifier }) => {
 
 ipcMain.handle('notificationWIthNode', (_, notificationInfo) => {
 
-    // ffmpeg -i vlc.ico -vf scale=48:48 output.ico
+    // ffmpeg -i cucumber.png -vf scale=48:48 output.ico
 
     notificationInfo.icon = path.join(process.env.ASSETS_DIR, 'img/icons/notification', `${notificationInfo.icon}.ico`);
 
