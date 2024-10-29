@@ -32,7 +32,7 @@ const getYTubeUrlByNames = async (songNames) => {
 
         try {
             const songName = item.name;
-            const artistName = item.artist.name;
+            const artistName = item.artist.name || item.artist;
             const query = `${songName} ${artistName}`;
             const result = await ytSearch(query);
 
@@ -45,7 +45,7 @@ const getYTubeUrlByNames = async (songNames) => {
         } catch (error) {
 
             console.error('Error fetching YouTube URL for song:', error);
-            throw error
+            throw error;
         }
 
     });

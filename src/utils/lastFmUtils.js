@@ -32,17 +32,6 @@ const getRandomItemsFromList = (arr, numItems) => {
 }
 
 
-const getSimilarSongs = async (artist, track, limit = 20) => {
-
-  const urlApi = `${baseUrl}?method=track.getsimilar&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(track)}&api_key=${apiKey}&format=json&limit=${limit}`;
-
-  const { data } = await axios(urlApi);
-
-  const similartracks = data.similartracks?.track || [];
-  return similartracks;
-
-};
-
 
 // track And artist Required  !!
 const getTheSimilarSong = async (track, artist) => {
@@ -77,11 +66,14 @@ const getSimilarSongsAndPikeRandom = async (track, artist) => {
   };
 
 
+  console.log('all similar tracks :', data.similartracks?.track);
+
   const randomIndex = Math.floor(Math.random() * 15);
   const similarTrack = data.similartracks?.track[randomIndex];
   return similarTrack;
 
 };
+
 
 const getLatestTopSongByCountry = async (country = 'united states', limit = 15) => {
 
@@ -257,20 +249,6 @@ const getRecommendedByTopHistory = async (minSize) => {
 };
 
 
-
-// const getYourLastPlayedTracks = async (limit = 100) => {
-
-//   const url = `${baseUrl}?method=user.getrecenttracks&user=${userName}&api_key=${apiKey}&format=json&limit=${limit}`;
-
-//   const response = await axios.get(url);
-
-//   const lastPlayedTracks = response.data.recenttracks.track;
-
-//   return lastPlayedTracks;
-
-// };
-
-
 const scrobbleTrackOnLastFm = async (artist, track, initSession) => {
 
   if (initSession) {
@@ -325,55 +303,169 @@ const searchTrackByNameAndArtist = async (songName, artist, limit = 1) => {
 
 
 
-const startDiscoverFlow = async (minSize) => {
+// const startDiscoverFlow = async (minSize) => {
 
-  let allNewSongs = [];
+//   let allNewSongs = [];
 
-  while (allNewSongs.length < minSize) {
+//   while (allNewSongs.length < minSize) {
 
-    try {
-      const tracksRes = await getRecommendedByTopHistory(minSize);
+//     try {
+//       const tracksRes = await getRecommendedByTopHistory(minSize);
 
-      if (tracksRes) {
-        allNewSongs = [...allNewSongs, ...tracksRes];
-      };
+//       if (tracksRes) {
+//         allNewSongs = [...allNewSongs, ...tracksRes];
+//       };
 
 
-      if (allNewSongs.length < minSize) {
-        console.log(`Not enough songs found -  fetching again ..`);
-      }
+//       if (allNewSongs.length < minSize) {
+//         console.log(`Not enough songs found -  fetching again ..`);
+//       }
 
-    }
+//     }
 
-    catch (error) {
-      console.error('Error fetching songs :', JSON.stringify(error, null, 2));
-      break;
-    }
-  }
+//     catch (error) {
+//       console.error('Error fetching songs :', JSON.stringify(error, null, 2));
+//       break;
+//     }
+//   }
 
-  return allNewSongs;
-};
+//   return allNewSongs;
+// };
 
 
 module.exports = {
+  getRecommendedByTopHistory, getLatestTopSongByCountry,
   initSessionKey, loveAndMarkAsKnown, scrobbleTrackOnLastFm,
   isSongAlreadyKnown, discoverReallyNewMusic, searchTrackByNameAndArtist,
-  getRecommendedByTopHistory, getSimilarSongs, getLatestTopSongByCountry,
 };
 
 
 
-// async function test() {
+
+
+const getSimilarTracks = async (track, artist) => {
+
+  const urlApi = `${baseUrl}?method=track.getsimilar&artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(track)}&api_key=${apiKey}&format=json&limit=12`;
+  const { data } = await axios(urlApi);
+
+  if (data.error) {
+    console.warn('Warn from Last.fm API - getTheSimilarSong :', data.message);
+    throw new Error(data.message);
+  };
+
+
+  const similartracks = data.similartracks?.track.map((item) => { return { name: item.name, artist: item.artist.name } });
+
+  return similartracks;
+};
+
+
+// set getSimilarTracks=true && node lastFmUtils.js
+
+
+// set getSPecificTrack=true && node lastFmUtils.js
 
 
 
 
 
-//   const recommendedByTopHistory = await getRecommendedByTopHistory(9);
-//   console.log('getRecommendedByTopHistory :', recommendedByTopHistory);
 
 
-// }
 
-// test();
 
+
+
+
+
+if (process.env.getSimilarTracks) {
+
+  const songName = 'Je te pardonne (feat. Sia) - Pilule bleue';
+  const artistName = 'GIMS';
+
+  (async () => {
+
+    const { getYTubeUrlByNames, downloadSongsFromYt } = require('./ytDlpWrap');
+
+    try {
+
+      const similartracks = await getSimilarTracks(songName, artistName);
+
+      if (!similartracks.length) {
+        console.warn('No similar tracks found for :', songName + ' - ' + artistName);
+        return;
+      };
+      console.log('all similar tracks :', similartracks);
+      const ytUrlTracks = await getYTubeUrlByNames(similartracks);
+      console.log('all ytUrlTracks :', ytUrlTracks);
+      const downloadSongsLength = await downloadSongsFromYt(ytUrlTracks);
+      console.log({ downloadSongsLength });
+
+    } catch (error) {
+      console.error('Error :', error.message);
+    }
+
+  })()
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if (process.env.getSPecificTrack) {
+
+  (async () => {
+
+    const { downloadSongsFromYt } = require('./ytDlpWrap');
+
+    try {
+
+      const songName = 'Je te pardonne';
+      const artistName = 'GIMS';
+      const urlYtToDownload = 'https://youtu.be/MkKhktVb2yU';
+
+
+
+
+
+
+      const result = await searchTrackByNameAndArtist(songName, artistName);
+      console.log({ searchTrackByNameAndArtistResult: result });
+
+      if (!result.isFound) {
+        console.warn('No track found ..');
+        return;
+      };
+
+      const { name, artist } = result;
+      const ytUrlTracks = [{ songName: name, artistName: artist, url: urlYtToDownload }];
+
+      console.log({ ytUrlTracks });
+
+      const downloadSongsLength = await downloadSongsFromYt(ytUrlTracks);
+      // console.log({ downloadSongsLength });
+
+    } catch (error) {
+      console.error('Error :', error.message);
+    }
+
+  })()
+
+
+}
