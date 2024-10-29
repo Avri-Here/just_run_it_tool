@@ -26,7 +26,8 @@ const createDesktopTollBar = () => {
     const windowHeight = Math.round(height * 0.075);
     const x = (width - windowWidth - 120), y = 7;
 
-
+    const xw = Math.floor((screenWidth - 270) / 2);
+    const yw = screenHeight - 55;
     const mainWindow = new BrowserWindow({
         x, y,
         resizable: false, skipTaskbar: true,
@@ -58,5 +59,5 @@ const createDesktopTollBar = () => {
 
 
 app.whenReady().then(() => {
-    createDesktopTollBar()
+    createDesktopTollBar();
 });

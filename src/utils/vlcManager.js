@@ -99,7 +99,7 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
     const notificationSound = document.getElementById('notificationSound');
     const soundsDir = path.join(process.env.ASSETS_DIR, 'sound', 'startup');
     const ps1ScriptPash = path.join(process.env.ASSETS_DIR, 'scripts', 'ps1', 'createPlaylist.ps1');
-    
+
     try {
 
         const vlcClientState = await getVlcClientMode();
@@ -140,9 +140,12 @@ const initAndRunPlaylistFlow = async (musicSrc = 'foreign') => {
         notificationSound.addEventListener('ended', async () => {
             notificationSound.playbackRate = 1.0;
             await vlc.togglePlay();
+            await new Promise(resolve => setTimeout(resolve, 500));
             if (await vlc.isPaused()) {
-                await vlc.play()
+                await vlc.play();
             };
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await vlc.play();
         });
 
     } catch (error) {
@@ -325,7 +328,7 @@ const addWplFileToPlaylist = async (wplFileName = 'foreign') => {
 
     const playlistFilePath = path.join(playlistDir, `${wplFileName}.wpl`);
     await vlc.addToPlaylist(playlistFilePath);
-    console.log(`playlistFile ${wplFileName} added successfully!`);
+    console.log(`playlistFile ${wplFileName} added successfully !`);
     return;
 };
 
