@@ -110,13 +110,3 @@ const downloadSongsFromYt = async (ytUrlSongs) => {
 
 module.exports = { downloadSongsFromYt, getYTubeUrlByNames };
 
-// async function test() {
-
-//     const songNames = [
-//         { songName: 'Million Voices - Radio Edit', artistName: 'Otto Knows', url: 'https://youtu.be/3G8Zz1OAbxA' }
-//     ];
-//     const data = await downloadSongsFromYt(songNames);
-//     console.log(data);
-// }
-
-// test();
