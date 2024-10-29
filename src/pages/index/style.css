@@ -1,161 +1,30 @@
-/* html,
 body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    user-select: none;
-    margin: 0;
-    padding: 0;
-    background-color: transparent;
-    color: white;
-    font-family: Arial, sans-serif;
-    -webkit-app-region: drag;
-}
-
-.btn-group {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    padding: 3px;
-    transition: opacity 0.3s ease;
-    -webkit-app-region: drag;
-}
-
-.btn-group:hover {
-    opacity: 1;
-}
-
-
-.musicContainer {
-    position: absolute;
-    top: 28px;
-    display: none;
-    width: 110%;
-}
-
-
-@keyframes flashBorder {
-    0% {
-        border-color: rgb(15, 10, 41);
-    }
-
-    25% {
-        border-color: green;
-    }
-
-    50% {
-        border-color: blue;
-    }
-
-    75% {
-        border-color: yellow;
-    }
-
-    100% {
-        border-color: rgb(92, 201, 108);
-    }
-}
-
-
-
-.form-control {
-    border: 2px solid;
-    animation: flashBorder 3s infinite;
-    border-radius: 15px;
-    width: 50%;
-    height: 50%;
-}
-
-.list-group {
-    display: none;
-}
-
-#dropZone {
-    border: 2px solid;
-    animation: flashBorder 3s infinite;
-    border-radius: 15px;
-    width: 100%;
-    height: 50%;
-    display: none;
-    background-color: transparent;
-    border: 2px dashed grey;
-    transition: background-color 0.1s ease;
-}
-
-
-
-.loader {
-    width: 60px;
-    aspect-ratio: 4;
-    --_g: no-repeat radial-gradient(circle closest-side, #184584 90%, #1319b500);
-    background:
-        var(--_g) 0% 50%,
-        var(--_g) 25% 50%,
-        var(--_g) 50% 50%,
-        var(--_g) 75% 50%;
-    background-size: calc(100%/5) 100%;
-    animation: l7 2s infinite linear;
-}
-
-@keyframes l7 {
-    20% {
-        background-size: calc(100%/5) 0%, calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 100%;
-    }
-
-    40% {
-        background-size: calc(100%/5) 100%, calc(100%/5) 0%, calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 100%;
-    }
-
-    60% {
-        background-size: calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 0%, calc(100%/5) 100%, calc(100%/5) 100%;
-    }
-
-    80% {
-        background-size: calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 0%, calc(100%/5) 100%;
-    }
-
-    100% {
-        background-size: calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 100%, calc(100%/5) 0%;
-    }
-}
-
-.progressContainer {
-    width: 100%;
-    border-radius: 8px;
-    margin-top: 10px;
-    height: 15px;
-    display: none;
-} */
-
-
-body {
-    margin: 0;
     overflow: hidden;
     background: transparent;
-    -webkit-app-region: drag;
+    opacity: 0.9;
 }
 
 .toolbar {
     display: flex;
     align-items: center;
     justify-content: space-around;
-    background-color: rgba(74, 70, 158, 0.373);
-    padding: 10px;
+    background-color: rgba(7, 5, 39, 0.373);
+    padding: 5px;
     border-radius: 15px;
-    width: 250px;
-    height: 30px;
+    border-color: blueviolet;
+    border-width: 5px;
+    width: 260px;
+    height: 37px;
     position: relative;
-    -webkit-app-region: drag;
 }
 
-.drag-handle {
-    width: 15%;
-    height: 4px;
-    background-color: rgba(255, 255, 255, 0.5);
+.dragHandle {
+    width: 45%;
+    height: 5px;
+    background-color: lightblue;
     border-radius: 5px;
     position: absolute;
-    top: 5px;
+    top: 7px;
     -webkit-app-region: drag;
 }
 
@@ -163,4 +32,6 @@ body {
     margin-top: auto;
     user-select: none;
     cursor: pointer;
+    margin-bottom: 3px;
 }
+

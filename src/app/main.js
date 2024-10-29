@@ -24,10 +24,10 @@ const createDesktopTollBar = () => {
 
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
-    const x = Math.floor((width - 270) / 2), y = height - 55;
+    const x = Math.floor((width - 276) / 2), y = height - 62;
 
     const mainWindow = new BrowserWindow({
-        width: 270, height: 50, x, y,
+        width: 276, height: 56, x, y,
         resizable: false, skipTaskbar: true,
         alwaysOnTop: true, transparent: true, frame: false,
         icon: path.join(process.env.ASSETS_DIR, 'img/icons/app/appLogo.ico'),

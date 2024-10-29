@@ -3,37 +3,41 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="toolbar">
 
-        <div class="drag-handle"></div>
-        <div class="toolbar-item btn musicPlayer initPlay">📻</div>
-        <div class="toolbar-item btn btn cmdBtn" title="CMD">🔍</div>
-        <div class="toolbar-item btn btn godModeBtn" title="GodMode">📖</div>
-        <div class="toolbar-item btn btn powerShellBtn" title="PowerShell">🌐</div>
+    <div class="toolbar" id="dropZone">
+        <div class="dragHandle"></div>
+        <div class="initPlay toolbar-item">📻</div>
+        <div class="godModeBtn toolbar-item" title="GodMode">📖</div>
+        <div class="powerShellBtn toolbar-item" title="PowerShell">🌐</div>
+        <div class="cmdBtn toolbar-item" title="CMD">🔍</div>
     </div>
 
-
-    <div draggable="true" class="progressContainer loader"> </div>
-    <!-- progressContainer -->
-
+    <audio style="display: none" id="notificationSound"></audio>
+</body>
 
 
-    <!-- <div class="btn-group"> -->
+<script src="index.js"></script>
 
-    <!-- Music Player Controls -->
+</html>
 
-    <!-- <button class="btn musicPlayer initPlay">
+
+
+
+<!-- <div class="btn-group"> -->
+
+<!-- Music Player Controls -->
+
+<!-- <button class="btn musicPlayer initPlay">
             <span class="icon icon-note-beamed"></span>
         </button> -->
 
 
-    <!-- <div class="musicContainer">
+<!-- <div class="musicContainer">
 
             <button class="btn previousSong" title="Previous">
                 <span class="icon icon-fast-backward"></span>
@@ -68,12 +72,6 @@
 
 
 
-
-    <audio style="display: none" id="notificationSound"></audio>
-</body>
-<script src="index.js"></script>
-
-</html>
 
 
 
