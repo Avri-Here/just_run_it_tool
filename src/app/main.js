@@ -24,18 +24,17 @@ if (!isAppAlreadyRunning) return app.quit();
 const createDesktopTollBar = () => {
 
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-
-    const x = Math.floor((width - 276) / 2), y = height - 46;
-
+    const x = Math.floor((width - 280) / 2), y = height - 58;
+    
     const mainWindow = new BrowserWindow({
-        width: 276, height: 86, x, y,
+        width: 280, height: 86, x, y,
         resizable: false, skipTaskbar: true,
         alwaysOnTop: true, transparent: true, frame: false,
         icon: path.join(process.env.ASSETS_DIR, 'img/icons/app/appLogo.ico'),
         webPreferences: {
             sandbox: false, nodeIntegration: true,
             preload: path.join(__dirname, 'preload.js'),
-        },
+        }
     });
 
     mainWindow.loadFile(path.join(__dirname, '../pages/index/index.html'));
@@ -69,7 +68,7 @@ const createDesktopTollBar = () => {
 app.whenReady().then(() => {
 
     createDesktopTollBar();
-    ipcRenderer.invoke('focusOrHideApp', 'focusAndShow');
+    // ipcRenderer.invoke('focusOrHideApp', 'focusAndShow');
 });
 
 

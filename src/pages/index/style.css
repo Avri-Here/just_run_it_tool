@@ -1,6 +1,6 @@
 body {
 
-    opacity: 0.90;
+    opacity: 0.95;
     overflow: hidden;
     background: transparent;
 }
@@ -9,14 +9,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-around;
-    background-color: aliceblue;
     padding: 5px;
     border-radius: 14px;
     border-width: 5px;
-    width: 260px;
     height: 36px;
+    width: 260px;
     position: relative;
-    user-select: none;
+    background-color: rgb(205, 239, 255);
 }
 
 
@@ -47,11 +46,12 @@ body {
     align-items: center;
     justify-content: space-between;
     background-color: #f0f8ff;
+    background-color: rgb(205, 239, 255);
     width: 75%;
     padding: 5px 0;
     border-radius: 5px;
     border-width: 5px;
-    margin-top: -1.5px;
+    margin-top: -1px;
 }
 
 .parentContainer {
