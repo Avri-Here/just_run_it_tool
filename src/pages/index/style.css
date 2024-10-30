@@ -35,8 +35,8 @@ body {
     border-radius: 5px;
     position: absolute;
     top: 5px;
-    /* -webkit-app-region: drag; */
     user-select: none;
+    /* -webkit-app-region: drag; */
 }
 
 .musicContainer {
