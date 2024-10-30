@@ -23,39 +23,47 @@ const { initAndRunPlaylistFlow, pauseOrResume, playNext } = require('../utils/vl
 const scriptExtensions = ['.py', '.ps1', '.bat', '.js'];
 
 
-document.addEventListener('DOMContentLoaded', async (event) => {
-
+document.addEventListener('DOMContentLoaded', async () => {
 
     const playIcon = document.querySelector('.play');
+    const toolbar = document.querySelector('.toolbar');
+    const pauseIcon = document.querySelector('.pause');
     const nextSong = document.querySelector('.nextSong');
     const initPlay = document.querySelector('.initPlay');
-    const dropZone = document.getElementById('dropZone');
     const loveSong = document.querySelector('.loveSong');
-    const pauseIcon = document.querySelector('.pause');
-    const dragHandle = document.querySelector('.dragHandle');
     const deleteSong = document.querySelector('.deleteSong');
+    const dragHandle = document.querySelector('.dragHandle');
     const previousSong = document.querySelector('.previousSong');
     const musicContainer = document.querySelector('.musicContainer');
-    // const progressContainer = document.querySelector('.progressContainer');
 
-    dropZone.addEventListener('dragover', (e) => {
 
+    let dragEnabled = false;
+
+    toolbar.addEventListener('mouseenter', (e) => {
         e.preventDefault();
-        dragHandle.style.backgroundColor = 'green';
-        dragHandle.style.width = '80%';
+        if (!dragEnabled) {
+            dragHandle.classList.add('enableDragEvents');
+            toolbar.classList.add('enableDragEvents');
+            dragEnabled = true;
+            console.log('Mouse entered - Drag enabled');
+        }
     });
 
-    dropZone.addEventListener('dragleave', (e) => {
+    toolbar.addEventListener('dragover', (e) => {
         e.preventDefault();
-        dragHandle.style.backgroundColor = 'lightblue';
-        dragHandle.style.width = '45%';
+        if (dragEnabled) {
+            dragHandle.classList.remove('enableDragEvents');
+            toolbar.classList.remove('enableDragEvents');
+            dragEnabled = false;
+            console.log('Dragover event - Drag disabled');
+        }
     });
 
-    dropZone.addEventListener('drop', async (e) => {
+    toolbar.addEventListener('drop', async (e) => {
 
-        e.preventDefault();
-        dragHandle.style.backgroundColor = 'lightblue';
-        dragHandle.style.width = '45%';
+        // e.preventDefault();
+        // dragHandle.classList.remove('enableDragEvents');
+        // toolbar.classList.remove('enableDragEvents');
 
 
         const { files } = e.dataTransfer;
@@ -93,7 +101,7 @@ document.addEventListener('DOMContentLoaded', async (event) => {
         }
 
 
-        dropZone.draggable = false;
+        // toolbar.draggable = false;
         // btnGroup.style.display = 'none';
         // progressContainer.style.display = 'block';
 
@@ -147,7 +155,7 @@ document.addEventListener('DOMContentLoaded', async (event) => {
             return;
         }
         finally {
-            dropZone.draggable = true;
+            toolbar.draggable = true;
             // btnGroup.style.display = 'block';
             // progressContainer.style.display = 'none';
         }
@@ -161,10 +169,11 @@ document.addEventListener('DOMContentLoaded', async (event) => {
 
         if (!vlcUnderControl) {
             musicContainer.style.display = 'none';
+            console.log('VLC is not under control !');
             return;
-        }
+        };
 
-        await ipcRenderer.invoke('focusOrHideApp' , 'focusAndShow');
+        await ipcRenderer.invoke('focusOrHideApp', 'focusAndShow');
 
         if (vlcClientState === 'paused') {
             playIcon.style.display = 'inline-block';
@@ -177,6 +186,8 @@ document.addEventListener('DOMContentLoaded', async (event) => {
         }
 
         musicContainer.style.display = 'flex';
+
+        console.log('VLC is under control !');
     });
 
     initPlay.addEventListener('dblclick', async () => {
@@ -354,6 +365,5 @@ document.addEventListener('DOMContentLoaded', async (event) => {
             };
         }, 250);
     });
-
 });
 

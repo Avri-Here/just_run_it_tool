@@ -25,7 +25,8 @@ const createDesktopTollBar = () => {
 
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
-    const x = Math.floor((width - 276) / 2), y = height - 56;
+    const x = Math.floor((width - 276) / 2), y = height - 48;
+    // const x = Math.floor((width - 276) / 2), y = height - 58;
 
     const mainWindow = new BrowserWindow({
         width: 276, height: 86, x, y,
@@ -43,13 +44,11 @@ const createDesktopTollBar = () => {
     ipcMain.handle('focusOrHideApp', async  (_, requestTo) => {
 
         if (requestTo === 'focusAndShow') {
-            console.log('Handle request to focus and show app ..');
             mainWindow.focus();
             mainWindow.show();
         }
 
         else if (requestTo === 'hideApp') {
-            console.log('Handle request to hide app ..');
             mainWindow.hide();
         }
 

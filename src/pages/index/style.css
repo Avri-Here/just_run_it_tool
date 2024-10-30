@@ -1,7 +1,8 @@
 body {
+
+    opacity: 0.90;
     overflow: hidden;
     background: transparent;
-    opacity: 0.9;
 }
 
 .toolbar {
@@ -15,6 +16,16 @@ body {
     width: 260px;
     height: 36px;
     position: relative;
+    user-select: none;
+}
+
+
+.toolbarItem {
+    margin-top: auto;
+    user-select: none;
+    cursor: pointer;
+    margin-bottom: 2.5px;
+    -webkit-app-region: no-drag;
 }
 
 .dragHandle {
@@ -24,14 +35,8 @@ body {
     border-radius: 5px;
     position: absolute;
     top: 5px;
-    -webkit-app-region: drag;
-}
-
-.toolbar-item {
-    margin-top: auto;
+    /* -webkit-app-region: drag; */
     user-select: none;
-    cursor: pointer;
-    margin-bottom: 2.5px;
 }
 
 .musicContainer {
@@ -60,4 +65,34 @@ body {
 .widthItem {
     width: 17.5%;
     font-size: 1.1rem;
+}
+
+/* @keyframes stretchAnimation {
+    0% {
+        width: 45%;
+        background-color: lightskyblue;
+    }
+
+    50% {
+        width: 80%;
+        background-color: green;
+    }
+
+    100% {
+        width: 45%;
+        background-color: lightskyblue;
+    }
+} */
+
+/* .stretch-animation {
+    animation: stretchAnimation 5s ease;
+} */
+
+
+.disableDragEvents {
+    -webkit-app-region: no-drag;
+}
+
+.enableDragEvents {
+    -webkit-app-region: drag;
 }
