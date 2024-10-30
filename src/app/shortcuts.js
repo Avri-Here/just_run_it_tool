@@ -10,6 +10,13 @@ const registerShortcuts = (mainWindow, xAxis, yAxis,) => {
         mainWindow.setPosition(xAxis, yAxis);
         mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
     });
+
+    globalShortcut.register('Control+3', () => {
+
+        mainWindow.focus();
+        mainWindow.show();
+
+    });
 }
 
 module.exports = registerShortcuts;

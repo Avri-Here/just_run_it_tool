@@ -26,19 +26,16 @@ const scriptExtensions = ['.py', '.ps1', '.bat', '.js'];
 document.addEventListener('DOMContentLoaded', async (event) => {
 
 
-    // const nextSong = document.querySelector('.nextSong');
+    const playIcon = document.querySelector('.play');
+    const nextSong = document.querySelector('.nextSong');
     const initPlay = document.querySelector('.initPlay');
     const dropZone = document.getElementById('dropZone');
+    const loveSong = document.querySelector('.loveSong');
+    const pauseIcon = document.querySelector('.pause');
     const dragHandle = document.querySelector('.dragHandle');
-
-    // const loveSong = document.querySelector('.loveSong');
-    // const playIcon = document.querySelector('.icon-play');
-    // const btnGroup = document.querySelector('.btn-group');
-    // const pauseIcon = document.querySelector('.icon-pause');
-    // const deleteSong = document.querySelector('.deleteSong');
-    // const musicPlayer = document.querySelector('.musicPlayer');
-    // const previousSong = document.querySelector('.previousSong');
-    // const musicContainer = document.querySelector('.musicContainer');
+    const deleteSong = document.querySelector('.deleteSong');
+    const previousSong = document.querySelector('.previousSong');
+    const musicContainer = document.querySelector('.musicContainer');
     // const progressContainer = document.querySelector('.progressContainer');
 
     dropZone.addEventListener('dragover', (e) => {
@@ -55,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async (event) => {
     });
 
     dropZone.addEventListener('drop', async (e) => {
-        
+
         e.preventDefault();
         dragHandle.style.backgroundColor = 'lightblue';
         dragHandle.style.width = '45%';
@@ -157,29 +154,30 @@ document.addEventListener('DOMContentLoaded', async (event) => {
     });
 
 
-    // initPlay.addEventListener('mouseover', async () => {
+    initPlay.addEventListener('mouseover', async () => {
 
-    //     const vlcClientState = await getVlcClientMode();
-    //     const vlcUnderControl = vlcClientState !== 'unknown';
+        const vlcClientState = await getVlcClientMode();
+        const vlcUnderControl = vlcClientState !== 'unknown';
 
-    //     if (!vlcUnderControl) {
-    //         musicContainer.style.display = 'none';
-    //         return;
-    //     }
+        if (!vlcUnderControl) {
+            musicContainer.style.display = 'none';
+            return;
+        }
 
-    //     if (vlcClientState === 'paused') {
-    //         playIcon.style.display = 'inline-block';
-    //         pauseIcon.style.display = 'none';
-    //     }
+        await ipcRenderer.invoke('focusOrHideApp' , 'focusAndShow');
 
-    //     if (vlcClientState === 'playing') {
-    //         playIcon.style.display = 'none';
-    //         pauseIcon.style.display = 'inline-block';
-    //     }
+        if (vlcClientState === 'paused') {
+            playIcon.style.display = 'inline-block';
+            pauseIcon.style.display = 'none';
+        }
 
-    //     musicContainer.style.display = 'block';
-    // });
+        if (vlcClientState === 'playing') {
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'inline-block';
+        }
 
+        musicContainer.style.display = 'flex';
+    });
 
     initPlay.addEventListener('dblclick', async () => {
 
@@ -281,42 +279,33 @@ document.addEventListener('DOMContentLoaded', async (event) => {
     });
 
 
-    // nextSong.addEventListener('click', async () => await playNext());
-    // loveSong.addEventListener('click', async () => await loveThisSong());
-    // previousSong.addEventListener('click', async () => await playPrevious());
-    // deleteSong.addEventListener('click', async () => await deleteCurrentSongAndPlayNext());
+    nextSong.addEventListener('click', async () => await playNext());
+    loveSong.addEventListener('click', async () => await loveThisSong());
+    previousSong.addEventListener('click', async () => await playPrevious());
+    deleteSong.addEventListener('click', async () => await deleteCurrentSongAndPlayNext());
 
 
-    // document.querySelector('.togglePlayPause').addEventListener('click', async () => {
+    document.querySelector('.togglePlayPause').addEventListener('click', async () => {
 
-    //     pauseIcon.style.display = 'none';
-    //     playIcon.style.display = 'inline-block';
+        pauseIcon.style.display = 'none';
+        playIcon.style.display = 'inline-block';
 
-    //     const getState = await pauseOrResume();
-    //     if (getState === 'paused') {
-    //         playIcon.style.display = 'inline-block';
-    //         pauseIcon.style.display = 'none';
-    //         return;
-    //     };
+        const getState = await pauseOrResume();
 
-    //     if (getState === 'play') {
-    //         playIcon.style.display = 'none';
-    //         pauseIcon.style.display = 'inline-block';
-    //         return;
+        if (getState === 'paused') {
+            playIcon.style.display = 'inline-block';
+            pauseIcon.style.display = 'none';
+            return;
+        };
 
-    //     }
+        if (getState === 'play') {
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'inline-block';
+            return;
 
-    // });
+        };
 
-
-    // cmdBtn.addEventListener('mouseover', () => { musicContainer.style.display = 'none'; });
-    // btnGroup.addEventListener('mouseleave', () => { musicContainer.style.display = 'none'; });
-    // godModeBtn.addEventListener('mouseover', () => { musicContainer.style.display = 'none'; });
-    // powerShellBtn.addEventListener('mouseover', () => { musicContainer.style.display = 'none'; });
-    // musicContainer.addEventListener('mouseleave', () => { musicContainer.style.display = 'none'; });
-
-
-
+    });
 
 
 
@@ -339,6 +328,31 @@ document.addEventListener('DOMContentLoaded', async (event) => {
     powerShellBtn.addEventListener('dblclick', (e) => {
         const runAsAdmin = e.ctrlKey;
         runAsAdmin ? openPowerShellAsAdmin() : openPowerShellNoAdmin();
+    });
+
+
+    cmdBtn.addEventListener('mouseover', () => { musicContainer.style.display = 'none' });
+    godModeBtn.addEventListener('mouseover', () => { musicContainer.style.display = 'none' });
+    powerShellBtn.addEventListener('mouseover', () => { musicContainer.style.display = 'none' });
+    musicContainer.addEventListener('mouseenter', () => { musicContainer.style.display = 'flex' });
+
+
+    initPlay.addEventListener('mouseleave', () => {
+
+        setTimeout(() => {
+            if (!musicContainer.matches(':hover') && !initPlay.matches(':hover')) {
+                musicContainer.style.display = 'none';
+            }
+        }, 250);
+    });
+
+    musicContainer.addEventListener('mouseleave', () => {
+
+        setTimeout(() => {
+            if (!musicContainer.matches(':hover') && !initPlay.matches(':hover')) {
+                musicContainer.style.display = 'none';
+            };
+        }, 250);
     });
 
 });

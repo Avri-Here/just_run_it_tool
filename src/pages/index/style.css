@@ -8,23 +8,22 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-around;
-    background-color: rgba(7, 5, 39, 0.373);
+    background-color: aliceblue;
     padding: 5px;
-    border-radius: 15px;
-    border-color: blueviolet;
+    border-radius: 14px;
     border-width: 5px;
     width: 260px;
-    height: 37px;
+    height: 36px;
     position: relative;
 }
 
 .dragHandle {
-    width: 45%;
+    width: 63.5%;
     height: 5px;
-    background-color: lightblue;
+    background-color: lightskyblue;
     border-radius: 5px;
     position: absolute;
-    top: 7px;
+    top: 5px;
     -webkit-app-region: drag;
 }
 
@@ -32,6 +31,33 @@ body {
     margin-top: auto;
     user-select: none;
     cursor: pointer;
-    margin-bottom: 3px;
+    margin-bottom: 2.5px;
 }
 
+.musicContainer {
+    user-select: none;
+    cursor: pointer;
+    gap: 1.2px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f0f8ff;
+    width: 75%;
+    padding: 5px 0;
+    border-radius: 5px;
+    border-width: 5px;
+    margin-top: -1.5px;
+}
+
+.parentContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+
+.widthItem {
+    width: 17.5%;
+    font-size: 1.1rem;
+}
