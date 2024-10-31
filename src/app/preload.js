@@ -61,9 +61,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     toolbar.addEventListener('drop', async (e) => {
 
-        // e.preventDefault();
-        // dragHandle.classList.remove('enableDragEvents');
-        // toolbar.classList.remove('enableDragEvents');
+        e.preventDefault();
+        dragHandle.classList.remove('enableDragEvents');
+        toolbar.classList.remove('enableDragEvents');
+        dragEnabled = false;
+        console.log('Dragover event - Drag disabled');
 
 
         const { files } = e.dataTransfer;
