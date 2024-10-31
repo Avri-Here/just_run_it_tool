@@ -4,15 +4,13 @@
 
 
 require('./configEnv');
-
-
 const path = require('path');
 const createTray = require('./tray');
 const handleAndServeApp = require('./handlers');
 const registerShortcuts = require('./shortcuts');
 const { BrowserWindow, screen, app } = require('electron');
 
-require('electron-reload')(path.join(__dirname, '../..'));
+
 
 const isAppAlreadyRunning = app.requestSingleInstanceLock();
 

@@ -257,4 +257,4 @@ const handleAndServeApp = (mainWindow) => {
 
 
 
-module.exports = { handleAndServeApp };
+module.exports = handleAndServeApp;

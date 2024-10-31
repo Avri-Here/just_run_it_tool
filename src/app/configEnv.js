@@ -13,6 +13,7 @@ const isDevMode = !app.isPackaged;
 console.log('isDevMode :', isDevMode);
 
 if (isDevMode) process.env.IS_DEV_MODE = true;
+if (isDevMode) require('electron-reload')(join(__dirname, '../..'));
 
 process.env.BINARIES_DIR = join(homedir, 'Documents', 'myBackupFolder', 'binaries');
 const assetsDir = isDevMode ? join(__dirname, '../assets') : join(process.resourcesPath, 'assets');
