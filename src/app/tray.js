@@ -8,6 +8,7 @@ const createTray = (mainWindow = new BrowserWindow()) => {
 
     const appLogo = join(process.env.ASSETS_DIR, 'img', 'icons', 'app', 'appLogo.ico');
     const tray = new Tray(nativeImage.createFromPath(appLogo));
+    
     const contextMenu = Menu.buildFromTemplate(
         [
             {

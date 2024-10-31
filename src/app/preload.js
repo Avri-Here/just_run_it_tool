@@ -1,9 +1,8 @@
 
 
-
-
 const fs = require('fs').promises;
 const { extname, dirname, join } = require('path');
+const scriptExtensions = ['.py', '.ps1', '.bat', '.js'];
 const { getAllFilesInDir } = require('../utils/fileExplorer');
 const { openFileDirectly } = require('../utils/childProcess');
 const { getCommandBaseType } = require('../utils/childProcess');
@@ -20,11 +19,11 @@ const { playPrevious, deleteCurrentSongAndPlayNext, } = require('../utils/vlcMan
 const { openPowerShellAsAdmin, openPowerShellNoAdmin } = require('../utils/childProcess');
 const { initAndRunPlaylistFlow, pauseOrResume, playNext } = require('../utils/vlcManager');
 
-const scriptExtensions = ['.py', '.ps1', '.bat', '.js'];
-
 
 document.addEventListener('DOMContentLoaded', async () => {
-
+    
+    let dragEnabled = false;
+    
     const playIcon = document.querySelector('.play');
     const toolbar = document.querySelector('.toolbar');
     const pauseIcon = document.querySelector('.pause');
@@ -37,7 +36,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const musicContainer = document.querySelector('.musicContainer');
 
 
-    let dragEnabled = false;
 
     toolbar.addEventListener('mouseenter', (e) => {
         e.preventDefault();

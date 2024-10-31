@@ -4,16 +4,15 @@
 
 
 require('./configEnv');
-require('./handlers');
 
 
 const path = require('path');
 const createTray = require('./tray');
+const handleAndServeApp = require('./handlers');
 const registerShortcuts = require('./shortcuts');
-const { ipcMain, ipcRenderer } = require('electron');
 const { BrowserWindow, screen, app } = require('electron');
-require('electron-reload')(path.join(__dirname, '../..'));
 
+require('electron-reload')(path.join(__dirname, '../..'));
 
 const isAppAlreadyRunning = app.requestSingleInstanceLock();
 
@@ -25,7 +24,7 @@ const createDesktopTollBar = () => {
 
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
     const x = Math.floor((width - 280) / 2), y = height - 58;
-    
+
     const mainWindow = new BrowserWindow({
         width: 280, height: 86, x, y,
         resizable: false, skipTaskbar: true,
@@ -39,20 +38,10 @@ const createDesktopTollBar = () => {
 
     mainWindow.loadFile(path.join(__dirname, '../pages/index/index.html'));
 
-    ipcMain.handle('focusOrHideApp', async (_, requestTo) => {
 
-        if (requestTo === 'focusAndShow') {
-            mainWindow.focus();
-            mainWindow.show();
-        }
-
-        else if (requestTo === 'hideApp') {
-            mainWindow.hide();
-        }
-
-    });
 
     createTray(mainWindow);
+    handleAndServeApp(mainWindow);
     registerShortcuts(mainWindow, x, y);
 
     mainWindow.on('ready-to-show', () => {
@@ -68,7 +57,6 @@ const createDesktopTollBar = () => {
 app.whenReady().then(() => {
 
     createDesktopTollBar();
-    // ipcRenderer.invoke('focusOrHideApp', 'focusAndShow');
 });
 
 
